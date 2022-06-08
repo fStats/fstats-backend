@@ -1,0 +1,1 @@
+rootProject.name = "dev.syoritohatsuki.fstats.fstats-api"
