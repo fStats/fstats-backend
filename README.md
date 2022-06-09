@@ -23,10 +23,6 @@
 
 * [About the Project](#about-the-project)
 * [Built With](#built-with)
-* [Getting Started](#getting-started)
-  * [Prerequisites](#prerequisites)
-  * [Installation](#installation)
-* [Usage](#usage)
 * [License](#license)
 * [Authors](#authors)
 * [Acknowledgements](#acknowledgements)
@@ -35,30 +31,11 @@
 
 ![Screen Shot](images/screenshot.png)
 
-FStats is designed for community that wants to know what is happening on the server. This plugin collects all possible information and shows it on the site.
+fStats is designed for community that wants to know what is happening on the server. This plugin collects all possible information and shows it on the site.
 
 ## Built With
 
-This plugin is created in the C # programming language. (TmodLoader 1.4)
-
-## Getting Started
-
-In order for this plugin to work, you need to follow simple steps.
-
-### Prerequisites
-
-* Install TmodLoader
-* Find mods folder
-
-### Installation
-
-* Download file.
-* Place it in a folder with `TmodLoader / mods`
-* Enjoy!
-
-## Usage
-
-Launch the server and go into the world. The plugin itself begins to read data and send it to us.
+This api is created in the Kotlin programming language. (Ktor 2.0.2)
 
 ## License
 
@@ -72,4 +49,4 @@ Distributed under the MIT License. See [LICENSE](https://github.com/SniffRx/fsta
 
 * [SniffRx](https://github.com/SniffRx)
 * [Syorito Hatsuki](https://github.com/syorito-hatsuki)
-* [FStats](https://github.com/fstats)
+* [fStats](https://github.com/fstats)
