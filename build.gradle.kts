@@ -11,6 +11,9 @@ repositories {
 }
 
 dependencies {
+    val bcryptVersion: String by project
+    implementation("de.nycode", "bcrypt", bcryptVersion)
+
     val dotenvVersion: String by project
     implementation("io.github.cdimascio", "dotenv-kotlin", dotenvVersion)
 
