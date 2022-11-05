@@ -19,7 +19,7 @@ val JWT_REALM by Environment("dev.syoritohatsuki")
 val HOST by Environment("0.0.0.0")
 val PORT by Environment("1540")
 
-val POSTGRES_USER by Environment("root")
+val POSTGRES_USER by Environment("postgres")
 val POSTGRES_PASS by Environment()
 val POSTGRES_DB by Environment("fstats")
 val POSTGRES_HOST by Environment("localhost")
