@@ -11,8 +11,6 @@ class Environment(private val defaultValue: String = "") {
         ?: defaultValue
 }
 
-val BCRYPT_SALT by Environment()
-
 val JWT_SECRET by Environment()
 val JWT_REALM by Environment("dev.syoritohatsuki")
 
