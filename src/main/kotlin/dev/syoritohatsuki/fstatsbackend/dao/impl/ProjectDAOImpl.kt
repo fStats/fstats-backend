@@ -4,26 +4,40 @@ import dev.syoritohatsuki.fstatsbackend.dao.ProjectDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Project
 import dev.syoritohatsuki.fstatsbackend.mics.close
 import dev.syoritohatsuki.fstatsbackend.mics.connection
+import java.sql.SQLException
 
 object ProjectDAOImpl : ProjectDAO {
-    override fun create(project: Project) {
+    override fun create(project: Project): Pair<String, Int> {
         kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
-                    statement.executeUpdate("INSERT INTO projects(name, owner_id) VALUES('${project.name}', '${project.ownerId}')")
+                    return Pair(
+                        "Project created",
+                        statement.executeUpdate("INSERT INTO projects(name, owner_id) VALUES('${project.name}', '${project.ownerId}')")
+                    )
                 }
             }
-        }.onFailure { println(it.message) }
+        }.onFailure {
+            (it as SQLException).apply {
+                return Pair(it.localizedMessage, it.errorCode)
+            }
+        }
+        return Pair("Offline", -1)
     }
 
-    override fun deleteById(id: Int) {
+    override fun deleteById(id: Int): Pair<String, Int> {
         kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
-                    statement.executeUpdate("DELETE FROM projects WHERE id IN($id)")
+                    return Pair("Project deleted", statement.executeUpdate("DELETE FROM projects WHERE id IN($id)"))
                 }
             }
-        }.onFailure { println(it.message) }
+        }.onFailure {
+            (it as SQLException).apply {
+                return Pair(it.localizedMessage, it.errorCode)
+            }
+        }
+        return Pair("Offline", -1)
     }
 
     override fun getAll(): List<Project> {

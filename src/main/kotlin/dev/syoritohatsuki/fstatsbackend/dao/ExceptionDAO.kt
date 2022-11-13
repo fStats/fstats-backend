@@ -5,7 +5,7 @@ import java.sql.Timestamp
 
 //TODO Implement Required
 interface ExceptionDAO {
-    fun add(metric: Metric)
+    fun add(metric: Metric): Pair<String, Int>
     fun getAll(): List<Metric>
     fun getRange(from: Timestamp, to: Timestamp): List<Metric>
 }

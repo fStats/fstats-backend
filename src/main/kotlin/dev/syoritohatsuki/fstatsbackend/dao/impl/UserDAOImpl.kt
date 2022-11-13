@@ -4,26 +4,43 @@ import dev.syoritohatsuki.fstatsbackend.dao.UserDAO
 import dev.syoritohatsuki.fstatsbackend.dto.User
 import dev.syoritohatsuki.fstatsbackend.mics.close
 import dev.syoritohatsuki.fstatsbackend.mics.connection
+import java.sql.SQLException
 
 object UserDAOImpl : UserDAO {
-    override fun create(user: User) {
+    override fun create(user: User): Pair<String, Int> {
         kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
-                    statement.executeUpdate("INSERT INTO users(username, password_hash) VALUES('${user.username}', '${user.passwordHash}')")
+                    return Pair(
+                        "User created",
+                        statement.executeUpdate("INSERT INTO users(username, password_hash) VALUES('${user.username}', '${user.passwordHash}')")
+                    )
                 }
             }
-        }.onFailure { println(it.message) }
+        }.onFailure {
+            (it as SQLException).apply {
+                return Pair(localizedMessage, errorCode)
+            }
+        }
+        return Pair("Offline", -1)
     }
 
-    override fun deleteById(id: Int) {
+    override fun deleteById(id: Int): Pair<String, Int> {
         kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
-                    statement.executeUpdate("DELETE FROM users WHERE id IN($id)")
+                    return Pair(
+                        "User removed",
+                        statement.executeUpdate("DELETE FROM users WHERE id IN($id)")
+                    )
                 }
             }
-        }.onFailure { println(it.message) }
+        }.onFailure {
+            (it as SQLException).apply {
+                return Pair(localizedMessage, errorCode)
+            }
+        }
+        return Pair("Offline", -1)
     }
 
     override fun getAll(): List<User> {
