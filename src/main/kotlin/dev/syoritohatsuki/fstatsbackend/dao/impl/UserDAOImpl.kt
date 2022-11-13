@@ -7,32 +7,28 @@ import dev.syoritohatsuki.fstatsbackend.mics.connection
 
 object UserDAOImpl : UserDAO {
     override fun create(user: User) {
-        try {
+        kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
                     statement.executeUpdate("INSERT INTO users(username, password_hash) VALUES('${user.username}', '${user.passwordHash}')")
                 }
             }
-        } catch (e: Exception) {
-            println(e.message)
-        }
+        }.onFailure { println(it.message) }
     }
 
     override fun deleteById(id: Int) {
-        try {
+        kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
                     statement.executeUpdate("DELETE FROM users WHERE id IN($id)")
                 }
             }
-        } catch (e: Exception) {
-            println(e.message)
-        }
+        }.onFailure { println(it.message) }
     }
 
     override fun getAll(): List<User> {
         return mutableListOf<User>().apply {
-            try {
+            kotlin.runCatching {
                 connection().use { connection ->
                     connection.createStatement().use { statement ->
                         statement.executeQuery("SELECT * FROM users").use { resultSet ->
@@ -49,15 +45,13 @@ object UserDAOImpl : UserDAO {
                         }
                     }
                 }
-            } catch (e: Exception) {
-                println(e.message)
-            }
+            }.onFailure { println(it.message) }
         }
     }
 
     override fun getById(id: Int): User? {
         var user: User? = null
-        try {
+        kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
                     statement.executeQuery("SELECT * FROM users WHERE id IN($id) LIMIT 1").use { resultSet ->
@@ -72,9 +66,7 @@ object UserDAOImpl : UserDAO {
                     }
                 }
             }
-        } catch (e: Exception) {
-            println(e.message)
-        }
+        }.onFailure { println(it.message) }
         return user
     }
 }
