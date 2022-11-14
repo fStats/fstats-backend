@@ -82,7 +82,7 @@ object ProjectDAOImpl : ProjectDAO {
                         }
                     }
                 }
-            }.onFailure { println(it.message) }
+            }.onFailure { println(it.localizedMessage) }
         }
     }
 
@@ -103,7 +103,7 @@ object ProjectDAOImpl : ProjectDAO {
                     }
                 }
             }
-        }.onFailure { println(it.message) }
+        }.onFailure { println(it.localizedMessage) }
         return project
     }
 }

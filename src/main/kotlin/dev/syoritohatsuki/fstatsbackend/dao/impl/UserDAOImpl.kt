@@ -62,7 +62,7 @@ object UserDAOImpl : UserDAO {
                         }
                     }
                 }
-            }.onFailure { println(it.message) }
+            }.onFailure { println(it.localizedMessage) }
         }
     }
 
@@ -83,7 +83,7 @@ object UserDAOImpl : UserDAO {
                     }
                 }
             }
-        }.onFailure { println(it.message) }
+        }.onFailure { println(it.localizedMessage) }
         return user
     }
 }
