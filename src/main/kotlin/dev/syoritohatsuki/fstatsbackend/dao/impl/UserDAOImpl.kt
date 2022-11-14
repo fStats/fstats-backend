@@ -43,29 +43,6 @@ object UserDAOImpl : UserDAO {
         return Pair("Offline", -1)
     }
 
-    override fun getAll(): List<User> {
-        return mutableListOf<User>().apply {
-            kotlin.runCatching {
-                connection().use { connection ->
-                    connection.createStatement().use { statement ->
-                        statement.executeQuery("SELECT * FROM users").use { resultSet ->
-                            while (resultSet.next()) {
-                                add(
-                                    User(
-                                        resultSet.getInt("id"),
-                                        resultSet.getString("username"),
-                                        resultSet.getBytes("password_hash")
-                                    )
-                                )
-                            }
-                            connection.close(statement, resultSet)
-                        }
-                    }
-                }
-            }.onFailure { println(it.localizedMessage) }
-        }
-    }
-
     override fun getById(id: Int): User? {
         var user: User? = null
         kotlin.runCatching {
