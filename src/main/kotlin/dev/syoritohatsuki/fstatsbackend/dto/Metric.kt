@@ -1,9 +1,10 @@
 package dev.syoritohatsuki.fstatsbackend.dto
 
 import java.sql.Timestamp
+import java.time.LocalDateTime
 
 data class Metric(
-    val time: Timestamp,
+    val time: Timestamp = Timestamp.valueOf(LocalDateTime.now()),
     val projectId: Int,
     val isServer: Boolean,
     val minecraftVersion: String,
