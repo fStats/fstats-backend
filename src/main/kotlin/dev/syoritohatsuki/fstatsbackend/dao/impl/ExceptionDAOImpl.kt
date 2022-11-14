@@ -1,7 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.ExceptionDAO
-import dev.syoritohatsuki.fstatsbackend.dto.Exception
+import dev.syoritohatsuki.fstatsbackend.dto.remote.Exception
 import dev.syoritohatsuki.fstatsbackend.mics.close
 import dev.syoritohatsuki.fstatsbackend.mics.connection
 import java.sql.SQLException

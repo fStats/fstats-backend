@@ -1,7 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
-import dev.syoritohatsuki.fstatsbackend.dto.Metric
+import dev.syoritohatsuki.fstatsbackend.dto.remote.Metric
 import dev.syoritohatsuki.fstatsbackend.mics.TimeUnit
 import dev.syoritohatsuki.fstatsbackend.mics.close
 import dev.syoritohatsuki.fstatsbackend.mics.connection

@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.dto
+package dev.syoritohatsuki.fstatsbackend.dto.remote
 
 import java.sql.Timestamp
 import java.time.LocalDateTime
