@@ -6,6 +6,6 @@ import io.ktor.server.routing.*
 
 fun Route.indexRoute() {
     get {
-        call.respondText("Index")
+        call.respond(mutableMapOf("page" to "/"))
     }
 }
