@@ -1,11 +1,15 @@
 package dev.syoritohatsuki.fstatsbackend.plugins
 
 import dev.syoritohatsuki.fstatsbackend.routing.indexRoute
+import dev.syoritohatsuki.fstatsbackend.routing.userRoute
 import io.ktor.server.application.*
 import io.ktor.server.routing.*
 
 fun Application.configureRouting() {
     routing {
         indexRoute()
+        route("v1") {
+            userRoute()
+        }
     }
 }
