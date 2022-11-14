@@ -3,7 +3,6 @@ package dev.syoritohatsuki.fstatsbackend.dao
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
 import dev.syoritohatsuki.fstatsbackend.mics.TimeUnit
 
-//TODO Implement Required
 interface MetricDAO {
     fun add(metric: Metric): Pair<String, Int>
     fun getAll(): List<Metric>
