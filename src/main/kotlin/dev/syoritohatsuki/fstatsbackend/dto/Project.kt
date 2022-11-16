@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Project(
-    val id: Int?,
-    val name: String,
-    val ownerId: Int
+    val id: Int = -1,
+    val name: String = "",
+    val ownerId: Int = -1
 )
