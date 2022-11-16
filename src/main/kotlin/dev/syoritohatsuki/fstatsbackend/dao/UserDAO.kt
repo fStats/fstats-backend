@@ -6,4 +6,5 @@ interface UserDAO {
     fun create(user: User): Pair<String, Int>
     fun deleteById(id: Int): Pair<String, Int>
     fun getById(id: Int): User?
+    fun getByName(username: String): User?
 }

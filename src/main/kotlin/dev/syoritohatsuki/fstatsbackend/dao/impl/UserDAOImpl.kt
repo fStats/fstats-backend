@@ -53,11 +53,33 @@ object UserDAOImpl : UserDAO {
                             user = User(
                                 resultSet.getInt("id"),
                                 resultSet.getString("username"),
-                                resultSet.getBytes("password_hash")
+                                passwordHash = resultSet.getString("password_hash")
                             )
                         }
                         connection.close(statement, resultSet)
                     }
+                }
+            }
+        }.onFailure { println(it.localizedMessage) }
+        return user
+    }
+
+    override fun getByName(username: String): User? {
+        var user: User? = null
+        kotlin.runCatching {
+            connection().use { connection ->
+                connection.createStatement().use { statement ->
+                    statement.executeQuery("SELECT * FROM users WHERE username = '$username' LIMIT 1")
+                        .use { resultSet ->
+                            while (resultSet.next()) {
+                                user = User(
+                                    resultSet.getInt("id"),
+                                    resultSet.getString("username"),
+                                    passwordHash = resultSet.getString("password_hash")
+                                )
+                            }
+                            connection.close(statement, resultSet)
+                        }
                 }
             }
         }.onFailure { println(it.localizedMessage) }
