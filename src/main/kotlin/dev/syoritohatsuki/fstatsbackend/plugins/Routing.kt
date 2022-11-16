@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.fstatsbackend.plugins
 
+import dev.syoritohatsuki.fstatsbackend.routing.authRoute
 import dev.syoritohatsuki.fstatsbackend.routing.indexRoute
 import dev.syoritohatsuki.fstatsbackend.routing.userRoute
 import io.ktor.server.application.*
@@ -9,6 +10,7 @@ fun Application.configureRouting() {
     routing {
         indexRoute()
         route("v1") {
+            authRoute()
             userRoute()
         }
     }
