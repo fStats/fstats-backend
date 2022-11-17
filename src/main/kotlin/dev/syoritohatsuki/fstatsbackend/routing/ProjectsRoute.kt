@@ -18,14 +18,15 @@ fun Route.projectsRoute() {
         get {
             call.respond(ProjectDAOImpl.getAll())
         }
-        get("idOrOwner") {
+        get("{idOrOwner}") {
             kotlin.runCatching {
-                ProjectDAOImpl.getById(call.parameters["idOrOwner"]!!.toInt()).let {
-                    if (it == null) {
-                        call.respond("User not found")
+                ProjectDAOImpl.getById(call.parameters["idOrOwner"]!!.toInt()).let { project ->
+                    if (project == null) {
+                        call.respond("Project not found")
                         return@get
                     }
-                    call.respond(it)
+
+                    call.respond(project)
                 }
             }.onFailure {
                 UserDAOImpl.getByName(call.parameters["idOrOwner"].toString()).let { user ->
@@ -34,9 +35,10 @@ fun Route.projectsRoute() {
                         return@get
                     }
 
-                    ProjectDAOImpl.getByOwner(user.id).let {
-                        call.respond(HttpStatusCode.OK, it)
+                    ProjectDAOImpl.getByOwner(user.id).let { projects ->
+                        call.respond(HttpStatusCode.OK, projects)
                     }
+
                 }
             }
         }
@@ -57,6 +59,7 @@ fun Route.projectsRoute() {
                         if (it.second == 1) call.respond(HttpStatusCode.Created)
                         else call.respond(HttpStatusCode.BadRequest)
                     }
+
                 }
             }
             delete("{id}") {
