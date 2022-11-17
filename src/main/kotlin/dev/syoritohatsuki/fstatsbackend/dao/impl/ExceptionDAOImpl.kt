@@ -48,4 +48,22 @@ object ExceptionDAOImpl : ExceptionDAO {
             }.onFailure { println(it.localizedMessage) }
         }
     }
+
+    override fun removeByProjectId(projectId: Int): Pair<String, Int> {
+        kotlin.runCatching {
+            connection().use { connection ->
+                connection.createStatement().use { statement ->
+                    return Pair(
+                        "Exception removed",
+                        statement.executeUpdate("DELETE FROM exceptions WHERE project_id IN($projectId)")
+                    )
+                }
+            }
+        }.onFailure {
+            (it as SQLException).apply {
+                return Pair(localizedMessage, errorCode)
+            }
+        }
+        return Pair("Offline", -1)
+    }
 }

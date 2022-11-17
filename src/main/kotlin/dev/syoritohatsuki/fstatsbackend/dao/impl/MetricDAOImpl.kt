@@ -54,12 +54,12 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLatest(interval: Int, timeUnit: TimeUnit): List<Metric> {
+    override fun getLatest(projectId: Int, interval: Int, timeUnit: TimeUnit): List<Metric> {
         return mutableListOf<Metric>().apply {
             kotlin.runCatching {
                 connection().use { connection ->
                     connection.createStatement().use { statement ->
-                        statement.executeQuery("SELECT * FROM metrics WHERE time > NOW() - INTERVAL '$interval ${timeUnit.unit}'")
+                        statement.executeQuery("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '$interval ${timeUnit.unit}'")
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
@@ -81,5 +81,23 @@ object MetricDAOImpl : MetricDAO {
                 }
             }.onFailure { println(it.localizedMessage) }
         }
+    }
+
+    override fun removeByProjectId(projectId: Int): Pair<String, Int> {
+        kotlin.runCatching {
+            connection().use { connection ->
+                connection.createStatement().use { statement ->
+                    return Pair(
+                        "Metric removed",
+                        statement.executeUpdate("DELETE FROM exceptions WHERE project_id IN($projectId)")
+                    )
+                }
+            }
+        }.onFailure {
+            (it as SQLException).apply {
+                return Pair(localizedMessage, errorCode)
+            }
+        }
+        return Pair("Offline", -1)
     }
 }
