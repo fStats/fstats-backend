@@ -39,6 +39,7 @@ fun Route.usersRoute() {
                     projects.forEach {
                         MetricDAOImpl.removeByProjectId(it.id)
                         ExceptionDAOImpl.removeByProjectId(it.id)
+                        ProjectDAOImpl.deleteById(it.id)
                     }
                 }
                 UserDAOImpl.deleteById(userId).let {
