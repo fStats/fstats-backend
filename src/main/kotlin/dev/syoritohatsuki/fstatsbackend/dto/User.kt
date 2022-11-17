@@ -8,4 +8,8 @@ data class User(
     val username: String = "",
     val password: String = "",
     val passwordHash: String = ""
-)
+) {
+    fun getWithoutPassword(): User {
+        return User(id, username)
+    }
+}

@@ -13,11 +13,24 @@ import io.ktor.server.routing.*
 
 fun Route.userRoute() {
     route("users") {
-        get("/{id}") {
-            //TODO Get user by ID
-        }
-        get("/{username}") {
-            //TODO Get user by Name
+        get("/{idOrUsername}") {
+            kotlin.runCatching {
+                UserDAOImpl.getById(call.parameters["idOrUsername"]!!.toInt()).let {
+                    if (it == null) {
+                        call.respond(HttpStatusCode.OK, "User not found")
+                        return@get
+                    }
+                    call.respond(HttpStatusCode.OK, it.getWithoutPassword())
+                }
+            }.onFailure {
+                UserDAOImpl.getByName(call.parameters["idOrUsername"].toString()).let {
+                    if (it == null) {
+                        call.respond(HttpStatusCode.OK, "User not found")
+                        return@get
+                    }
+                    call.respond(HttpStatusCode.OK, it.getWithoutPassword())
+                }
+            }
         }
         authenticate("user") {
             delete {
