@@ -1,5 +1,8 @@
 package dev.syoritohatsuki.fstatsbackend.routing
 
+import dev.syoritohatsuki.fstatsbackend.dao.impl.ExceptionDAOImpl
+import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
+import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -19,7 +22,12 @@ fun Route.userRoute() {
         authenticate("user") {
             delete {
                 val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
-                //TODO Remove also user projects, metrics data and exceptions for save memory in DB
+                ProjectDAOImpl.getByOwner(userId).let { projects ->
+                    projects.forEach {
+                        MetricDAOImpl.removeByProjectId(it.id)
+                        ExceptionDAOImpl.removeByProjectId(it.id)
+                    }
+                }
                 UserDAOImpl.deleteById(userId).let {
                     if (it.second == 1) call.respond(HttpStatusCode.OK, "User deleted")
                     else call.respond(HttpStatusCode.NoContent, "User not found")
