@@ -29,6 +29,8 @@ dependencies {
 
     implementation("io.ktor", "ktor-server-call-logging-jvm", ktorVersion)
 
+    implementation("io.ktor", "ktor-server-caching-headers", ktorVersion)
+
     implementation("ch.qos.logback", "logback-classic", "1.4.4")
 
     implementation("org.postgresql", "postgresql", "42.2.8")
