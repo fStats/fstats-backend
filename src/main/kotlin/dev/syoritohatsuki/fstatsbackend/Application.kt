@@ -10,6 +10,7 @@ import io.ktor.server.netty.*
 fun main() {
     embeddedServer(Netty, host = HOST, port = PORT.toIntOrNull() ?: 1540) {
         configureAuth()
+        configureCaching()
         configureCors()
         configureLogging()
         configureRouting()
