@@ -1,11 +1,12 @@
 package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
-import dev.syoritohatsuki.fstatsbackend.dto.remote.Metric
-import dev.syoritohatsuki.fstatsbackend.mics.TimeUnit
+import dev.syoritohatsuki.fstatsbackend.dto.Metric
 import dev.syoritohatsuki.fstatsbackend.mics.close
 import dev.syoritohatsuki.fstatsbackend.mics.connection
 import java.sql.SQLException
+import java.sql.Timestamp
+import java.time.Instant
 
 object MetricDAOImpl : MetricDAO {
     override fun add(metric: Metric): Pair<String, Int> {
@@ -14,7 +15,11 @@ object MetricDAOImpl : MetricDAO {
                 connection.createStatement().use { statement ->
                     return Pair(
                         "Metric added",
-                        statement.executeUpdate("INSERT INTO metrics(time, project_id, server, minecraft_version, online_mode, mod_version, os, location) VALUES('${metric.time}', '${metric.projectId}', '${metric.isServer}', '${metric.minecraftVersion}', '${metric.isOnlineMode}', '${metric.modVersion}', '${metric.os}', '${metric.location}')")
+                        statement.executeUpdate(
+                            "INSERT INTO metrics(time, project_id, server, minecraft_version, online_mode, mod_version, os, location) VALUES('${
+                                Timestamp.from(Instant.now())
+                            }', '${metric.projectId}', '${metric.isServer}', '${metric.minecraftVersion}', '${metric.isOnlineMode}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
+                        )
                     )
                 }
             }
@@ -35,7 +40,7 @@ object MetricDAOImpl : MetricDAO {
                             while (resultSet.next()) {
                                 add(
                                     Metric(
-                                        resultSet.getTimestamp("timestamp"),
+                                        resultSet.getTimestamp("time").time,
                                         resultSet.getInt("project_id"),
                                         resultSet.getBoolean("server"),
                                         resultSet.getString("minecraft_version"),
@@ -54,17 +59,17 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLatest(projectId: Int, interval: Int, timeUnit: TimeUnit): List<Metric> {
+    override fun getLastHalfYearById(projectId: Int): List<Metric> {
         return mutableListOf<Metric>().apply {
             kotlin.runCatching {
                 connection().use { connection ->
                     connection.createStatement().use { statement ->
-                        statement.executeQuery("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '$interval ${timeUnit.unit}'")
+                        statement.executeQuery("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '6 months'")
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
                                         Metric(
-                                            resultSet.getTimestamp("timestamp"),
+                                            resultSet.getTimestamp("time").time,
                                             resultSet.getInt("project_id"),
                                             resultSet.getBoolean("server"),
                                             resultSet.getString("minecraft_version"),

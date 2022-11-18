@@ -1,10 +1,10 @@
-package dev.syoritohatsuki.fstatsbackend.dto.remote
+package dev.syoritohatsuki.fstatsbackend.dto
 
-import java.sql.Timestamp
-import java.time.LocalDateTime
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Metric(
-    val time: Timestamp = Timestamp.valueOf(LocalDateTime.now()),
+    val timestampSeconds: Long? = null,
     val projectId: Int,
     val isServer: Boolean,
     val minecraftVersion: String,
