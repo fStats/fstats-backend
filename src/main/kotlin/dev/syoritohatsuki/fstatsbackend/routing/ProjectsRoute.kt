@@ -65,8 +65,8 @@ fun Route.projectsRoute() {
             delete("{id}") {
                 val projectId = call.parameters["id"]
 
-                if (projectId == null) {
-                    call.respond(HttpStatusCode.BadRequest)
+                if (projectId == null || !Regex("(^\\d{1,10}\$)").matches(projectId)) {
+                    call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                     return@delete
                 }
 
