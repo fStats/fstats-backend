@@ -9,6 +9,7 @@ fun Application.configureRouting() {
         indexRoute()
         route("v1") {
             authRoute()
+            exceptionsRoute()
             metricsRoute()
             projectsRoute()
             usersRoute()
