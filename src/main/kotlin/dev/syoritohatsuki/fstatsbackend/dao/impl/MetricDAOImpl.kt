@@ -20,6 +20,7 @@ object MetricDAOImpl : MetricDAO {
         kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
+                    @Suppress("SqlInsertValues")
                     return Pair(
                         "Metric added", statement.executeUpdate(
                             "INSERT INTO metrics(time, project_id, server, $sqlRequest minecraft_version, mod_version, os, location) VALUES('${
