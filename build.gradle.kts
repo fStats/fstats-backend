@@ -1,13 +1,24 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
+    id("io.ktor.plugin") version "2.1.3"
 }
 
 group = "dev.syoritohatsuki"
 version = "2022.10.1"
 
+application {
+    mainClass.set("$group.fstatsbackend.ApplicationKt")
+}
+
 repositories {
     mavenCentral()
+}
+
+ktor {
+    fatJar {
+        archiveFileName.set("fstats-backend-$version.jar")
+    }
 }
 
 dependencies {
