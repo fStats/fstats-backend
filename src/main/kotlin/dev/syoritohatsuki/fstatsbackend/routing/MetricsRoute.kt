@@ -34,7 +34,7 @@ fun Route.metricsRoute() {
 
             MetricDAOImpl.add(metric).let {
                 if (it.second == 1) call.respond(HttpStatusCode.Created, "Metric data added")
-                else call.respond(HttpStatusCode.OK, "Something went wrong")
+                else call.respond(HttpStatusCode.BadRequest, "Something went wrong")
             }
         }
     }

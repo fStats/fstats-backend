@@ -13,14 +13,25 @@ object MetricDAOImpl : MetricDAO {
         kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
-                    return Pair(
-                        "Metric added",
-                        statement.executeUpdate(
-                            "INSERT INTO metrics(time, project_id, server, minecraft_version, online_mode, mod_version, os, location) VALUES('${
-                                Timestamp.from(Instant.now())
-                            }', '${metric.projectId}', '${metric.isServer}', '${metric.minecraftVersion}', '${metric.isOnlineMode}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
+                    if (metric.isServer) {
+                        return Pair(
+                            "Metric added",
+                            statement.executeUpdate(
+                                "INSERT INTO metrics(time, project_id, server, minecraft_version, online_mode, mod_version, os, location) VALUES('${
+                                    Timestamp.from(Instant.now())
+                                }', '${metric.projectId}', '${true}', '${metric.minecraftVersion}', '${metric.isOnlineMode}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
+                            )
                         )
-                    )
+                    } else {
+                        return Pair(
+                            "Metric added",
+                            statement.executeUpdate(
+                                "INSERT INTO metrics(time, project_id, server, minecraft_version, mod_version, os, location) VALUES('${
+                                    Timestamp.from(Instant.now())
+                                }', '${metric.projectId}', '${false}', '${metric.minecraftVersion}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
+                            )
+                        )
+                    }
                 }
             }
         }.onFailure {
@@ -44,7 +55,7 @@ object MetricDAOImpl : MetricDAO {
                                         resultSet.getInt("project_id"),
                                         resultSet.getBoolean("server"),
                                         resultSet.getString("minecraft_version"),
-                                        resultSet.getBoolean("online_mode"),
+                                        resultSet.getObject("online_mode") as Boolean?,
                                         resultSet.getString("mod_version"),
                                         resultSet.getCharacterStream("os").read().toChar(),
                                         resultSet.getString("location")
@@ -73,7 +84,7 @@ object MetricDAOImpl : MetricDAO {
                                             resultSet.getInt("project_id"),
                                             resultSet.getBoolean("server"),
                                             resultSet.getString("minecraft_version"),
-                                            resultSet.getBoolean("online_mode"),
+                                            resultSet.getObject("online_mode") as Boolean?,
                                             resultSet.getString("mod_version"),
                                             resultSet.getCharacterStream("os").read().toChar(),
                                             resultSet.getString("location")
