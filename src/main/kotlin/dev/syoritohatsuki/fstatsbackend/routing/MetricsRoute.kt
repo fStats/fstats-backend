@@ -12,17 +12,18 @@ import io.ktor.server.routing.*
 fun Route.metricsRoute() {
     route("metrics") {
         get {
-            call.respond(MetricDAOImpl.getAll())
+            val isMultiplayer = call.request.queryParameters["multiplayer"]?.toBooleanStrictOrNull() ?: true
+            call.respond(MetricDAOImpl.getAll(isMultiplayer))
         }
         get("{id}") {
             val projectId = call.parameters["id"]
+            val isMultiplayer = call.request.queryParameters["multiplayer"]?.toBooleanStrictOrNull() ?: true
 
             if (projectId == null || !Regex("^-?\\d+\$").matches(projectId)) {
                 call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                 return@get
             }
-
-            call.respond(MetricDAOImpl.getLastHalfYearById(projectId.toInt()))
+            call.respond(MetricDAOImpl.getLastHalfYearById(projectId.toInt(), isMultiplayer))
         }
         post {
             val metric = call.receive<Metric>()

@@ -10,28 +10,23 @@ import java.time.Instant
 
 object MetricDAOImpl : MetricDAO {
     override fun add(metric: Metric): Pair<String, Int> {
+        var sqlRequest = ""
+        var sqlParams = ""
+        if (metric.isServer) {
+            sqlRequest = "online_mode, "
+            sqlParams = "${metric.isOnlineMode}, "
+
+        }
         kotlin.runCatching {
             connection().use { connection ->
                 connection.createStatement().use { statement ->
-                    if (metric.isServer) {
-                        return Pair(
-                            "Metric added",
-                            statement.executeUpdate(
-                                "INSERT INTO metrics(time, project_id, server, minecraft_version, online_mode, mod_version, os, location) VALUES('${
-                                    Timestamp.from(Instant.now())
-                                }', '${metric.projectId}', '${true}', '${metric.minecraftVersion}', '${metric.isOnlineMode}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
-                            )
+                    return Pair(
+                        "Metric added", statement.executeUpdate(
+                            "INSERT INTO metrics(time, project_id, server, $sqlRequest minecraft_version, mod_version, os, location) VALUES('${
+                                Timestamp.from(Instant.now())
+                            }', '${metric.projectId}', '${metric.isServer}', $sqlParams '${metric.minecraftVersion}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
                         )
-                    } else {
-                        return Pair(
-                            "Metric added",
-                            statement.executeUpdate(
-                                "INSERT INTO metrics(time, project_id, server, minecraft_version, mod_version, os, location) VALUES('${
-                                    Timestamp.from(Instant.now())
-                                }', '${metric.projectId}', '${false}', '${metric.minecraftVersion}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
-                            )
-                        )
-                    }
+                    )
                 }
             }
         }.onFailure {
@@ -42,22 +37,23 @@ object MetricDAOImpl : MetricDAO {
         return Pair("Offline", -1)
     }
 
-    override fun getAll(): List<Metric> {
+    override fun getAll(isMultiplayer: Boolean): List<Metric> {
         return mutableListOf<Metric>().apply {
             kotlin.runCatching {
                 connection().use { connection ->
                     connection.createStatement().use { statement ->
-                        statement.executeQuery("SELECT * FROM metrics").use { resultSet ->
-                            while (resultSet.next()) {
-                                add(
-                                    Metric(
-                                        resultSet.getTimestamp("time").time,
-                                        resultSet.getInt("project_id"),
-                                        resultSet.getBoolean("server"),
-                                        resultSet.getString("minecraft_version"),
-                                        resultSet.getObject("online_mode") as Boolean?,
-                                        resultSet.getString("mod_version"),
-                                        resultSet.getCharacterStream("os").read().toChar(),
+                        statement.executeQuery("SELECT * FROM metrics WHERE server IS $isMultiplayer")
+                            .use { resultSet ->
+                                while (resultSet.next()) {
+                                    add(
+                                        Metric(
+                                            resultSet.getTimestamp("time").time,
+                                            resultSet.getInt("project_id"),
+                                            resultSet.getBoolean("server"),
+                                            resultSet.getString("minecraft_version"),
+                                            resultSet.getObject("online_mode") as Boolean?,
+                                            resultSet.getString("mod_version"),
+                                            resultSet.getCharacterStream("os").read().toChar(),
                                         resultSet.getString("location")
                                     )
                                 )
@@ -70,12 +66,12 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLastHalfYearById(projectId: Int): List<Metric> {
+    override fun getLastHalfYearById(projectId: Int, isMultiplayer: Boolean): List<Metric> {
         return mutableListOf<Metric>().apply {
             kotlin.runCatching {
                 connection().use { connection ->
                     connection.createStatement().use { statement ->
-                        statement.executeQuery("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '6 months'")
+                        statement.executeQuery("SELECT * FROM metrics WHERE project_id IN($projectId) AND server IS $isMultiplayer AND time > NOW() - INTERVAL '6 months'")
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
