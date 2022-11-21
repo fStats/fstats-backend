@@ -13,6 +13,7 @@ fun main() {
         configureCaching()
         configureCors()
         configureLogging()
+        configureRateLimiting()
         configureRouting()
         configureSerialization()
 
