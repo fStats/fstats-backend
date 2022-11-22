@@ -22,17 +22,20 @@ fun Route.authRoute() {
 
             if (user.username.isEmpty() || user.password.isEmpty()) {
                 call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
+                println("${HttpStatusCode.BadRequest} Incorrect username or password")
                 return@post
             }
 
             UserDAOImpl.getByName(user.username).let {
                 if (it == null) {
                     call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
+                    println("${HttpStatusCode.BadRequest} Incorrect username or password")
                     return@post
                 }
 
                 if (!verify(user.password, it.passwordHash.toByteArray())) {
                     call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
+                    println("${HttpStatusCode.BadRequest} Incorrect username or password")
                     return@post
                 }
 
@@ -55,10 +58,18 @@ fun Route.authRoute() {
                 ) {
                     UserDAOImpl.create(User(username = user.username, passwordHash = String(hash(user.password))))
                         .let {
-                            if (it.second == 1) call.respond(HttpStatusCode.Created, "User created")
-                            else call.respond(HttpStatusCode.BadRequest, "Username already exist")
+                            if (it.second == 1) {
+                                call.respond(HttpStatusCode.Created, "User created")
+                                println("${HttpStatusCode.Created} User created")
+                            } else {
+                                call.respond(HttpStatusCode.BadRequest, "Username already exist")
+                                println("${HttpStatusCode.BadRequest} Username already exist")
+                            }
                         }
-                } else call.respond(HttpStatusCode.BadRequest, "Username or password not match requirements")
+                } else {
+                    call.respond(HttpStatusCode.BadRequest, "Username or password not match requirements")
+                    println("${HttpStatusCode.BadRequest} Username or password not match requirements")
+                }
             }
         }
     }

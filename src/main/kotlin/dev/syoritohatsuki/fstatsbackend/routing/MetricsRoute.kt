@@ -24,6 +24,7 @@ fun Route.metricsRoute() {
 
             if (projectId == null || !Regex("^-?\\d+\$").matches(projectId)) {
                 call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
+                println("${HttpStatusCode.BadRequest} Incorrect project ID")
                 return@get
             }
             call.respond(MetricDAOImpl.getLastHalfYearById(projectId.toInt(), isMultiplayer))
@@ -34,18 +35,22 @@ fun Route.metricsRoute() {
 
             if (ProjectDAOImpl.getById(metric.projectId) == null) {
                 call.respond(HttpStatusCode.NoContent, "Project not found")
+                println("${HttpStatusCode.NoContent} Project not found")
                 return@post
             }
 
             call.request.origin.remoteHost.getGeolocationByIp().let { geoIp ->
                 if (geoIp == null || geoIp.status != "success") {
                     call.respond(HttpStatusCode.BadRequest, "Can't resolve location from IP")
+                    println("${HttpStatusCode.BadRequest} Can't resolve location from IP")
                     return@post
                 }
 
                 MetricDAOImpl.add(metric, geoIp.country).let {
-                    if (it.second == 1) call.respond(HttpStatusCode.Created, "Metric data added")
-                    else call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+                    if (it.second == 1) call.respond(HttpStatusCode.Created, "Metric data added") else {
+                        call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+                        println("${HttpStatusCode.BadRequest} ${it.second}")
+                    }
                 }
             }
 

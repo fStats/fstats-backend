@@ -16,6 +16,7 @@ fun Route.exceptionsRoute() {
 
             if (projectId == null || !Regex("^-?\\d+\$").matches(projectId)) {
                 call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
+                println("${HttpStatusCode.BadRequest} Incorrect project ID")
                 return@get
             }
 
@@ -26,12 +27,15 @@ fun Route.exceptionsRoute() {
 
             if (ProjectDAOImpl.getById(exception.projectId) == null) {
                 call.respond(HttpStatusCode.NoContent, "Project not found")
+                println("${HttpStatusCode.NoContent} Project not found")
                 return@post
             }
 
             ExceptionDAOImpl.add(exception).let {
-                if (it.second == 1) call.respond(HttpStatusCode.Created, "Exception data added")
-                else call.respond(HttpStatusCode.OK, "Something went wrong")
+                if (it.second == 1) call.respond(HttpStatusCode.Created, "Exception data added") else {
+                    call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+                    println("${HttpStatusCode.BadRequest} Something went wrong")
+                }
             }
         }
     }
