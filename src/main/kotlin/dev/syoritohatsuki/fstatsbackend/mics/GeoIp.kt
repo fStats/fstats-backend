@@ -1,12 +1,12 @@
 package dev.syoritohatsuki.fstatsbackend.mics
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.request.*
+import dev.syoritohatsuki.fstatsbackend.plugins.json
+import kotlinx.serialization.decodeFromString
+import java.net.URL
 
-suspend fun getGeolocationByIp(ip: String): GeoIp = HttpClient().get {
-    url("http://ip-api.com/json/$ip?fields=status,country")
-}.body()
+fun String.getGeolocationByIp(): GeoIp? = runCatching {
+    return json.decodeFromString(URL("http://ip-api.com/json/$this?fields=status,country").readText())
+}.getOrNull()
 
 data class GeoIp(
     val status: String,
