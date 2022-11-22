@@ -9,7 +9,7 @@ import java.sql.Timestamp
 import java.time.Instant
 
 object MetricDAOImpl : MetricDAO {
-    override fun add(metric: Metric): Pair<String, Int> {
+    override fun add(metric: Metric, country: String): Pair<String, Int> {
         var sqlRequest = ""
         var sqlParams = ""
         if (metric.isServer) {
@@ -25,7 +25,7 @@ object MetricDAOImpl : MetricDAO {
                         "Metric added", statement.executeUpdate(
                             "INSERT INTO metrics(time, project_id, server, $sqlRequest minecraft_version, mod_version, os, location) VALUES('${
                                 Timestamp.from(Instant.now())
-                            }', '${metric.projectId}', '${metric.isServer}', $sqlParams '${metric.minecraftVersion}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
+                            }', '${metric.projectId}', '${metric.isServer}', $sqlParams '${metric.minecraftVersion}', '${metric.modVersion}', '${metric.os}', '$country')"
                         )
                     )
                 }
@@ -55,12 +55,12 @@ object MetricDAOImpl : MetricDAO {
                                             resultSet.getObject("online_mode") as Boolean?,
                                             resultSet.getString("mod_version"),
                                             resultSet.getCharacterStream("os").read().toChar(),
-                                        resultSet.getString("location")
+                                            resultSet.getString("location")
+                                        )
                                     )
-                                )
+                                }
+                                connection.close(statement, resultSet)
                             }
-                            connection.close(statement, resultSet)
-                        }
                     }
                 }
             }.onFailure { println(it.localizedMessage) }

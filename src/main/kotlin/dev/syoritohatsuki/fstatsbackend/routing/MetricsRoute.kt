@@ -3,8 +3,10 @@ package dev.syoritohatsuki.fstatsbackend.routing
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
+import dev.syoritohatsuki.fstatsbackend.mics.getGeolocationByIp
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -15,6 +17,7 @@ fun Route.metricsRoute() {
             val isMultiplayer = call.request.queryParameters["multiplayer"]?.toBooleanStrictOrNull() ?: true
             call.respond(MetricDAOImpl.getAll(isMultiplayer))
         }
+
         get("{id}") {
             val projectId = call.parameters["id"]
             val isMultiplayer = call.request.queryParameters["multiplayer"]?.toBooleanStrictOrNull() ?: true
@@ -25,6 +28,7 @@ fun Route.metricsRoute() {
             }
             call.respond(MetricDAOImpl.getLastHalfYearById(projectId.toInt(), isMultiplayer))
         }
+
         post {
             val metric = call.receive<Metric>()
 
@@ -33,10 +37,18 @@ fun Route.metricsRoute() {
                 return@post
             }
 
-            MetricDAOImpl.add(metric).let {
-                if (it.second == 1) call.respond(HttpStatusCode.Created, "Metric data added")
-                else call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+            getGeolocationByIp(call.request.origin.remoteHost).let { geoIp ->
+                if (geoIp.status != "success") {
+                    call.respond(HttpStatusCode.BadRequest, "Can't resolve location from IP")
+                    return@post
+                }
+
+                MetricDAOImpl.add(metric, geoIp.country).let {
+                    if (it.second == 1) call.respond(HttpStatusCode.Created, "Metric data added")
+                    else call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+                }
             }
+
         }
     }
 }

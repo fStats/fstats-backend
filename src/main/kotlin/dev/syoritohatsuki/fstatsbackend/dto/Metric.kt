@@ -11,5 +11,5 @@ data class Metric(
     val isOnlineMode: Boolean? = null,
     val modVersion: String,
     val os: Char,
-    val location: String
+    var location: String? = null
 )
