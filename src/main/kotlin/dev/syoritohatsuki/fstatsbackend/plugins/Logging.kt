@@ -15,7 +15,7 @@ fun Application.configureLogging() {
             val userAgent = call.request.headers["User-Agent"]
             val remoteHost = call.request.origin.remoteHost
             val path = call.request.path()
-            "Host: $remoteHost, Status: $status, HTTP method: $httpMethod, User agent: $userAgent, Path: $path"
+            "$remoteHost Agent[ $userAgent ] ($httpMethod)[$status] $path"
         }
     }
 }
