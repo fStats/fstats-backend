@@ -40,7 +40,7 @@ fun Route.metricsRoute() {
             }
 
             call.getRemoteIp().getGeolocationByIp().let { geoIp ->
-                if (geoIp == null || geoIp.status != "success") {
+                if (geoIp.status != "success") {
                     call.respond(HttpStatusCode.BadRequest, "Can't resolve location from IP")
                     println("${HttpStatusCode.BadRequest} Can't resolve location from IP")
                     return@post
