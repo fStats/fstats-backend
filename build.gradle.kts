@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.syoritohatsuki"
-version = "2022.10.1"
+version = "2022.11.1"
 
 application {
     mainClass.set("$group.fstatsbackend.ApplicationKt")
@@ -20,7 +20,7 @@ repositories {
 
 ktor {
     fatJar {
-        archiveFileName.set("fstats-backend-$version.jar")
+        archiveFileName.set("fstats-backend.jar")
     }
 }
 
