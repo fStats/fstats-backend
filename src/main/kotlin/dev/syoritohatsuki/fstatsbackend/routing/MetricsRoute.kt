@@ -4,9 +4,9 @@ import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
 import dev.syoritohatsuki.fstatsbackend.mics.getGeolocationByIp
+import dev.syoritohatsuki.fstatsbackend.mics.getRemoteIp
 import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -39,7 +39,7 @@ fun Route.metricsRoute() {
                 return@post
             }
 
-            call.request.origin.remoteHost.getGeolocationByIp().let { geoIp ->
+            call.getRemoteIp().getGeolocationByIp().let { geoIp ->
                 if (geoIp == null || geoIp.status != "success") {
                     call.respond(HttpStatusCode.BadRequest, "Can't resolve location from IP")
                     println("${HttpStatusCode.BadRequest} Can't resolve location from IP")
