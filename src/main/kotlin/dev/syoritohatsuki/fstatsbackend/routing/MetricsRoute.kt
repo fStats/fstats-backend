@@ -40,13 +40,12 @@ fun Route.metricsRoute() {
             }
 
             call.getRemoteIp().getGeolocationByIp().let { geoIp ->
-                if (geoIp.status != "success") {
+                if (geoIp == null || geoIp.status != "success") {
                     call.respond(HttpStatusCode.BadRequest, "Can't resolve location from IP")
                     println("${HttpStatusCode.BadRequest} Can't resolve location from IP")
-                    return@post
                 }
 
-                MetricDAOImpl.add(metric, geoIp.country).let {
+                MetricDAOImpl.add(metric, geoIp?.country ?: "Unknown").let {
                     if (it.second == 1) call.respond(HttpStatusCode.Created, "Metric data added") else {
                         call.respond(HttpStatusCode.BadRequest, "Something went wrong")
                         println("${HttpStatusCode.BadRequest} ${it.second}")

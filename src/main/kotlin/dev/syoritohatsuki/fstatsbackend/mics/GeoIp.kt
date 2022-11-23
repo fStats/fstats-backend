@@ -5,11 +5,9 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import java.net.URL
 
-fun String.getGeolocationByIp(): GeoIp = runCatching<GeoIp> {
+fun String.getGeolocationByIp(): GeoIp? = runCatching<GeoIp> {
     json.decodeFromString(URL("http://ip-api.com/json/$this?fields=status,country").readText())
-}.getOrElse {
-    GeoIp("success", "Unknown")
-}
+}.getOrNull()
 
 @Serializable
 data class GeoIp(val status: String, val country: String)
