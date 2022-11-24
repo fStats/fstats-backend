@@ -16,9 +16,9 @@ object ExceptionDAOImpl : ExceptionDAO {
                     return Pair(
                         "Exception added",
                         statement.executeUpdate(
-                            "INSERT INTO exceptions(time, project_id, message) VALUES(${
+                            "INSERT INTO exceptions(time, project_id, message) VALUES('${
                                 Timestamp.from(Instant.now())
-                            }, '${exception.projectId}', '${exception.message}')"
+                            }', '${exception.projectId}', '${exception.message}')"
                         )
                     )
                 }
