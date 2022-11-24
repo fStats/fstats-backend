@@ -34,7 +34,7 @@ fun Route.exceptionsRoute() {
             ExceptionDAOImpl.add(exception).let {
                 if (it.second == 1) call.respond(HttpStatusCode.Created, "Exception data added") else {
                     call.respond(HttpStatusCode.BadRequest, "Something went wrong")
-                    println("${HttpStatusCode.BadRequest} Something went wrong")
+                    println("${HttpStatusCode.BadRequest} ${it.first}")
                 }
             }
         }
