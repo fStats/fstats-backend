@@ -5,6 +5,7 @@ import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Project
+import dev.syoritohatsuki.fstatsbackend.mics.getProjectId
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -67,15 +68,15 @@ fun Route.projectsRoute() {
                 }
             }
             delete("{id}") {
-                val projectId = call.parameters["id"]
+                val projectId = call.parameters.getProjectId()
 
-                if (projectId == null || !Regex("(^\\d{1,10}\$)").matches(projectId)) {
+                if (projectId == null) {
                     call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                     println("${HttpStatusCode.BadRequest} Incorrect project ID")
                     return@delete
                 }
 
-                ProjectDAOImpl.getById(projectId.toInt()).let { project ->
+                ProjectDAOImpl.getById(projectId).let { project ->
                     if (project == null) {
                         call.respond(HttpStatusCode.NoContent, "Project not found")
                         println("${HttpStatusCode.NoContent} Project not found")
