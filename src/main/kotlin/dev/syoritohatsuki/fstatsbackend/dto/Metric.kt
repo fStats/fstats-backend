@@ -6,7 +6,7 @@ import kotlinx.serialization.Serializable
 data class Metric(
     val timestampSeconds: Long? = null,
     val projectId: Int,
-    val isServer: Boolean,
+    val side: Boolean,
     val minecraftVersion: String,
     val isOnlineMode: Boolean? = null,
     val modVersion: String,

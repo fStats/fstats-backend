@@ -3,7 +3,9 @@ package dev.syoritohatsuki.fstatsbackend.routing
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
+import dev.syoritohatsuki.fstatsbackend.dto.metric.PieMetric
 import dev.syoritohatsuki.fstatsbackend.mics.getGeolocationByIp
+import dev.syoritohatsuki.fstatsbackend.mics.getProjectId
 import dev.syoritohatsuki.fstatsbackend.mics.getRemoteIp
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -14,20 +16,42 @@ import io.ktor.server.routing.*
 fun Route.metricsRoute() {
     route("metrics") {
         get {
-            val isMultiplayer = call.request.queryParameters["multiplayer"]?.toBooleanStrictOrNull() ?: true
-            call.respond(MetricDAOImpl.getAll(isMultiplayer))
+            call.respond(MetricDAOImpl.getAll())
         }
 
-        get("{id}") {
-            val projectId = call.parameters["id"]
-            val isMultiplayer = call.request.queryParameters["multiplayer"]?.toBooleanStrictOrNull() ?: true
+        route("{id}") {
+            get {
+                val projectId = call.parameters.getProjectId()
 
-            if (projectId == null || !Regex("^-?\\d+\$").matches(projectId)) {
-                call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
-                println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                return@get
+                if (projectId == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
+                    println("${HttpStatusCode.BadRequest} Incorrect project ID")
+                    return@get
+                }
+                call.respond(MetricDAOImpl.getLastHalfYearById(projectId))
             }
-            call.respond(MetricDAOImpl.getLastHalfYearById(projectId.toInt(), isMultiplayer))
+
+            get("{datatype}") {
+                val projectId = call.parameters.getProjectId()
+
+                if (projectId == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
+                    println("${HttpStatusCode.BadRequest} Incorrect project ID")
+                    return@get
+                }
+
+                val data: List<PieMetric> = when (call.parameters["datatype"]) {
+                    "side" -> MetricDAOImpl.getSideById(projectId)
+                    "mcversion" -> MetricDAOImpl.getMcVersionById(projectId)
+                    "onlinemode" -> MetricDAOImpl.getOnlineModeById(projectId)
+                    "modversion" -> MetricDAOImpl.getModVersionById(projectId)
+                    "os" -> MetricDAOImpl.getOsById(projectId)
+                    "location" -> MetricDAOImpl.getLocationById(projectId)
+                    else -> return@get call.respond(HttpStatusCode.BadGateway)
+                }
+
+                call.respond(data)
+            }
         }
 
         post {
