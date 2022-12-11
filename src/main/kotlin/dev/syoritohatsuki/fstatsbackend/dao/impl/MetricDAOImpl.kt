@@ -2,7 +2,9 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
-import dev.syoritohatsuki.fstatsbackend.dto.metric.PieMetric
+import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetric
+import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetricBoolean
+import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetricString
 import dev.syoritohatsuki.fstatsbackend.mics.close
 import dev.syoritohatsuki.fstatsbackend.mics.connection
 import java.sql.SQLException
@@ -124,8 +126,8 @@ object MetricDAOImpl : MetricDAO {
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
-                                        PieMetric(
-                                            resultSet.getString("side"),
+                                        PieMetricBoolean(
+                                            resultSet.getBoolean("side"),
                                             resultSet.getInt("count")
                                         )
                                     )
@@ -147,7 +149,7 @@ object MetricDAOImpl : MetricDAO {
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
-                                        PieMetric(
+                                        PieMetricString(
                                             resultSet.getString("minecraft_version"),
                                             resultSet.getInt("count")
                                         )
@@ -170,8 +172,8 @@ object MetricDAOImpl : MetricDAO {
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
-                                        PieMetric(
-                                            resultSet.getString("online_mode"),
+                                        PieMetricBoolean(
+                                            resultSet.getBoolean("online_mode"),
                                             resultSet.getInt("count")
                                         )
                                     )
@@ -193,7 +195,7 @@ object MetricDAOImpl : MetricDAO {
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
-                                        PieMetric(
+                                        PieMetricString(
                                             resultSet.getString("mod_version"),
                                             resultSet.getInt("count")
                                         )
@@ -216,7 +218,7 @@ object MetricDAOImpl : MetricDAO {
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
-                                        PieMetric(
+                                        PieMetricString(
                                             resultSet.getString("os"),
                                             resultSet.getInt("count")
                                         )
@@ -239,7 +241,7 @@ object MetricDAOImpl : MetricDAO {
                             .use { resultSet ->
                                 while (resultSet.next()) {
                                     add(
-                                        PieMetric(
+                                        PieMetricString(
                                             resultSet.getString("location"),
                                             resultSet.getInt("count")
                                         )

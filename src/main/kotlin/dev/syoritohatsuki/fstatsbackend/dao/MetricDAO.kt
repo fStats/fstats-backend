@@ -1,7 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.dao
 
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
-import dev.syoritohatsuki.fstatsbackend.dto.metric.PieMetric
+import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetric
 
 interface MetricDAO {
     fun add(metric: Metric, country: String): Pair<String, Int>

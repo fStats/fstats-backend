@@ -3,7 +3,8 @@ package dev.syoritohatsuki.fstatsbackend.routing
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
-import dev.syoritohatsuki.fstatsbackend.dto.metric.PieMetric
+import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetric
+import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetricList
 import dev.syoritohatsuki.fstatsbackend.mics.getGeolocationByIp
 import dev.syoritohatsuki.fstatsbackend.mics.getProjectId
 import dev.syoritohatsuki.fstatsbackend.mics.getRemoteIp
@@ -51,6 +52,27 @@ fun Route.metricsRoute() {
                 }
 
                 call.respond(data)
+            }
+
+            get("all") {
+                val projectId = call.parameters.getProjectId()
+
+                if (projectId == null) {
+                    call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
+                    println("${HttpStatusCode.BadRequest} Incorrect project ID")
+                    return@get
+                }
+
+                call.respond(
+                    PieMetricList(
+                        MetricDAOImpl.getSideById(projectId),
+                        MetricDAOImpl.getMcVersionById(projectId),
+                        MetricDAOImpl.getOnlineModeById(projectId),
+                        MetricDAOImpl.getModVersionById(projectId),
+                        MetricDAOImpl.getOsById(projectId),
+                        MetricDAOImpl.getLocationById(projectId)
+                    )
+                )
             }
         }
 
