@@ -2,87 +2,59 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.UserDAO
 import dev.syoritohatsuki.fstatsbackend.dto.User
-import dev.syoritohatsuki.fstatsbackend.mics.close
-import dev.syoritohatsuki.fstatsbackend.mics.connection
-import java.sql.SQLException
+import dev.syoritohatsuki.fstatsbackend.mics.query
+import dev.syoritohatsuki.fstatsbackend.mics.update
 
 object UserDAOImpl : UserDAO {
     override fun create(user: User): Pair<String, Int> {
-        kotlin.runCatching {
-            connection().use { connection ->
-                connection.createStatement().use { statement ->
-                    return Pair(
-                        "User created",
-                        statement.executeUpdate("INSERT INTO users(username, password_hash) VALUES('${user.username}', '${user.passwordHash}')")
-                    )
-                }
-            }
-        }.onFailure {
-            (it as SQLException).apply {
-                return Pair(localizedMessage, errorCode)
-            }
+        var data = Pair("Offline", -1)
+
+        update("INSERT INTO users(username, password_hash) VALUES('${user.username}', '${user.passwordHash}')") {
+            data = Pair("User created", it)
         }
-        return Pair("Offline", -1)
+
+        return data
     }
 
     override fun deleteById(id: Int): Pair<String, Int> {
-        kotlin.runCatching {
-            connection().use { connection ->
-                connection.createStatement().use { statement ->
-                    return Pair(
-                        "User removed",
-                        statement.executeUpdate("DELETE FROM users WHERE id IN($id)")
-                    )
-                }
-            }
-        }.onFailure {
-            (it as SQLException).apply {
-                return Pair(localizedMessage, errorCode)
-            }
+        var data = Pair("Offline", -1)
+
+        update("DELETE FROM users WHERE id IN($id)") {
+            data = Pair("User removed", it)
         }
-        return Pair("Offline", -1)
+
+        return data
     }
 
     override fun getById(id: Int): User? {
         var user: User? = null
-        kotlin.runCatching {
-            connection().use { connection ->
-                connection.createStatement().use { statement ->
-                    statement.executeQuery("SELECT * FROM users WHERE id IN($id) LIMIT 1").use { resultSet ->
-                        while (resultSet.next()) {
-                            user = User(
-                                resultSet.getInt("id"),
-                                resultSet.getString("username"),
-                                passwordHash = resultSet.getString("password_hash")
-                            )
-                        }
-                        connection.close(statement, resultSet)
-                    }
-                }
+
+        query("SELECT * FROM users WHERE id IN($id) LIMIT 1") { resultSet ->
+            while (resultSet.next()) {
+                user = User(
+                    resultSet.getInt("id"),
+                    resultSet.getString("username"),
+                    passwordHash = resultSet.getString("password_hash")
+                )
             }
-        }.onFailure { println(it.localizedMessage) }
+        }
+
         return user
     }
 
     override fun getByName(username: String): User? {
         var user: User? = null
-        kotlin.runCatching {
-            connection().use { connection ->
-                connection.createStatement().use { statement ->
-                    statement.executeQuery("SELECT * FROM users WHERE username = '$username' LIMIT 1")
-                        .use { resultSet ->
-                            while (resultSet.next()) {
-                                user = User(
-                                    resultSet.getInt("id"),
-                                    resultSet.getString("username"),
-                                    passwordHash = resultSet.getString("password_hash")
-                                )
-                            }
-                            connection.close(statement, resultSet)
-                        }
-                }
+
+        query("SELECT * FROM users WHERE username = '$username' LIMIT 1") { resultSet ->
+            while (resultSet.next()) {
+                user = User(
+                    resultSet.getInt("id"),
+                    resultSet.getString("username"),
+                    passwordHash = resultSet.getString("password_hash")
+                )
             }
-        }.onFailure { println(it.localizedMessage) }
+        }
+
         return user
     }
 }

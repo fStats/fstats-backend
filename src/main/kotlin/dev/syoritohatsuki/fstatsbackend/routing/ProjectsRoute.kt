@@ -23,9 +23,8 @@ fun Route.projectsRoute() {
             kotlin.runCatching {
                 ProjectDAOImpl.getById(call.parameters["idOrOwner"]!!.toInt()).let { project ->
                     if (project == null) {
-                        call.respond(HttpStatusCode.BadRequest, "Project not found")
                         println("${HttpStatusCode.BadRequest} Project not found")
-                        return@get
+                        return@get call.respond(HttpStatusCode.BadRequest, "Project not found")
                     }
 
                     call.respond(project)
@@ -33,9 +32,8 @@ fun Route.projectsRoute() {
             }.onFailure {
                 UserDAOImpl.getByName(call.parameters["idOrOwner"].toString()).let { user ->
                     if (user == null) {
-                        call.respond(HttpStatusCode.BadRequest, "User not found")
                         println("${HttpStatusCode.BadRequest} User not found")
-                        return@get
+                        return@get call.respond(HttpStatusCode.BadRequest, "User not found")
                     }
 
                     ProjectDAOImpl.getByOwner(user.id).let { projects ->
@@ -48,9 +46,8 @@ fun Route.projectsRoute() {
             post {
                 call.receive<Project>().let { project ->
                     if (project.name.isBlank()) {
-                        call.respond(HttpStatusCode.BadRequest, "Project name can't be empty")
                         println("${HttpStatusCode.BadRequest} Project name can't be empty")
-                        return@post
+                        return@post call.respond(HttpStatusCode.BadRequest, "Project name can't be empty")
                     }
 
                     ProjectDAOImpl.create(
@@ -71,16 +68,14 @@ fun Route.projectsRoute() {
                 val projectId = call.parameters.getProjectId()
 
                 if (projectId == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                     println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                    return@delete
+                    return@delete call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                 }
 
                 ProjectDAOImpl.getById(projectId).let { project ->
                     if (project == null) {
-                        call.respond(HttpStatusCode.NoContent, "Project not found")
                         println("${HttpStatusCode.NoContent} Project not found")
-                        return@delete
+                        return@delete call.respond(HttpStatusCode.NoContent, "Project not found")
                     }
 
                     if (project.ownerId == call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()) {
@@ -88,8 +83,7 @@ fun Route.projectsRoute() {
                             if (it.second == 1) {
                                 MetricDAOImpl.removeByProjectId(project.id)
                                 ExceptionDAOImpl.removeByProjectId(project.id)
-                                call.respond(HttpStatusCode.Accepted, "Project deleted")
-                                return@delete
+                                return@delete call.respond(HttpStatusCode.Accepted, "Project deleted")
                             }
                         }
                     }

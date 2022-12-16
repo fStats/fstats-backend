@@ -17,18 +17,16 @@ fun Route.usersRoute() {
             kotlin.runCatching {
                 UserDAOImpl.getById(call.parameters["idOrUsername"]!!.toInt()).let {
                     if (it == null) {
-                        call.respond(HttpStatusCode.NoContent, "User not found")
                         println("${HttpStatusCode.NoContent} User not found")
-                        return@get
+                        return@get call.respond(HttpStatusCode.NoContent, "User not found")
                     }
                     call.respond(HttpStatusCode.OK, it.getWithoutPassword())
                 }
             }.onFailure {
                 UserDAOImpl.getByName(call.parameters["idOrUsername"].toString()).let {
                     if (it == null) {
-                        call.respond(HttpStatusCode.NoContent, "User not found")
                         println("${HttpStatusCode.NoContent} User not found")
-                        return@get
+                        return@get call.respond(HttpStatusCode.NoContent, "User not found")
                     }
                     call.respond(HttpStatusCode.OK, it.getWithoutPassword())
                 }
@@ -45,8 +43,7 @@ fun Route.usersRoute() {
                     }
                 }
                 UserDAOImpl.deleteById(userId).let {
-                    if (it.second == 1) call.respond(HttpStatusCode.Accepted, "User deleted")
-                    else {
+                    if (it.second == 1) call.respond(HttpStatusCode.Accepted, "User deleted") else {
                         call.respond(HttpStatusCode.NoContent, "User not found")
                         println("${HttpStatusCode.NoContent} User not found")
                     }

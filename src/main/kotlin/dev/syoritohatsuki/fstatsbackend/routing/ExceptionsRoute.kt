@@ -16,9 +16,8 @@ fun Route.exceptionsRoute() {
             val projectId = call.parameters.getProjectId()
 
             if (projectId == null) {
-                call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                 println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                return@get
+                return@get call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
             }
 
             call.respond(ExceptionDAOImpl.getByProject(projectId))
@@ -27,9 +26,8 @@ fun Route.exceptionsRoute() {
             val exception = call.receive<Exception>()
 
             if (ProjectDAOImpl.getById(exception.projectId) == null) {
-                call.respond(HttpStatusCode.NoContent, "Project not found")
                 println("${HttpStatusCode.NoContent} Project not found")
-                return@post
+                return@post call.respond(HttpStatusCode.NoContent, "Project not found")
             }
 
             ExceptionDAOImpl.add(exception).let {

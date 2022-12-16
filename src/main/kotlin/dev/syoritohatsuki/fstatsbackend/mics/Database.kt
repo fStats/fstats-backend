@@ -13,30 +13,49 @@ fun connection(): Connection = DriverManager.getConnection(
 )
 
 fun checkDatabaseConnection() {
-    try {
+    runCatching {
         connection()
-    } catch (e: Exception) {
-        println(e.stackTraceToString())
+    }.onFailure {
+        println(it.localizedMessage)
         exitProcess(0)
     }
 }
 
 fun Connection.close(st: Statement, rs: ResultSet) {
-    try {
+    runCatching {
         rs.close()
-    } catch (e: Exception) {
-        e.printStackTrace()
-    } finally {
-        try {
-            st.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            try {
-                close()
-            } catch (e: Exception) {
-                e.printStackTrace()
+    }.onFailure {
+        println(it.localizedMessage)
+    }.onSuccess {
+        st.close()
+    }.onFailure {
+        println(it.localizedMessage)
+    }.onSuccess {
+        close()
+    }.onFailure {
+        println(it.localizedMessage)
+    }
+}
+
+fun query(sql: String, resultSet: (ResultSet) -> Unit) {
+    runCatching {
+        connection().use { connection ->
+            connection.createStatement().use { statement ->
+                statement.executeQuery(sql).use { resultSet ->
+                    resultSet(resultSet)
+                    connection.close(statement, resultSet)
+                }
             }
         }
-    }
+    }.onFailure { println(it.localizedMessage) }
+}
+
+fun update(sql: String, code: (Int) -> Unit) {
+    runCatching {
+        connection().use { connection ->
+            connection.createStatement().use { statement ->
+                code(statement.executeUpdate(sql))
+            }
+        }
+    }.onFailure { println(it.localizedMessage) }
 }

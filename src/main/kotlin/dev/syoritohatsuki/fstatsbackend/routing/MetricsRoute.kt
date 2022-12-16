@@ -3,8 +3,6 @@ package dev.syoritohatsuki.fstatsbackend.routing
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
-import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetric
-import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetricList
 import dev.syoritohatsuki.fstatsbackend.mics.getGeolocationByIp
 import dev.syoritohatsuki.fstatsbackend.mics.getProjectId
 import dev.syoritohatsuki.fstatsbackend.mics.getRemoteIp
@@ -25,10 +23,10 @@ fun Route.metricsRoute() {
                 val projectId = call.parameters.getProjectId()
 
                 if (projectId == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                     println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                    return@get
+                    return@get call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                 }
+
                 call.respond(MetricDAOImpl.getLastHalfYearById(projectId))
             }
 
@@ -36,19 +34,18 @@ fun Route.metricsRoute() {
                 val projectId = call.parameters.getProjectId()
 
                 if (projectId == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                     println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                    return@get
+                    return@get call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                 }
 
-                val data: List<PieMetric> = when (call.parameters["datatype"]) {
+                val data: Any = when (call.parameters["datatype"]) {
                     "side" -> MetricDAOImpl.getSideById(projectId)
                     "mcversion" -> MetricDAOImpl.getMcVersionById(projectId)
                     "onlinemode" -> MetricDAOImpl.getOnlineModeById(projectId)
                     "modversion" -> MetricDAOImpl.getModVersionById(projectId)
                     "os" -> MetricDAOImpl.getOsById(projectId)
                     "location" -> MetricDAOImpl.getLocationById(projectId)
-                    else -> return@get call.respond(HttpStatusCode.BadGateway)
+                    else -> return@get call.respond(HttpStatusCode.NotFound)
                 }
 
                 call.respond(data)
@@ -58,21 +55,10 @@ fun Route.metricsRoute() {
                 val projectId = call.parameters.getProjectId()
 
                 if (projectId == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                     println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                    return@get
+                    return@get call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
                 }
 
-                call.respond(
-                    PieMetricList(
-                        MetricDAOImpl.getSideById(projectId),
-                        MetricDAOImpl.getMcVersionById(projectId),
-                        MetricDAOImpl.getOnlineModeById(projectId),
-                        MetricDAOImpl.getModVersionById(projectId),
-                        MetricDAOImpl.getOsById(projectId),
-                        MetricDAOImpl.getLocationById(projectId)
-                    )
-                )
             }
         }
 
@@ -80,21 +66,19 @@ fun Route.metricsRoute() {
             val metric = call.receive<Metric>()
 
             if (ProjectDAOImpl.getById(metric.projectId) == null) {
-                call.respond(HttpStatusCode.NoContent, "Project not found")
                 println("${HttpStatusCode.NoContent} Project not found")
-                return@post
+                return@post call.respond(HttpStatusCode.NoContent, "Project not found")
             }
 
             call.getRemoteIp().getGeolocationByIp().let { geoIp ->
                 if (geoIp == null || geoIp.status != "success") {
-                    call.respond(HttpStatusCode.BadRequest, "Can't resolve location from IP")
                     println("${HttpStatusCode.BadRequest} Can't resolve location from IP")
                 }
 
                 MetricDAOImpl.add(metric, geoIp?.country ?: "Unknown").let {
                     if (it.second == 1) call.respond(HttpStatusCode.Created, "Metric data added") else {
-                        call.respond(HttpStatusCode.BadRequest, "Something went wrong")
                         println("${HttpStatusCode.BadRequest} ${it.second}")
+                        call.respond(HttpStatusCode.BadRequest, "Something went wrong")
                     }
                 }
             }

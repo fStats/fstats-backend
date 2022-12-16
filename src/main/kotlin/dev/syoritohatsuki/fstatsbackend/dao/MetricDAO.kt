@@ -1,7 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.dao
 
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
-import dev.syoritohatsuki.fstatsbackend.dto.metric.pie.PieMetric
+import dev.syoritohatsuki.fstatsbackend.dto.metric.*
 
 interface MetricDAO {
     fun add(metric: Metric, country: String): Pair<String, Int>
@@ -10,10 +10,10 @@ interface MetricDAO {
     fun removeByProjectId(projectId: Int): Pair<String, Int>
 
 
-    fun getSideById(projectId: Int): List<PieMetric>
-    fun getMcVersionById(projectId: Int): List<PieMetric>
-    fun getOnlineModeById(projectId: Int): List<PieMetric>
-    fun getModVersionById(projectId: Int): List<PieMetric>
-    fun getOsById(projectId: Int): List<PieMetric>
-    fun getLocationById(projectId: Int): List<PieMetric>
+    fun getSideById(projectId: Int): List<Side>
+    fun getMcVersionById(projectId: Int): List<MinecraftVersion>
+    fun getOnlineModeById(projectId: Int): List<OnlineMode>
+    fun getModVersionById(projectId: Int): List<ModVersion>
+    fun getOsById(projectId: Int): List<OperationSystem>
+    fun getLocationById(projectId: Int): List<Location>
 }

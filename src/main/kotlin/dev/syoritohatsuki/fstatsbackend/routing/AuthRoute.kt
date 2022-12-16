@@ -21,22 +21,19 @@ fun Route.authRoute() {
             val user = call.receive<User>()
 
             if (user.username.isEmpty() || user.password.isEmpty()) {
-                call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
                 println("${HttpStatusCode.BadRequest} Incorrect username or password")
-                return@post
+                return@post call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
             }
 
             UserDAOImpl.getByName(user.username).let {
                 if (it == null) {
-                    call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
                     println("${HttpStatusCode.BadRequest} Incorrect username or password")
-                    return@post
+                    return@post call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
                 }
 
                 if (!verify(user.password, it.passwordHash.toByteArray())) {
-                    call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
                     println("${HttpStatusCode.BadRequest} Incorrect username or password")
-                    return@post
+                    return@post call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
                 }
 
                 call.respond(
