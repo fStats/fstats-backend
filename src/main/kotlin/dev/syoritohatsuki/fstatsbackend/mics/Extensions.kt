@@ -12,3 +12,15 @@ fun Parameters.getProjectId(): Int? = this["id"]?.toIntOrNull().let {
         else -> null
     }
 }
+
+fun Char.getOs(): String = when (this) {
+    'l' -> "Linux"
+    'm' -> "MacOS"
+    'w' -> "Windows"
+    else -> "Other"
+}
+
+fun Boolean.getSide(): String = when (this) {
+    true -> "Server"
+    false -> "Client"
+}

@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Side(
-    val value: Boolean,
+    val value: String,
     val count: Int
 )

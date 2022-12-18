@@ -3,6 +3,8 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
 import dev.syoritohatsuki.fstatsbackend.dto.metric.*
+import dev.syoritohatsuki.fstatsbackend.mics.getOs
+import dev.syoritohatsuki.fstatsbackend.mics.getSide
 import dev.syoritohatsuki.fstatsbackend.mics.query
 import dev.syoritohatsuki.fstatsbackend.mics.update
 import java.sql.Timestamp
@@ -80,7 +82,7 @@ object MetricDAOImpl : MetricDAO {
                 while (resultSet.next()) {
                     add(
                         Side(
-                            resultSet.getBoolean("side"),
+                            resultSet.getBoolean("side").getSide(),
                             resultSet.getInt("count")
                         )
                     )
@@ -142,7 +144,7 @@ object MetricDAOImpl : MetricDAO {
                 while (resultSet.next()) {
                     add(
                         OperationSystem(
-                            resultSet.getString("os")[0],
+                            resultSet.getString("os")[0].getOs(),
                             resultSet.getInt("count")
                         )
                     )
