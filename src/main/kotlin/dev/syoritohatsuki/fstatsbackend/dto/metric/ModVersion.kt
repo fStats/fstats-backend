@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ModVersion(
-    val version: String,
+    val value: String,
     val count: Int
 )

@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OnlineMode(
-    val mode: Boolean?,
+    val value: Boolean?,
     val count: Int
 )

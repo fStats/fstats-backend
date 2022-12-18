@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Location(
-    val country: String,
+    val value: String,
     val count: Int
 )

@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class OperationSystem(
-    val os: Char,
+    val value: Char,
     val count: Int
 )

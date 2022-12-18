@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class MinecraftVersion(
-    val version: String,
+    val value: String,
     val count: Int
 )
