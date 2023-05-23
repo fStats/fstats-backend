@@ -1,8 +1,5 @@
-package dev.syoritohatsuki.fstatsbackend.routing
+package dev.syoritohatsuki.fstatsbackend.routing.v2
 
-import dev.syoritohatsuki.fstatsbackend.dao.impl.ExceptionDAOImpl
-import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
-import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -13,6 +10,7 @@ import io.ktor.server.routing.*
 
 fun Route.usersRoute() {
     route("users") {
+        // TODO
         get("/{idOrUsername}") {
             kotlin.runCatching {
                 UserDAOImpl.getById(call.parameters["idOrUsername"]!!.toInt()).let {
@@ -35,18 +33,9 @@ fun Route.usersRoute() {
         authenticate("user") {
             delete {
                 val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
-                ProjectDAOImpl.getByOwner(userId).let { projects ->
-                    projects.forEach {
-                        MetricDAOImpl.removeByProjectId(it.id)
-                        ExceptionDAOImpl.removeByProjectId(it.id)
-                        ProjectDAOImpl.deleteById(it.id)
-                    }
-                }
-                UserDAOImpl.deleteById(userId).let {
-                    if (it.second == 1) call.respond(HttpStatusCode.Accepted, "User deleted") else {
-                        call.respond(HttpStatusCode.NoContent, "User not found")
-                        println("${HttpStatusCode.NoContent} User not found")
-                    }
+                when (UserDAOImpl.deleteById(userId)) {
+                    1 -> call.respond(HttpStatusCode.Accepted, "User deleted")
+                    else -> call.respond(HttpStatusCode.NoContent, "User not found")
                 }
             }
         }

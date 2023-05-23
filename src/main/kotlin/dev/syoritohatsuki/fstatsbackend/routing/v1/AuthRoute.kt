@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.routing
+package dev.syoritohatsuki.fstatsbackend.routing.v1
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -21,20 +21,17 @@ fun Route.authRoute() {
             val user = call.receive<User>()
 
             if (user.username.isEmpty() || user.password.isEmpty()) {
-                println("${HttpStatusCode.BadRequest} Incorrect username or password")
                 return@post call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
             }
 
             UserDAOImpl.getByName(user.username).let {
-                if (it == null) {
-                    println("${HttpStatusCode.BadRequest} Incorrect username or password")
-                    return@post call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
-                }
+                if (it == null) return@post call.respond(
+                    HttpStatusCode.BadRequest, "Incorrect username or password"
+                )
 
-                if (!verify(user.password, it.passwordHash.toByteArray())) {
-                    println("${HttpStatusCode.BadRequest} Incorrect username or password")
-                    return@post call.respond(HttpStatusCode.BadRequest, "Incorrect username or password")
-                }
+                if (!verify(user.password, it.passwordHash.toByteArray())) return@post call.respond(
+                    HttpStatusCode.BadRequest, "Incorrect username or password"
+                )
 
                 call.respond(
                     hashMapOf(
@@ -52,21 +49,13 @@ fun Route.authRoute() {
             call.receive<User>().let { user ->
                 if (Regex("^([a-zA-Z0-9_]).{3,16}\$").matches(user.username)
                     && Regex("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?!.*\\s).{8,64}\$").matches(user.password)
-                ) {
-                    UserDAOImpl.create(User(username = user.username, passwordHash = String(hash(user.password))))
-                        .let {
-                            if (it.second == 1) {
-                                call.respond(HttpStatusCode.Created, "User created")
-                                println("${HttpStatusCode.Created} User created")
-                            } else {
-                                call.respond(HttpStatusCode.BadRequest, "Username already exist")
-                                println("${HttpStatusCode.BadRequest} Username already exist")
-                            }
-                        }
-                } else {
-                    call.respond(HttpStatusCode.BadRequest, "Username or password not match requirements")
-                    println("${HttpStatusCode.BadRequest} Username or password not match requirements")
-                }
+                ) UserDAOImpl.create(User(username = user.username, passwordHash = String(hash(user.password)))).let {
+                    if (it.second == 1) {
+                        call.respond(HttpStatusCode.Created, "User created")
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest, "Username already exist")
+                    }
+                } else call.respond(HttpStatusCode.BadRequest, "Username or password not match requirements")
             }
         }
     }

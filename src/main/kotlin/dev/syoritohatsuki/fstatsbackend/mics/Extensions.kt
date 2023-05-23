@@ -13,6 +13,7 @@ fun Parameters.getProjectId(): Int? = this["id"]?.toIntOrNull().let {
     }
 }
 
+@Deprecated("Will be moved to Front-end")
 fun Char.getOs(): String = when (this) {
     'l' -> "Linux"
     'm' -> "MacOS"
@@ -20,6 +21,7 @@ fun Char.getOs(): String = when (this) {
     else -> "Other"
 }
 
+@Deprecated("Will be moved to Front-end")
 fun Boolean.getSide(): String = when (this) {
     true -> "Server"
     false -> "Client"

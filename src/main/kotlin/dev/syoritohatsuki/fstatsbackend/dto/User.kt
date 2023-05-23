@@ -9,7 +9,5 @@ data class User(
     val password: String = "",
     val passwordHash: String = ""
 ) {
-    fun getWithoutPassword(): User {
-        return User(id, username)
-    }
+    fun getWithoutPassword(): User = User(id, username)
 }

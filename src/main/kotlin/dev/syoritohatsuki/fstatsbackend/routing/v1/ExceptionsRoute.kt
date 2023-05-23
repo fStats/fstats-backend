@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.routing
+package dev.syoritohatsuki.fstatsbackend.routing.v1
 
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ExceptionDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
@@ -10,6 +10,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
+@Deprecated("Dropped in V2 for unknown time")
 fun Route.exceptionsRoute() {
     route("exceptions") {
         get("{id}") {

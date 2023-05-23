@@ -21,7 +21,7 @@ fun checkDatabaseConnection() {
     }
 }
 
-fun Connection.close(st: Statement, rs: ResultSet) {
+private fun Connection.close(st: Statement, rs: ResultSet) {
     runCatching {
         rs.close()
     }.onFailure {
@@ -58,4 +58,15 @@ fun update(sql: String, code: (Int) -> Unit) {
             }
         }
     }.onFailure { println(it.localizedMessage) }
+}
+
+fun update(sql: String): Int {
+    runCatching {
+        connection().use { connection ->
+            connection.createStatement().use { statement ->
+                return statement.executeUpdate(sql)
+            }
+        }
+    }.onFailure { println(it.localizedMessage) }
+    return -1
 }

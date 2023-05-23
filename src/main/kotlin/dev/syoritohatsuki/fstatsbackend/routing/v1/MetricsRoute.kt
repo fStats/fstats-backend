@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.routing
+package dev.syoritohatsuki.fstatsbackend.routing.v1
 
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
@@ -20,24 +20,21 @@ fun Route.metricsRoute() {
 
         route("{id}") {
             get {
-                val projectId = call.parameters.getProjectId()
-
-                if (projectId == null) {
-                    println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                    return@get call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
-                }
+                val projectId = call.parameters.getProjectId() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    "Incorrect project ID"
+                )
 
                 call.respond(MetricDAOImpl.getLastHalfYearById(projectId))
             }
 
             get("{datatype}") {
-                val projectId = call.parameters.getProjectId()
+                val projectId = call.parameters.getProjectId() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    "Incorrect project ID"
+                )
 
-                if (projectId == null) {
-                    println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                    return@get call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
-                }
-
+                // TODO Optimize
                 val data: Any = when (call.parameters["datatype"]) {
                     "side" -> MetricDAOImpl.getSideById(projectId)
                     "mcversion" -> MetricDAOImpl.getMcVersionById(projectId)
@@ -52,32 +49,24 @@ fun Route.metricsRoute() {
             }
 
             get("all") {
-                val projectId = call.parameters.getProjectId()
-
-                if (projectId == null) {
-                    println("${HttpStatusCode.BadRequest} Incorrect project ID")
-                    return@get call.respond(HttpStatusCode.BadRequest, "Incorrect project ID")
-                }
-
+                val projectId = call.parameters.getProjectId() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest,
+                    "Incorrect project ID"
+                )
             }
         }
 
         post {
             val metric = call.receive<Metric>()
 
-            if (ProjectDAOImpl.getById(metric.projectId) == null) {
-                println("${HttpStatusCode.NoContent} Project not found")
-                return@post call.respond(HttpStatusCode.NoContent, "Project not found")
-            }
+            if (ProjectDAOImpl.getById(metric.projectId) == null) return@post call.respond(
+                HttpStatusCode.NoContent,
+                "Project not found"
+            )
 
-            call.getRemoteIp().getGeolocationByIp().let { geoIp ->
-                if (geoIp == null || geoIp.status != "success") {
-                    println("${HttpStatusCode.BadRequest} Can't resolve location from IP")
-                }
-
-                MetricDAOImpl.add(metric, geoIp?.country ?: "Unknown").let {
+            call.getRemoteIp().getGeolocationByIp().let { country ->
+                MetricDAOImpl.add(metric, country).let {
                     if (it.second == 1) call.respond(HttpStatusCode.Created, "Metric data added") else {
-                        println("${HttpStatusCode.BadRequest} ${it.second}")
                         call.respond(HttpStatusCode.BadRequest, "Something went wrong")
                     }
                 }

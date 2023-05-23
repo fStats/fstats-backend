@@ -16,15 +16,7 @@ object UserDAOImpl : UserDAO {
         return data
     }
 
-    override fun deleteById(id: Int): Pair<String, Int> {
-        var data = Pair("Offline", -1)
-
-        update("DELETE FROM users WHERE id IN($id)") {
-            data = Pair("User removed", it)
-        }
-
-        return data
-    }
+    override fun deleteById(id: Int): Int = update("DELETE FROM users WHERE id IN($id)")
 
     override fun getById(id: Int): User? {
         var user: User? = null

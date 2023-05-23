@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.routing
+package dev.syoritohatsuki.fstatsbackend.routing.v1
 
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ExceptionDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl

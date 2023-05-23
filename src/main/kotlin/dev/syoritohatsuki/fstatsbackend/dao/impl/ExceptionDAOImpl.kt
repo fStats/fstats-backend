@@ -7,6 +7,7 @@ import dev.syoritohatsuki.fstatsbackend.mics.update
 import java.sql.Timestamp
 import java.time.Instant
 
+@Deprecated("Dropped in V2 for unknown time")
 object ExceptionDAOImpl : ExceptionDAO {
     override fun add(exception: Exception): Pair<String, Int> {
         var data = Pair("Offline", -1)
