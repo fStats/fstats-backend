@@ -10,33 +10,25 @@ import io.ktor.server.routing.*
 
 fun Route.usersRoute() {
     route("users") {
-        // TODO
         get("/{idOrUsername}") {
-            kotlin.runCatching {
-                UserDAOImpl.getById(call.parameters["idOrUsername"]!!.toInt()).let {
-                    if (it == null) {
-                        println("${HttpStatusCode.NoContent} User not found")
-                        return@get call.respond(HttpStatusCode.NoContent, "User not found")
-                    }
-                    call.respond(HttpStatusCode.OK, it.getWithoutPassword())
-                }
-            }.onFailure {
-                UserDAOImpl.getByName(call.parameters["idOrUsername"].toString()).let {
-                    if (it == null) {
-                        println("${HttpStatusCode.NoContent} User not found")
-                        return@get call.respond(HttpStatusCode.NoContent, "User not found")
-                    }
-                    call.respond(HttpStatusCode.OK, it.getWithoutPassword())
-                }
-            }
+            val idOrUsername = call.parameters["idOrUsername"]
+
+            val user = runCatching {
+                UserDAOImpl.getById(idOrUsername!!.toInt())
+            }.recover {
+                UserDAOImpl.getByName(idOrUsername.toString())
+            }.getOrNull() ?: return@get call.respond(HttpStatusCode.NoContent, "User not found")
+
+            call.respond(user.getWithoutPassword())
         }
-        authenticate("user") {
-            delete {
-                val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
-                when (UserDAOImpl.deleteById(userId)) {
-                    1 -> call.respond(HttpStatusCode.Accepted, "User deleted")
-                    else -> call.respond(HttpStatusCode.NoContent, "User not found")
-                }
+    }
+
+    authenticate {
+        delete {
+            val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+            when (UserDAOImpl.deleteById(userId)) {
+                1 -> call.respond(HttpStatusCode.Accepted, "User deleted")
+                else -> call.respond(HttpStatusCode.NoContent, "User not found")
             }
         }
     }

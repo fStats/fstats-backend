@@ -6,15 +6,8 @@ import dev.syoritohatsuki.fstatsbackend.mics.query
 import dev.syoritohatsuki.fstatsbackend.mics.update
 
 object UserDAOImpl : UserDAO {
-    override fun create(user: User): Pair<String, Int> {
-        var data = Pair("Offline", -1)
-
-        update("INSERT INTO users(username, password_hash) VALUES('${user.username}', '${user.passwordHash}')") {
-            data = Pair("User created", it)
-        }
-
-        return data
-    }
+    override fun create(user: User): Int =
+        update("INSERT INTO users(username, password_hash) VALUES('${user.username}', '${user.passwordHash}')")
 
     override fun deleteById(id: Int): Int = update("DELETE FROM users WHERE id IN($id)")
 
