@@ -14,7 +14,7 @@ class Environment(private val defaultValue: String = "") {
 }
 
 val JWT_SECRET by Environment()
-val JWT_REALM by Environment("dev.syoritohatsuki")
+val JWT_REALM by Environment("dev.syoritohatsuki.fstats")
 
 val HOST by Environment("0.0.0.0")
 val PORT by Environment("1540")
