@@ -14,7 +14,9 @@ fun connection(): Connection = DriverManager.getConnection(
 
 fun checkDatabaseConnection() {
     runCatching {
-        connection()
+        connection().use {
+            it.close()
+        }
     }.onFailure {
         println(it.localizedMessage)
         exitProcess(0)
@@ -24,16 +26,20 @@ fun checkDatabaseConnection() {
 private fun Connection.close(st: Statement, rs: ResultSet) {
     runCatching {
         rs.close()
-    }.onFailure {
-        println(it.localizedMessage)
+    }.onFailure { e ->
+        println(e.localizedMessage)
     }.onSuccess {
-        st.close()
-    }.onFailure {
-        println(it.localizedMessage)
-    }.onSuccess {
-        close()
-    }.onFailure {
-        println(it.localizedMessage)
+        runCatching {
+            st.close()
+        }.onFailure { e ->
+            println(e.localizedMessage)
+        }.onSuccess {
+            runCatching {
+                close()
+            }.onFailure { e ->
+                println(e.localizedMessage)
+            }
+        }
     }
 }
 
@@ -50,6 +56,7 @@ fun query(sql: String, resultSet: (ResultSet) -> Unit) {
     }.onFailure { println(it.localizedMessage) }
 }
 
+@Deprecated("Useless shit :) Why I did it?")
 fun update(sql: String, code: (Int) -> Unit) {
     runCatching {
         connection().use { connection ->
