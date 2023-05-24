@@ -14,16 +14,15 @@ import io.ktor.server.response.*
 
 fun Application.configureAuth() {
     install(Authentication) {
-        jwt("user") {
+        jwt {
             realm = JWT_REALM
             verifier(
                 JWT.require(Algorithm.HMAC256(JWT_SECRET))
-                    .withAudience("user")
                     .withIssuer("$HOST:$PORT")
                     .build()
             )
             validate { credential ->
-                if (credential.payload.audience.contains("user")) JWTPrincipal(credential.payload) else null
+                if (credential.payload.getClaim("username").asString() != "") JWTPrincipal(credential.payload) else null
             }
             challenge { _, _ ->
                 call.respond(HttpStatusCode.Unauthorized, "Token is not valid or has expired")
