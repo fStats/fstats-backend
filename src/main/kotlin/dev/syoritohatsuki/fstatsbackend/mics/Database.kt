@@ -6,6 +6,8 @@ import java.sql.ResultSet
 import java.sql.Statement
 import kotlin.system.exitProcess
 
+const val SUCCESS = 1
+
 fun connection(): Connection = DriverManager.getConnection(
     "jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB",
     POSTGRES_USER,
