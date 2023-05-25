@@ -6,25 +6,10 @@ import dev.syoritohatsuki.fstatsbackend.mics.query
 import dev.syoritohatsuki.fstatsbackend.mics.update
 
 object ProjectDAOImpl : ProjectDAO {
-    override fun create(project: Project): Pair<String, Int> {
-        var data = Pair("Offline", -1)
+    override fun create(name: String, ownerId: Int): Int =
+        update("INSERT INTO projects(name, owner_id) VALUES('$name', '$ownerId')")
 
-        update("INSERT INTO projects(name, owner_id) VALUES('${project.name}', '${project.ownerId}')") {
-            data = Pair("Project created", it)
-        }
-
-        return data
-    }
-
-    override fun deleteById(id: Int): Pair<String, Int> {
-        var data = Pair("Offline", -1)
-
-        update("DELETE FROM projects WHERE id IN($id)") {
-            data = Pair("Project deleted", it)
-        }
-
-        return data
-    }
+    override fun deleteById(id: Int): Int = update("DELETE FROM projects WHERE id IN($id)")
 
     override fun getAll(): List<Project> {
         return mutableListOf<Project>().apply {
