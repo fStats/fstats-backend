@@ -49,7 +49,7 @@ fun Route.authRoute() {
             )
 
             when (UserDAOImpl.create(User(username = user.username, passwordHash = String(hash(user.password))))) {
-                1 -> call.respond(HttpStatusCode.Created, "User created")
+                SUCCESS -> call.respond(HttpStatusCode.Created, "User created")
                 else -> call.respond(HttpStatusCode.BadRequest, "Username already exist")
             }
         }
