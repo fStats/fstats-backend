@@ -45,9 +45,10 @@ dependencies {
 
     implementation("io.ktor", "ktor-server-caching-headers", ktorVersion)
 
+    implementation("io.ktor", "ktor-server-rate-limit", ktorVersion)
+
     implementation("ch.qos.logback", "logback-classic", "1.4.4")
 
     implementation("org.postgresql", "postgresql", "42.2.8")
 
-    implementation("dev.forst", "ktor-rate-limiting", "2.1.3")
 }
