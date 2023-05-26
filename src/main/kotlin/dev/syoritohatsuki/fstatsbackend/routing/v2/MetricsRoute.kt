@@ -1,0 +1,45 @@
+package dev.syoritohatsuki.fstatsbackend.routing.v2
+
+import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
+import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
+import dev.syoritohatsuki.fstatsbackend.dto.Metric
+import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
+import io.ktor.http.*
+import io.ktor.server.application.*
+import io.ktor.server.request.*
+import io.ktor.server.response.*
+import io.ktor.server.routing.*
+
+fun Route.metricsRoute() {
+    route("metrics") {
+        get {
+            call.respond(MetricDAOImpl.getAll())
+        }
+
+        route("{id}") {
+            get {
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Incorrect project ID"
+                )
+
+                call.respond(MetricDAOImpl.getLastHalfYearById(id))
+            }
+        }
+
+        post {
+            if (call.request.userAgent()?.contains("fstats") == false)
+                return@post call.respond(HttpStatusCode.BadRequest)
+
+            val metric = call.receive<Metric>()
+
+            ProjectDAOImpl.getById(metric.projectId) ?: return@post call.respond(
+                HttpStatusCode.NoContent, "Project not found"
+            )
+
+            when (MetricDAOImpl.add(metric)) {
+                SUCCESS -> call.respond(HttpStatusCode.Created, "Metric data added")
+                else -> call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+            }
+        }
+    }
+}

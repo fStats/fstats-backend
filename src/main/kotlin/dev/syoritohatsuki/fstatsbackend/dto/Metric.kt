@@ -6,10 +6,8 @@ import kotlinx.serialization.Serializable
 data class Metric(
     val timestampSeconds: Long,
     val projectId: Int,
-    @Deprecated("Side is removed in V2")
-    val side: Boolean,
     val minecraftVersion: String = "unknown",
-    val isOnlineMode: Boolean? = null,
+    val isOnlineMode: Boolean,
     val modVersion: String,
     val os: Char,
     val location: String = "unknown"
