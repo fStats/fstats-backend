@@ -58,17 +58,6 @@ fun query(sql: String, resultSet: (ResultSet) -> Unit) {
     }.onFailure { println(it.localizedMessage) }
 }
 
-@Deprecated("Useless shit :) Why I did it?")
-fun update(sql: String, code: (Int) -> Unit) {
-    runCatching {
-        connection().use { connection ->
-            connection.createStatement().use { statement ->
-                code(statement.executeUpdate(sql))
-            }
-        }
-    }.onFailure { println(it.localizedMessage) }
-}
-
 fun update(sql: String): Int {
     runCatching {
         connection().use { connection ->
