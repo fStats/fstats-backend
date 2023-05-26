@@ -11,34 +11,30 @@ object ProjectDAOImpl : ProjectDAO {
 
     override fun deleteById(id: Int): Int = update("DELETE FROM projects WHERE id IN($id)")
 
-    override fun getAll(): List<Project> {
-        return mutableListOf<Project>().apply {
-            query("SELECT * FROM projects") { resultSet ->
-                while (resultSet.next()) {
-                    add(
-                        Project(
-                            resultSet.getInt("id"),
-                            resultSet.getString("name"),
-                            resultSet.getInt("owner_id")
-                        )
+    override fun getAll(): List<Project> = mutableListOf<Project>().apply {
+        query("SELECT * FROM projects") { resultSet ->
+            while (resultSet.next()) {
+                add(
+                    Project(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("owner_id")
                     )
-                }
+                )
             }
         }
     }
 
-    override fun getByOwner(ownerId: Int): List<Project> {
-        return mutableListOf<Project>().apply {
-            query("SELECT * FROM projects WHERE owner_id IN($ownerId)") { resultSet ->
-                while (resultSet.next()) {
-                    add(
-                        Project(
-                            resultSet.getInt("id"),
-                            resultSet.getString("name"),
-                            resultSet.getInt("owner_id")
-                        )
+    override fun getByOwner(ownerId: Int): List<Project> = mutableListOf<Project>().apply {
+        query("SELECT * FROM projects WHERE owner_id IN($ownerId)") { resultSet ->
+            while (resultSet.next()) {
+                add(
+                    Project(
+                        resultSet.getInt("id"),
+                        resultSet.getString("name"),
+                        resultSet.getInt("owner_id")
                     )
-                }
+                )
             }
         }
     }
