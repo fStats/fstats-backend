@@ -2,6 +2,7 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
+import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.connection
 import dev.syoritohatsuki.fstatsbackend.mics.query
 import java.sql.Timestamp
@@ -9,25 +10,27 @@ import java.time.Instant
 
 object MetricDAOImpl : MetricDAO {
 
-    override fun add(metrics: Set<Metric>): Int {
-        val sql =
-            "INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) VALUES(?, ?, ?, ?, ?, ?, ?)"
+    override fun add(metrics: Metrics): Int {
 
         val connection = connection()
 
         runCatching {
             connection.autoCommit = false
-            val statement = connection.prepareStatement(sql)
+
+            val statement = connection.prepareStatement(
+                """INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) 
+                        VALUES(?, ?, ?, ?, ?, ?, ?)""".trimMargin()
+            )
 
             connection.use {
-                for (metric in metrics) {
+                metrics.projectIds.forEach {
                     statement.setTimestamp(1, Timestamp.from(Instant.now()))
-                    statement.setInt(2, metric.projectId)
-                    statement.setBoolean(3, metric.isOnlineMode)
-                    statement.setString(4, metric.minecraftVersion)
-                    statement.setString(5, metric.modVersion)
-                    statement.setString(6, metric.os.toString())
-                    statement.setString(7, metric.location)
+                    statement.setInt(2, it)
+                    statement.setBoolean(3, metrics.metric.isOnlineMode)
+                    statement.setString(4, metrics.metric.minecraftVersion)
+                    statement.setString(5, metrics.metric.modVersion)
+                    statement.setString(6, metrics.metric.os.toString())
+                    statement.setString(7, metrics.metric.location)
                     statement.addBatch()
                 }
                 statement.executeBatch()

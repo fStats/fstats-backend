@@ -12,3 +12,9 @@ data class Metric(
     val os: Char,
     val location: String = "unknown"
 )
+
+@Serializable
+data class Metrics(
+    val projectIds: Set<Int>,
+    val metric: Metric
+)

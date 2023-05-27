@@ -1,7 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.routing.v2
 
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
-import dev.syoritohatsuki.fstatsbackend.dto.Metric
+import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -25,7 +25,7 @@ fun Route.metricsRoute() {
             if (call.request.userAgent()?.contains("fstats") == false)
                 return@post call.respond(HttpStatusCode.BadRequest)
 
-            val metrics = call.receive<Set<Metric>>()
+            val metrics = call.receive<Metrics>()
 
             when (MetricDAOImpl.add(metrics)) {
                 SUCCESS -> call.respond(HttpStatusCode.Created, "Metrics data added")
