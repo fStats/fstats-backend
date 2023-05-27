@@ -27,7 +27,7 @@ ktor {
 tasks {
     processResources {
         filesMatching("index.html") {
-            expand(mutableMapOf("apiVersion" to project.version))
+            expand(mutableMapOf("version" to project.version))
         }
     }
 }
