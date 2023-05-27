@@ -25,6 +25,7 @@ fun Application.fStatsModule() {
     configureRateLimit()
     configureRouting()
     configureSerialization()
+    configureStatusPages()
 
     checkDatabaseConnection()
 }

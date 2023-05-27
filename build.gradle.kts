@@ -55,6 +55,8 @@ dependencies {
 
     implementation("io.ktor", "ktor-server-rate-limit", ktorVersion)
 
+    implementation("io.ktor", "ktor-server-status-pages", ktorVersion)
+
     implementation("ch.qos.logback", "logback-classic", "1.4.4")
 
     implementation("org.postgresql", "postgresql", "42.2.8")
