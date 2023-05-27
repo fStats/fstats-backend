@@ -4,7 +4,6 @@ import java.sql.Connection
 import java.sql.DriverManager
 import java.sql.ResultSet
 import java.sql.Statement
-import kotlin.system.exitProcess
 
 const val SUCCESS = 1
 
@@ -21,7 +20,7 @@ fun checkDatabaseConnection() {
         }
     }.onFailure {
         println(it.localizedMessage)
-        exitProcess(0)
+        throw RuntimeException("Can't connect to database, please verify environment variables")
     }
 }
 
