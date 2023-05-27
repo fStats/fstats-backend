@@ -51,8 +51,4 @@ object MetricDAOImpl : MetricDAO {
             }
         }
     }
-
-    override fun removeByProjectId(projectId: Int): Int =
-        update("DELETE FROM exceptions WHERE project_id IN($projectId)")
-
 }

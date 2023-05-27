@@ -6,5 +6,4 @@ interface MetricDAO {
     fun add(metric: Metric): Int
     fun getAll(): Set<Metric>
     fun getLastHalfYearById(projectId: Int): Set<Metric>
-    fun removeByProjectId(projectId: Int): Int
 }
