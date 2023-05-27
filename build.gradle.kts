@@ -24,6 +24,14 @@ ktor {
     }
 }
 
+tasks {
+    processResources {
+        filesMatching("index.html") {
+            expand(mutableMapOf("apiVersion" to project.version))
+        }
+    }
+}
+
 dependencies {
     val bcryptVersion: String by project
     implementation("de.nycode", "bcrypt", bcryptVersion)
@@ -50,5 +58,4 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", "1.4.4")
 
     implementation("org.postgresql", "postgresql", "42.2.8")
-
 }
