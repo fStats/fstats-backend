@@ -2,17 +2,43 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
+import dev.syoritohatsuki.fstatsbackend.mics.connection
 import dev.syoritohatsuki.fstatsbackend.mics.query
-import dev.syoritohatsuki.fstatsbackend.mics.update
 import java.sql.Timestamp
 import java.time.Instant
 
 object MetricDAOImpl : MetricDAO {
-    override fun add(metric: Metric): Int = update(
-        "INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) VALUES('${
-            Timestamp.from(Instant.now())
-        }', '${metric.projectId}', '${metric.isOnlineMode}', '${metric.minecraftVersion}', '${metric.modVersion}', '${metric.os}', '${metric.location}')"
-    )
+
+    override fun add(metrics: Set<Metric>): Int {
+        val sql =
+            "INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) VALUES(?, ?, ?, ?, ?, ?, ?)"
+
+        val connection = connection()
+
+        runCatching {
+            connection.autoCommit = false
+            val statement = connection.prepareStatement(sql)
+
+            connection.use {
+                for (metric in metrics) {
+                    statement.setTimestamp(1, Timestamp.from(Instant.now()))
+                    statement.setInt(2, metric.projectId)
+                    statement.setBoolean(3, metric.isOnlineMode)
+                    statement.setString(4, metric.minecraftVersion)
+                    statement.setString(5, metric.modVersion)
+                    statement.setString(6, metric.os.toString())
+                    statement.setString(7, metric.location)
+                    statement.addBatch()
+                }
+                statement.executeBatch()
+            }
+            connection.commit()
+            return 1
+        }.onFailure {
+            connection.rollback()
+        }
+        return 0
+    }
 
     override fun getAll(): Set<Metric> = mutableSetOf<Metric>().apply {
         query("SELECT * FROM metrics") { resultSet ->
