@@ -11,10 +11,6 @@ import io.ktor.server.routing.*
 
 fun Route.metricsRoute() {
     route("metrics") {
-        get {
-            call.respond(MetricDAOImpl.getAll())
-        }
-
         route("{id}") {
             get {
                 val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
