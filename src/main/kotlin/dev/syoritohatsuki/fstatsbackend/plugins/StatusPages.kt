@@ -9,10 +9,12 @@ import kotlinx.serialization.Serializable
 fun Application.configureStatusPages() {
     install(StatusPages) {
         status(HttpStatusCode.NotFound) { call, status ->
-            call.respond(StatusPage(status.value, "Page Not Found"))
+            call.respond(status, StatusPage(status.value, "Page Not Found"))
         }
         exception<Throwable> { call, cause ->
-            call.respond(StatusPage(500, cause.localizedMessage))
+            val status = HttpStatusCode.InternalServerError
+            call.respond(status, StatusPage(status.value, cause.localizedMessage))
+            cause.printStackTrace()
         }
     }
 }
