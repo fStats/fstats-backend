@@ -52,9 +52,8 @@ dependencies {
     implementation("io.ktor", "ktor-server-call-logging-jvm", ktorVersion)
 
     implementation("io.ktor", "ktor-server-caching-headers", ktorVersion)
-
+    implementation("io.ktor", "ktor-server-compression-jvm", ktorVersion)
     implementation("io.ktor", "ktor-server-rate-limit", ktorVersion)
-
     implementation("io.ktor", "ktor-server-status-pages", ktorVersion)
 
     implementation("ch.qos.logback", "logback-classic", "1.4.4")
