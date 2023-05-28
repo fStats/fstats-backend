@@ -15,6 +15,6 @@ data class Metric(
 
 @Serializable
 data class Metrics(
-    val projectIds: Set<Int>,
+    val projectIds: Map<Int, String>,
     val metric: Metric
 )

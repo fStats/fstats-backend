@@ -25,10 +25,10 @@ object MetricDAOImpl : MetricDAO {
             connection.use {
                 metrics.projectIds.forEach {
                     statement.setTimestamp(1, Timestamp.from(Instant.now()))
-                    statement.setInt(2, it)
+                    statement.setInt(2, it.key)
                     statement.setBoolean(3, metrics.metric.isOnlineMode)
                     statement.setString(4, metrics.metric.minecraftVersion)
-                    statement.setString(5, metrics.metric.modVersion)
+                    statement.setString(5, it.value)
                     statement.setString(6, metrics.metric.os.toString())
                     statement.setString(7, metrics.metric.location)
                     statement.addBatch()
