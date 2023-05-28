@@ -3,6 +3,7 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
+import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.connection
 import dev.syoritohatsuki.fstatsbackend.mics.query
 import java.sql.Timestamp
@@ -15,12 +16,8 @@ object MetricDAOImpl : MetricDAO {
         val connection = connection()
 
         runCatching {
-            connection.autoCommit = false
-
-            val statement = connection.prepareStatement(
-                """INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) 
-                        VALUES(?, ?, ?, ?, ?, ?, ?)""".trimMargin()
-            )
+            val statement =
+                connection.prepareStatement("INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) VALUES(?, ?, ?, ?, ?, ?, ?)")
 
             connection.use {
                 metrics.projectIds.forEach {
@@ -34,11 +31,11 @@ object MetricDAOImpl : MetricDAO {
                     statement.addBatch()
                 }
                 statement.executeBatch()
+                return SUCCESS
             }
-            connection.commit()
-            return 1
         }.onFailure {
             connection.rollback()
+            it.printStackTrace()
         }
         return 0
     }
