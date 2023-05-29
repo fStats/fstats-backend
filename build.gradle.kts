@@ -59,4 +59,6 @@ dependencies {
     implementation("ch.qos.logback", "logback-classic", "1.4.4")
 
     implementation("org.postgresql", "postgresql", "42.2.8")
+
+    implementation("com.zaxxer", "HikariCP", "5.0.1")
 }
