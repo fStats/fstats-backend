@@ -2,7 +2,6 @@ package dev.syoritohatsuki.fstatsbackend
 
 import dev.syoritohatsuki.fstatsbackend.mics.HOST
 import dev.syoritohatsuki.fstatsbackend.mics.PORT
-import dev.syoritohatsuki.fstatsbackend.mics.checkDatabaseConnection
 import dev.syoritohatsuki.fstatsbackend.plugins.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -27,6 +26,4 @@ fun Application.fStatsModule() {
     configureRouting()
     configureSerialization()
     configureStatusPages()
-
-    checkDatabaseConnection()
 }
