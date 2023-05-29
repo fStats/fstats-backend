@@ -3,9 +3,9 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Metric
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
-import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
-import dev.syoritohatsuki.fstatsbackend.mics.connection
-import dev.syoritohatsuki.fstatsbackend.mics.query
+import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.Database.dataStore
+import dev.syoritohatsuki.fstatsbackend.mics.Database.query
 import java.sql.Timestamp
 import java.time.Instant
 
@@ -13,31 +13,27 @@ object MetricDAOImpl : MetricDAO {
 
     override fun add(metrics: Metrics): Int {
 
-        val connection = connection()
+        try {
+            dataStore().connection.use { connection ->
 
-        runCatching {
-            val statement =
-                connection.prepareStatement("INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) VALUES(?, ?, ?, ?, ?, ?, ?)")
+                val statement = connection.createStatement()
 
-            connection.use {
-                metrics.projectIds.forEach {
-                    statement.setTimestamp(1, Timestamp.from(Instant.now()))
-                    statement.setInt(2, it.key)
-                    statement.setBoolean(3, metrics.metric.isOnlineMode)
-                    statement.setString(4, metrics.metric.minecraftVersion)
-                    statement.setString(5, it.value)
-                    statement.setString(6, metrics.metric.os.toString())
-                    statement.setString(7, metrics.metric.location)
-                    statement.addBatch()
+                val batchValues = metrics.projectIds.map { (projectId, modVersion) ->
+                    "('${Timestamp.from(Instant.now())}', $projectId, ${metrics.metric.isOnlineMode}, '${metrics.metric.minecraftVersion}', '$modVersion', '${metrics.metric.os}', '${metrics.metric.location}')"
                 }
-                statement.executeBatch()
+
+                val batchSql =
+                    "INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) VALUES ${
+                        batchValues.joinToString(",")
+                    }"
+
+                statement.execute(batchSql)
                 return SUCCESS
             }
-        }.onFailure {
-            connection.rollback()
-            it.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return 0
         }
-        return 0
     }
 
     override fun getLastHalfYearById(projectId: Int): Set<Metric> {

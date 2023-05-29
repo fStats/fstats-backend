@@ -7,6 +7,7 @@ import de.nycode.bcrypt.verify
 import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.User
 import dev.syoritohatsuki.fstatsbackend.mics.*
+import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*

@@ -2,8 +2,8 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.ProjectDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Project
-import dev.syoritohatsuki.fstatsbackend.mics.query
-import dev.syoritohatsuki.fstatsbackend.mics.update
+import dev.syoritohatsuki.fstatsbackend.mics.Database.query
+import dev.syoritohatsuki.fstatsbackend.mics.Database.update
 
 object ProjectDAOImpl : ProjectDAO {
     override fun create(name: String, ownerId: Int): Int =

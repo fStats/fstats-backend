@@ -2,7 +2,7 @@ package dev.syoritohatsuki.fstatsbackend.routing.v2
 
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
-import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
