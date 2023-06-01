@@ -12,7 +12,6 @@ import java.time.Instant
 object MetricDAOImpl : MetricDAO {
 
     override fun add(metrics: Metrics): Int {
-
         try {
             dataStore().connection.use { connection ->
 
@@ -36,23 +35,79 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLastHalfYearById(projectId: Int): Set<Metric> {
-        return mutableSetOf<Metric>().apply {
-            query("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '6 months'") { resultSet ->
-                while (resultSet.next()) {
-                    add(
-                        Metric(
-                            resultSet.getTimestamp("time").time,
-                            projectId,
-                            resultSet.getString("minecraft_version"),
-                            resultSet.getBoolean("online_mode"),
-                            resultSet.getString("mod_version"),
-                            resultSet.getCharacterStream("os").read().toChar(),
-                            resultSet.getString("location")
-                        )
+    override fun getLastHalfYearById(projectId: Int): Set<Metric> = mutableSetOf<Metric>().apply {
+        query("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '6 months'") { resultSet ->
+            while (resultSet.next()) {
+                add(
+                    Metric(
+                        resultSet.getTimestamp("time").time,
+                        projectId,
+                        resultSet.getString("minecraft_version"),
+                        resultSet.getBoolean("online_mode"),
+                        resultSet.getString("mod_version"),
+                        resultSet.getCharacterStream("os").read().toChar(),
+                        resultSet.getString("location")
                     )
-                }
+                )
             }
         }
     }
+
+    override fun getMetricCountById(projectId: Int): Map<String, Map<Int, String>> =
+        mutableMapOf<String, MutableMap<Int, String>>().apply {
+            query(
+                """
+                    SELECT 'minecraft_version' AS column_name,
+                           COUNT(*)            AS count,
+                           minecraft_version   AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                    GROUP BY minecraft_version
+                    
+                    UNION ALL
+                    
+                    SELECT 'online_mode'             AS column_name,
+                           COUNT(*)                  AS count,
+                           CAST(online_mode AS TEXT) AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                    GROUP BY online_mode
+                    
+                    UNION ALL
+                    
+                    SELECT 'mod_version' AS column_name,
+                           COUNT(*)      AS count,
+                           mod_version   AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                    GROUP BY mod_version
+                    
+                    UNION ALL
+                    
+                    SELECT 'os'     AS column_name,
+                           COUNT(*) AS count,
+                           os       AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                    GROUP BY os
+                    
+                    UNION ALL
+                    
+                    SELECT 'location' AS column_name,
+                           COUNT(*)   AS count,
+                           location   AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                    GROUP BY location;
+                    """
+            ) { resultSet ->
+                while (resultSet.next()) {
+                    val columnName = resultSet.getString("column_name")
+                    val innerMap = this[columnName] ?: mutableMapOf()
+
+                    innerMap[resultSet.getInt("count")] = resultSet.getString("item")
+                    this[columnName] = innerMap
+                }
+            }
+        }
 }

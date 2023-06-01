@@ -19,6 +19,13 @@ fun Route.metricsRoute() {
 
                 call.respond(MetricDAOImpl.getLastHalfYearById(id))
             }
+            get("count") {
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+                    HttpStatusCode.BadRequest, "Incorrect project ID"
+                )
+
+                call.respond(MetricDAOImpl.getMetricCountById(id))
+            }
         }
 
         post {
