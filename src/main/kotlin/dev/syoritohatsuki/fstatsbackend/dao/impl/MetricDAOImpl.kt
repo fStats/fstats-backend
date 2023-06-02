@@ -36,7 +36,7 @@ object MetricDAOImpl : MetricDAO {
     }
 
     override fun getLastHalfYearById(projectId: Int): Set<Metric> = mutableSetOf<Metric>().apply {
-        query("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '6 months'") { resultSet ->
+        query("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '6 months' ORDER BY time DESC") { resultSet ->
             while (resultSet.next()) {
                 add(
                     Metric(
