@@ -53,8 +53,8 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getMetricCountById(projectId: Int): Map<String, Map<Int, String>> =
-        mutableMapOf<String, MutableMap<Int, String>>().apply {
+    override fun getMetricCountById(projectId: Int): Map<String, Map<String, Int>> =
+        mutableMapOf<String, MutableMap<String, Int>>().apply {
             query(
                 """
                     SELECT 'minecraft_version' AS column_name,
@@ -105,7 +105,7 @@ object MetricDAOImpl : MetricDAO {
                     val columnName = resultSet.getString("column_name")
                     val innerMap = this[columnName] ?: mutableMapOf()
 
-                    innerMap[resultSet.getInt("count")] = resultSet.getString("item")
+                    innerMap[resultSet.getString("item")] = resultSet.getInt("count")
                     this[columnName] = innerMap
                 }
             }
