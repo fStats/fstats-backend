@@ -1,6 +1,6 @@
 package dev.syoritohatsuki.fstatsbackend.plugins
 
-import dev.syoritohatsuki.fstatsbackend.routing.v1.indexRoute
+import dev.syoritohatsuki.fstatsbackend.routing.indexRoute
 import dev.syoritohatsuki.fstatsbackend.routing.v2.authRoute
 import dev.syoritohatsuki.fstatsbackend.routing.v2.metricsRoute
 import dev.syoritohatsuki.fstatsbackend.routing.v2.projectsRoute

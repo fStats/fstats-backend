@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.routing.v1
+package dev.syoritohatsuki.fstatsbackend.routing
 
 import io.ktor.server.http.content.*
 import io.ktor.server.routing.*
