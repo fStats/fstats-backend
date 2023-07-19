@@ -55,8 +55,10 @@ fun Route.projectsRoute() {
                     HttpStatusCode.NoContent, "Project not found"
                 )
 
-                if (project.ownerId != call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt())
-                    return@delete call.respond(HttpStatusCode.Unauthorized)
+                if (project.owner.id != (call.principal<JWTPrincipal>()?.payload
+                        ?: return@delete call.respond(HttpStatusCode.Unauthorized)
+                            ).getClaim("id").asInt()
+                ) return@delete call.respond(HttpStatusCode.Unauthorized)
 
                 when (ProjectDAOImpl.deleteById(project.id)) {
                     SUCCESS -> call.respond(HttpStatusCode.Accepted, "Project deleted")
