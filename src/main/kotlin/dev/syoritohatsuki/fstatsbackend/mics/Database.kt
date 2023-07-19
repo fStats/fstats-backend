@@ -14,7 +14,7 @@ object Database {
             jdbcUrl = "jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"
             username = POSTGRES_USER
             password = POSTGRES_PASS
-            maximumPoolSize = Runtime.getRuntime().availableProcessors() + 1
+            maximumPoolSize = CPU_CORES + DISKS_COUNT
             transactionIsolation = "TRANSACTION_REPEATABLE_READ"
             validate()
         })
