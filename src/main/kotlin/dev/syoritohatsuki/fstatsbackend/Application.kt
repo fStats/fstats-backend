@@ -11,7 +11,7 @@ fun main() {
     embeddedServer(
         Netty,
         host = HOST,
-        port = PORT.toIntOrNull() ?: 1540,
+        port = PORT,
         module = Application::fStatsModule
     ).start(wait = true)
 }
