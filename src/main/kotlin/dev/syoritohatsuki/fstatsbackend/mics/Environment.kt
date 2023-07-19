@@ -1,26 +1,34 @@
 package dev.syoritohatsuki.fstatsbackend.mics
 
 import io.github.cdimascio.dotenv.dotenv
-import kotlin.reflect.KProperty
+import kotlin.properties.ReadOnlyProperty
 
-class Environment(private val defaultValue: String = "") {
-    private val dotenv = dotenv {
+val JWT_SECRET by environment("")
+val JWT_REALM by environment("dev.syoritohatsuki.fstats")
+
+val HOST by environment("0.0.0.0")
+val PORT by environment(1540)
+
+val POSTGRES_USER by environment("postgres")
+val POSTGRES_PASS by environment("")
+val POSTGRES_DB by environment("fstats")
+val POSTGRES_HOST by environment("localhost")
+val POSTGRES_PORT by environment(5432)
+
+val DISKS_COUNT by environment(1)
+val CPU_CORES by environment(Runtime.getRuntime().availableProcessors())
+
+inline fun <reified T : Any> environment(defaultValue: T): ReadOnlyProperty<Any?, T> {
+    val dotenv = dotenv {
         ignoreIfMissing = true
     }
 
-    operator fun getValue(th: Any?, prop: KProperty<*>): String = dotenv[prop.name]
-        ?: System.getenv(prop.name)
-        ?: defaultValue
+    return ReadOnlyProperty { _, property ->
+        val value = dotenv[property.name] ?: System.getenv(property.name)
+        when (defaultValue) {
+            is String -> value ?: defaultValue
+            is Int -> value?.toIntOrNull() ?: defaultValue
+            else -> throw IllegalArgumentException("Unsupported property type: ${defaultValue::class.simpleName}")
+        } as T
+    }
 }
-
-val JWT_SECRET by Environment()
-val JWT_REALM by Environment("dev.syoritohatsuki.fstats")
-
-val HOST by Environment("0.0.0.0")
-val PORT by Environment("1540")
-
-val POSTGRES_USER by Environment("postgres")
-val POSTGRES_PASS by Environment()
-val POSTGRES_DB by Environment("fstats")
-val POSTGRES_HOST by Environment("localhost")
-val POSTGRES_PORT by Environment("5432")
