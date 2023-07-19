@@ -12,13 +12,16 @@ object ProjectDAOImpl : ProjectDAO {
     override fun deleteById(id: Int): Int = update("DELETE FROM projects WHERE id IN($id)")
 
     override fun getAll(): List<Project> = mutableListOf<Project>().apply {
-        query("SELECT * FROM projects") { resultSet ->
+        query("SELECT projects.id, projects.name, projects.owner_id, users.username FROM projects JOIN users ON projects.owner_id = users.id") { resultSet ->
             while (resultSet.next()) {
                 add(
                     Project(
                         resultSet.getInt("id"),
                         resultSet.getString("name"),
-                        resultSet.getInt("owner_id")
+                        Project.ProjectOwner(
+                            resultSet.getInt("owner_id"),
+                            resultSet.getString("username")
+                        )
                     )
                 )
             }
@@ -26,13 +29,16 @@ object ProjectDAOImpl : ProjectDAO {
     }
 
     override fun getByOwner(ownerId: Int): List<Project> = mutableListOf<Project>().apply {
-        query("SELECT * FROM projects WHERE owner_id IN($ownerId)") { resultSet ->
+        query("SELECT projects.id, projects.name, projects.owner_id, users.username FROM projects JOIN users ON projects.owner_id = users.id WHERE projects.owner_id IN($ownerId)") { resultSet ->
             while (resultSet.next()) {
                 add(
                     Project(
                         resultSet.getInt("id"),
                         resultSet.getString("name"),
-                        resultSet.getInt("owner_id")
+                        Project.ProjectOwner(
+                            resultSet.getInt("owner_id"),
+                            resultSet.getString("username")
+                        )
                     )
                 )
             }
@@ -42,12 +48,15 @@ object ProjectDAOImpl : ProjectDAO {
     override fun getById(id: Int): Project? {
         var project: Project? = null
 
-        query("SELECT * FROM projects WHERE id IN($id) LIMIT 1") { resultSet ->
+        query("SELECT projects.id, projects.name, projects.owner_id, users.username FROM projects JOIN users ON projects.owner_id = users.id WHERE projects.id IN($id) LIMIT 1") { resultSet ->
             while (resultSet.next()) {
                 project = Project(
                     resultSet.getInt("id"),
                     resultSet.getString("name"),
-                    resultSet.getInt("owner_id")
+                    Project.ProjectOwner(
+                        resultSet.getInt("owner_id"),
+                        resultSet.getString("username")
+                    )
                 )
             }
         }
