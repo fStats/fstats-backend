@@ -14,19 +14,13 @@ object MetricDAOImpl : MetricDAO {
     override fun add(metrics: Metrics): Int {
         try {
             dataStore().connection.use { connection ->
-
-                val statement = connection.createStatement()
-
-                val batchValues = metrics.projectIds.map { (projectId, modVersion) ->
-                    "('${Timestamp.from(Instant.now())}', $projectId, ${metrics.metric.isOnlineMode}, '${metrics.metric.minecraftVersion}', '$modVersion', '${metrics.metric.os}', '${metrics.metric.location}')"
-                }
-
-                val batchSql =
+                connection.createStatement().execute(
                     "INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) VALUES ${
-                        batchValues.joinToString(",")
+                        metrics.projectIds.map { (projectId, modVersion) ->
+                            "('${Timestamp.from(Instant.now())}', $projectId, ${metrics.metric.isOnlineMode}, '${metrics.metric.minecraftVersion}', '$modVersion', '${metrics.metric.os}', '${metrics.metric.location}')"
+                        }.joinToString(",")
                     }"
-
-                statement.execute(batchSql)
+                )
                 return SUCCESS
             }
         } catch (e: Exception) {

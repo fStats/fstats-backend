@@ -24,7 +24,7 @@ object Database {
 
     fun query(sql: String, resultSet: (ResultSet) -> Unit) {
         runCatching {
-            dataSource.connection.use { connection ->
+            dataStore().connection.use { connection ->
                 connection.createStatement().use { statement ->
                     statement.executeQuery(sql).use { resultSet ->
                         resultSet(resultSet)
@@ -36,7 +36,7 @@ object Database {
 
     fun update(sql: String): Int {
         runCatching {
-            dataSource.connection.use { connection ->
+            dataStore().connection.use { connection ->
                 connection.createStatement().use { statement ->
                     return statement.executeUpdate(sql)
                 }
