@@ -22,6 +22,7 @@ ktor {
 }
 
 tasks {
+    delete(rootProject.buildDir)
     processResources {
         filesMatching("index.html") {
             expand(mutableMapOf("version" to project.version))
