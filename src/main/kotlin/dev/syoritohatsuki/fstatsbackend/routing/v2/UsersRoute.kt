@@ -3,6 +3,7 @@ package dev.syoritohatsuki.fstatsbackend.routing.v2
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -19,21 +20,21 @@ fun Route.usersRoute() {
                 UserDAOImpl.getById(idOrUsername!!.toInt())
             }.recover {
                 UserDAOImpl.getByName(idOrUsername.toString())
-            }.getOrNull() ?: return@get call.respond(HttpStatusCode.NoContent, "User not found")
+            }.getOrNull() ?: return@get call.respondMessage(HttpStatusCode.NoContent, "User not found")
 
             call.respond(user.getWithoutPassword())
         }
 
         get("{id}/projects") {
-            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
                 HttpStatusCode.BadRequest, "Project ID must be number"
             )
 
-            val user = UserDAOImpl.getById(id) ?: return@get call.respond(
+            val user = UserDAOImpl.getById(id) ?: return@get call.respondMessage(
                 HttpStatusCode.BadRequest, "User not found"
             )
 
-            call.respond(HttpStatusCode.OK, ProjectDAOImpl.getByOwner(user.id))
+            call.respond(ProjectDAOImpl.getByOwner(user.id))
         }
 
         authenticate {
@@ -41,8 +42,8 @@ fun Route.usersRoute() {
                 val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 
                 when (UserDAOImpl.deleteById(userId)) {
-                    SUCCESS -> call.respond(HttpStatusCode.Accepted, "User deleted")
-                    else -> call.respond(HttpStatusCode.NoContent, "User not found")
+                    SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "User deleted")
+                    else -> call.respondMessage(HttpStatusCode.NoContent, "User not found")
                 }
             }
         }

@@ -3,6 +3,7 @@ package dev.syoritohatsuki.fstatsbackend.routing.v2
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -13,14 +14,14 @@ fun Route.metricsRoute() {
     route("metrics") {
         route("{id}") {
             get {
-                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
                 call.respond(MetricDAOImpl.getLastHalfYearById(id))
             }
             get("count") {
-                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
@@ -30,13 +31,13 @@ fun Route.metricsRoute() {
 
         post {
             if (call.request.userAgent()?.contains("fstats") == false)
-                return@post call.respond(HttpStatusCode.BadRequest)
+                return@post call.respondMessage(HttpStatusCode.BadRequest, "Incorrect User-Agent")
 
             val metrics = call.receive<Metrics>()
 
             when (MetricDAOImpl.add(metrics)) {
-                SUCCESS -> call.respond(HttpStatusCode.Created, "Metrics data added")
-                else -> call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+                SUCCESS -> call.respondMessage(HttpStatusCode.Created, "Metrics data added")
+                else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
             }
         }
     }

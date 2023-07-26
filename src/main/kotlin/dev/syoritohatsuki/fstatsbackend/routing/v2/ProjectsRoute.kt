@@ -3,6 +3,7 @@ package dev.syoritohatsuki.fstatsbackend.routing.v2
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Project
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -18,11 +19,11 @@ fun Route.projectsRoute() {
         }
 
         get("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respond(
+            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
                 HttpStatusCode.BadRequest, "Project ID must be number"
             )
 
-            val project = ProjectDAOImpl.getById(id) ?: return@get call.respond(
+            val project = ProjectDAOImpl.getById(id) ?: return@get call.respondMessage(
                 HttpStatusCode.BadRequest, "Project not found"
             )
 
@@ -33,7 +34,7 @@ fun Route.projectsRoute() {
             post {
                 val project = call.receive<Project>()
 
-                if (project.name.isBlank()) return@post call.respond(
+                if (project.name.isBlank()) return@post call.respondMessage(
                     HttpStatusCode.BadRequest, "Project name can't be empty"
                 )
 
@@ -41,17 +42,17 @@ fun Route.projectsRoute() {
                     project.name,
                     call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
                 )) {
-                    SUCCESS -> call.respond(HttpStatusCode.Created)
-                    else -> call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+                    SUCCESS -> call.respondMessage(HttpStatusCode.Created, "Project created")
+                    else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
                 }
             }
 
             delete("{id}") {
-                val id = call.parameters["id"]?.toIntOrNull() ?: return@delete call.respond(
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@delete call.respondMessage(
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
-                val project = ProjectDAOImpl.getById(id) ?: return@delete call.respond(
+                val project = ProjectDAOImpl.getById(id) ?: return@delete call.respondMessage(
                     HttpStatusCode.NoContent, "Project not found"
                 )
 
@@ -61,8 +62,8 @@ fun Route.projectsRoute() {
                 ) return@delete call.respond(HttpStatusCode.Unauthorized)
 
                 when (ProjectDAOImpl.deleteById(project.id)) {
-                    SUCCESS -> call.respond(HttpStatusCode.Accepted, "Project deleted")
-                    else -> call.respond(HttpStatusCode.BadRequest, "Something went wrong")
+                    SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project deleted")
+                    else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
                 }
             }
         }

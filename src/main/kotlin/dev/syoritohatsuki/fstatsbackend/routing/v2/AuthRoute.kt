@@ -19,15 +19,19 @@ fun Route.authRoute() {
         post("login") {
             val userFromRequest = call.receive<User>()
 
-            if (userFromRequest.username.isEmpty() || userFromRequest.password.isEmpty()) return@post call.respond(
+            if (userFromRequest.username.isEmpty() || userFromRequest.password.isEmpty()) return@post call.respondMessage(
                 HttpStatusCode.BadRequest, "Incorrect username or password"
             )
 
-            val userFromDB = UserDAOImpl.getByName(userFromRequest.username) ?: return@post call.respond(
+            val userFromDB = UserDAOImpl.getByName(userFromRequest.username) ?: return@post call.respondMessage(
                 HttpStatusCode.BadRequest, "Incorrect username or password"
             )
 
-            if (!verify(userFromRequest.password, userFromDB.passwordHash.toByteArray())) return@post call.respond(
+            if (!verify(
+                    userFromRequest.password,
+                    userFromDB.passwordHash.toByteArray()
+                )
+            ) return@post call.respondMessage(
                 HttpStatusCode.BadRequest, "Incorrect username or password"
             )
 
@@ -45,13 +49,14 @@ fun Route.authRoute() {
         post("registration") {
             val user = call.receive<User>()
 
-            if (!Regex(USERNAME_REGEX).matches(user.username) || !Regex(PASSWORD_REGEX).matches(user.password)) return@post call.respond(
-                HttpStatusCode.BadRequest, "Username or password not match requirements"
-            )
+            if (!Regex(USERNAME_REGEX).matches(user.username) || !Regex(PASSWORD_REGEX).matches(user.password))
+                return@post call.respondMessage(
+                    HttpStatusCode.BadRequest, "Username or password not match requirements"
+                )
 
             when (UserDAOImpl.create(User(username = user.username, passwordHash = String(hash(user.password))))) {
-                SUCCESS -> call.respond(HttpStatusCode.Created, "User created")
-                else -> call.respond(HttpStatusCode.BadRequest, "Username already exist")
+                SUCCESS -> call.respondMessage(HttpStatusCode.Created, "User created")
+                else -> call.respondMessage(HttpStatusCode.BadRequest, "Username already exist")
             }
         }
     }
