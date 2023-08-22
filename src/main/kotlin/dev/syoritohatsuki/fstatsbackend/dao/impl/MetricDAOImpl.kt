@@ -1,10 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
-import dev.syoritohatsuki.fstatsbackend.dto.Metric
-import dev.syoritohatsuki.fstatsbackend.dto.Metrics
-import dev.syoritohatsuki.fstatsbackend.dto.Project
-import dev.syoritohatsuki.fstatsbackend.dto.ProjectMetric
+import dev.syoritohatsuki.fstatsbackend.dto.*
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.Database.dataStore
 import dev.syoritohatsuki.fstatsbackend.mics.Database.query
@@ -31,7 +28,7 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLastHalfYearById(projectId: Int): Map<Project, Set<Metric>>? {
+    override fun getLastHalfYearById(projectId: Int): ProjectMetrics? {
 
         var project: Project? = null
 
@@ -64,10 +61,7 @@ object MetricDAOImpl : MetricDAO {
             }
         }
 
-        return when {
-            project == null -> null
-            else -> mapOf(project!! to metrics)
-        }
+        return ProjectMetrics(project ?: return null, metrics)
     }
 
     override fun getMetricCountById(projectId: Int): ProjectMetric? {

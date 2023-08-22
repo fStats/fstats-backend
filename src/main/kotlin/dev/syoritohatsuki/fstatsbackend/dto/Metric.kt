@@ -17,6 +17,14 @@ data class Metric(
     val fabricApiVersion: String = "unknown"
 )
 
+// TODO Rename all... -_-
+
+@Serializable
+data class ProjectMetrics(
+    val project: Project,
+    val metrics: Set<Metric>
+)
+
 @Serializable
 data class ProjectMetric(
     val project: Project,
