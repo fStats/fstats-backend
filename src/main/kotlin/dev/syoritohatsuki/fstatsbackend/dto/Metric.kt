@@ -10,7 +10,8 @@ data class Metric(
     val isOnlineMode: Boolean,
     val modVersion: String = "",
     val os: Char,
-    val location: String = "unknown"
+    val location: String = "unknown",
+    val fabricApiVersion: String = "unknown"
 )
 
 @Serializable

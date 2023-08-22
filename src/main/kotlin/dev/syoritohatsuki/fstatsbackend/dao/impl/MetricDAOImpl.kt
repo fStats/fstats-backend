@@ -15,9 +15,9 @@ object MetricDAOImpl : MetricDAO {
         try {
             dataStore().connection.use { connection ->
                 connection.createStatement().execute(
-                    "INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location) VALUES ${
+                    "INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location, fabric_api_version) VALUES ${
                         metrics.projectIds.map { (projectId, modVersion) ->
-                            "('${Timestamp.from(Instant.now())}', $projectId, ${metrics.metric.isOnlineMode}, '${metrics.metric.minecraftVersion}', '$modVersion', '${metrics.metric.os}', '${metrics.metric.location}')"
+                            "('${Timestamp.from(Instant.now())}', $projectId, ${metrics.metric.isOnlineMode}, '${metrics.metric.minecraftVersion}', '$modVersion', '${metrics.metric.os}', '${metrics.metric.location}', '${metrics.metric.fabricApiVersion}')"
                         }.joinToString(",")
                     }"
                 )
@@ -40,7 +40,8 @@ object MetricDAOImpl : MetricDAO {
                         resultSet.getBoolean("online_mode"),
                         resultSet.getString("mod_version"),
                         resultSet.getCharacterStream("os").read().toChar(),
-                        resultSet.getString("location")
+                        resultSet.getString("location"),
+                        resultSet.getString("fabric_api_version")
                     )
                 )
             }
@@ -92,7 +93,16 @@ object MetricDAOImpl : MetricDAO {
                            location   AS item
                     FROM metrics
                     WHERE project_id IN ($projectId)
-                    GROUP BY location;
+                    GROUP BY location
+                    
+                    UNION ALL
+                    
+                    SELECT 'fabric_api_version' AS column_name,
+                           COUNT(*)   AS count,
+                           fabric_api_version AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                    GROUP BY fabric_api_version;
                     """
             ) { resultSet ->
                 while (resultSet.next()) {
