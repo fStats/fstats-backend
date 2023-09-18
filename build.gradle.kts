@@ -1,11 +1,11 @@
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "2.3.0"
+    id("io.ktor.plugin") version "2.3.4"
 }
 
 group = "dev.syoritohatsuki"
-version = "2023.8.2"
+version = "2023.9.1"
 
 application {
     mainClass.set("$group.fstatsbackend.ApplicationKt")
