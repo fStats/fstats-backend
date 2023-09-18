@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.fstatsbackend.routing.v2
 
+import dev.syoritohatsuki.fstatsbackend.dao.impl.FavoriteDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
@@ -38,6 +39,13 @@ fun Route.usersRoute() {
         }
 
         authenticate {
+            route("{id}/favorite") {
+                get {
+                    val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+                    call.respond(FavoriteDAOImpl.getUserFavorites(userId))
+                }
+            }
+
             delete {
                 val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 

@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.fstatsbackend.routing.v2
 
+import dev.syoritohatsuki.fstatsbackend.dao.impl.FavoriteDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Project
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
@@ -64,6 +65,33 @@ fun Route.projectsRoute() {
                 when (ProjectDAOImpl.deleteById(project.id)) {
                     SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project deleted")
                     else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
+                }
+            }
+
+            post("{id}/favorite") {
+                val projectId = call.parameters["id"]?.toInt() ?: return@post call.respondMessage(
+                    HttpStatusCode.NoContent, "Incorrect project ID"
+                )
+
+                val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+
+                when (FavoriteDAOImpl.addProjectToFavorites(userId, projectId)) {
+                    SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project added to favorites")
+                    else -> call.respondMessage(HttpStatusCode.NoContent, "Cant add project to favorites")
+                }
+            }
+
+            delete("{id}/favorite") {
+
+                val projectId = call.parameters["id"]?.toInt() ?: return@delete call.respondMessage(
+                    HttpStatusCode.NoContent, "Incorrect project ID"
+                )
+
+                val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+
+                when (FavoriteDAOImpl.removeProjectFromFavorites(userId, projectId)) {
+                    SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project removed from favorites")
+                    else -> call.respondMessage(HttpStatusCode.NoContent, "Cant remove project from favorites")
                 }
             }
         }
