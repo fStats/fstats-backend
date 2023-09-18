@@ -13,14 +13,14 @@ import io.ktor.server.routing.*
 
 fun Route.usersRoute() {
     route("users") {
-        get("/{idOrUsername}") {
-            val idOrUsername = call.parameters["idOrUsername"]
+        get("{id}") {
+            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
+                HttpStatusCode.BadRequest, "Project ID must be number"
+            )
 
-            val user = runCatching {
-                UserDAOImpl.getById(idOrUsername!!.toInt())
-            }.recover {
-                UserDAOImpl.getByName(idOrUsername.toString())
-            }.getOrNull() ?: return@get call.respondMessage(HttpStatusCode.NoContent, "User not found")
+            val user = UserDAOImpl.getById(id) ?: return@get call.respondMessage(
+                HttpStatusCode.NoContent, "User not found"
+            )
 
             call.respond(user.getWithoutPassword())
         }
