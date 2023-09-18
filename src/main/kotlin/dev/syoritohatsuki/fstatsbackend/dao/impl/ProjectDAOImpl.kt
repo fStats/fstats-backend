@@ -16,11 +16,8 @@ object ProjectDAOImpl : ProjectDAO {
             while (resultSet.next()) {
                 add(
                     Project(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        Project.ProjectOwner(
-                            resultSet.getInt("owner_id"),
-                            resultSet.getString("username")
+                        resultSet.getInt("id"), resultSet.getString("name"), Project.ProjectOwner(
+                            resultSet.getInt("owner_id"), resultSet.getString("username")
                         )
                     )
                 )
@@ -33,11 +30,8 @@ object ProjectDAOImpl : ProjectDAO {
             while (resultSet.next()) {
                 add(
                     Project(
-                        resultSet.getInt("id"),
-                        resultSet.getString("name"),
-                        Project.ProjectOwner(
-                            resultSet.getInt("owner_id"),
-                            resultSet.getString("username")
+                        resultSet.getInt("id"), resultSet.getString("name"), Project.ProjectOwner(
+                            resultSet.getInt("owner_id"), resultSet.getString("username")
                         )
                     )
                 )
@@ -51,11 +45,8 @@ object ProjectDAOImpl : ProjectDAO {
         query("SELECT projects.id, projects.name, projects.owner_id, users.username FROM projects JOIN users ON projects.owner_id = users.id WHERE projects.id IN($id) LIMIT 1") { resultSet ->
             while (resultSet.next()) {
                 project = Project(
-                    resultSet.getInt("id"),
-                    resultSet.getString("name"),
-                    Project.ProjectOwner(
-                        resultSet.getInt("owner_id"),
-                        resultSet.getString("username")
+                    resultSet.getInt("id"), resultSet.getString("name"), Project.ProjectOwner(
+                        resultSet.getInt("owner_id"), resultSet.getString("username")
                     )
                 )
             }
