@@ -3,7 +3,7 @@ package dev.syoritohatsuki.fstatsbackend.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-typealias MetricMap = Map<String, Map<String, Int>>
+typealias MetricMap = Map<String, Map<String?, Int>>
 
 @Serializable
 data class Metric(
@@ -14,7 +14,7 @@ data class Metric(
     val modVersion: String = "",
     val os: Char,
     val location: String = "unknown",
-    val fabricApiVersion: String = "unknown"
+    val fabricApiVersion: String?
 )
 
 // TODO Rename all... -_-
