@@ -18,7 +18,6 @@ fun main() {
 
 fun Application.fStatsModule() {
     configureAuth()
-    configureCaching()
     configureCompression()
     configureCors()
     configureLogging()
