@@ -2,10 +2,9 @@ package dev.syoritohatsuki.fstatsbackend.dao
 
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.dto.ProjectMetric
-import dev.syoritohatsuki.fstatsbackend.dto.ProjectMetrics
 
 interface MetricDAO {
     fun add(metrics: Metrics): Int
-    fun getLastHalfYearById(projectId: Int): ProjectMetrics?
+    fun getLastHalfYearById(projectId: Int): Map<String, Int>
     fun getMetricCountById(projectId: Int): ProjectMetric?
 }

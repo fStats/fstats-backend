@@ -1,7 +1,9 @@
 package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
-import dev.syoritohatsuki.fstatsbackend.dto.*
+import dev.syoritohatsuki.fstatsbackend.dto.Metrics
+import dev.syoritohatsuki.fstatsbackend.dto.Project
+import dev.syoritohatsuki.fstatsbackend.dto.ProjectMetric
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.Database.dataStore
 import dev.syoritohatsuki.fstatsbackend.mics.Database.query
@@ -28,40 +30,35 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLastHalfYearById(projectId: Int): ProjectMetrics? {
+    override fun getLastHalfYearById(projectId: Int): Map<String, Int> {
 
-        var project: Project? = null
-
-        val metrics = mutableSetOf<Metric>().apply {
-            query("SELECT * FROM metrics WHERE project_id IN($projectId) AND time > NOW() - INTERVAL '6 months' ORDER BY time DESC") { resultSet ->
+        val metrics = mutableMapOf<String, Int>().apply {
+            query(
+                """
+                WITH thirty_minute_intervals AS (
+                    SELECT generate_series(
+                                   date_trunc('hour', NOW() - INTERVAL '1 year'),
+                                   date_trunc('hour', NOW()),
+                                   INTERVAL '30 minutes'
+                           ) AS time_bucket
+                )
+                SELECT
+                    time_bucket AS time,
+                    COALESCE(SUM(metrics.project_id), 0) AS value
+                FROM thirty_minute_intervals
+                         LEFT JOIN metrics ON time_bucket <= metrics.time
+                    AND metrics.time < time_bucket + INTERVAL '30 minutes' AND project_id IN(${projectId})
+                GROUP BY time_bucket
+                ORDER BY time_bucket;
+            """
+            ) { resultSet ->
                 while (resultSet.next()) {
-                    add(
-                        Metric(
-                            resultSet.getTimestamp("time").time,
-                            projectId,
-                            resultSet.getString("minecraft_version"),
-                            resultSet.getBoolean("online_mode"),
-                            resultSet.getString("mod_version"),
-                            resultSet.getCharacterStream("os").read().toChar(),
-                            resultSet.getString("location"),
-                            resultSet.getString("fabric_api_version")
-                        )
-                    )
+                    this[resultSet.getString("time")] = resultSet.getInt("value")
                 }
             }
         }
 
-        query("SELECT projects.id, projects.name, projects.owner_id, users.username FROM projects JOIN users ON projects.owner_id = users.id WHERE projects.id IN($projectId) LIMIT 1") { resultSet ->
-            while (resultSet.next()) {
-                project = Project(
-                    resultSet.getInt("id"), resultSet.getString("name"), Project.ProjectOwner(
-                        resultSet.getInt("owner_id"), resultSet.getString("username")
-                    )
-                )
-            }
-        }
-
-        return ProjectMetrics(project ?: return null, metrics)
+        return metrics
     }
 
     override fun getMetricCountById(projectId: Int): ProjectMetric? {
@@ -127,8 +124,8 @@ object MetricDAOImpl : MetricDAO {
                     val columnName = resultSet.getString("column_name")
                     val innerMap = this[columnName] ?: mutableMapOf()
 
-                    if (resultSet.getString("item") != null)
-                        innerMap[resultSet.getString("item")] = resultSet.getInt("count")
+                    if (resultSet.getString("item") != null) innerMap[resultSet.getString("item")] =
+                        resultSet.getInt("count")
 
                     this[columnName] = innerMap
                 }
