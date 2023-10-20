@@ -35,21 +35,13 @@ object MetricDAOImpl : MetricDAO {
         val metrics = mutableMapOf<String, Int>().apply {
             query(
                 """
-                WITH thirty_minute_intervals AS (
-                    SELECT generate_series(
-                                   date_trunc('hour', NOW() - INTERVAL '1 year'),
-                                   date_trunc('hour', NOW()),
-                                   INTERVAL '30 minutes'
-                           ) AS time_bucket
-                )
-                SELECT
-                    time_bucket AS time,
-                    COALESCE(SUM(metrics.project_id), 0) AS value
-                FROM thirty_minute_intervals
-                         LEFT JOIN metrics ON time_bucket <= metrics.time
-                    AND metrics.time < time_bucket + INTERVAL '30 minutes' AND project_id IN(${projectId})
-                GROUP BY time_bucket
-                ORDER BY time_bucket;
+                    SELECT
+                        time_bucket('30 minutes', time) AS time_bucket,
+                        count(*)::int AS count
+                    FROM metrics
+                    WHERE time >= NOW() - interval '1 year' AND project_id IN(32)
+                    GROUP BY time_bucket
+                    ORDER BY time_bucket;
             """
             ) { resultSet ->
                 while (resultSet.next()) {
