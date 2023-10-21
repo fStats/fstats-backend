@@ -45,7 +45,7 @@ object MetricDAOImpl : MetricDAO {
             """
             ) { resultSet ->
                 while (resultSet.next()) {
-                    this[resultSet.getString("time")] = resultSet.getInt("value")
+                    this[resultSet.getString("time_bucket")] = resultSet.getInt("count")
                 }
             }
         }
