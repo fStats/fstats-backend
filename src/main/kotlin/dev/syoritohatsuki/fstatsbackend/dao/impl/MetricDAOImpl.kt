@@ -39,7 +39,7 @@ object MetricDAOImpl : MetricDAO {
                         time_bucket('30 minutes', time) AS time_bucket,
                         count(*)::int AS count
                     FROM metrics
-                    WHERE time >= NOW() - interval '1 year' AND project_id IN(32)
+                    WHERE time >= NOW() - interval '1 year' AND project_id IN(${projectId})
                     GROUP BY time_bucket
                     ORDER BY time_bucket;
             """
