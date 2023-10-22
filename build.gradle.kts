@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "dev.syoritohatsuki"
-version = "2023.10.5"
+version = "2023.10.6"
 
 application {
     mainClass.set("$group.fstatsbackend.ApplicationKt")
@@ -53,6 +53,8 @@ dependencies {
     implementation("io.ktor", "ktor-server-compression-jvm", ktorVersion)
     implementation("io.ktor", "ktor-server-rate-limit", ktorVersion)
     implementation("io.ktor", "ktor-server-status-pages", ktorVersion)
+
+    implementation("io.ktor", "ktor-server-swagger", ktorVersion)
 
     implementation("ch.qos.logback", "logback-classic", "1.4.4")
 

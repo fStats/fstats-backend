@@ -1,0 +1,522 @@
+openapi: 3.0.3
+info:
+  title: fStats OpenAPI
+  description: Official fStats API OpenAPI documentation
+  version: 2.0.0
+  contact:
+    name: API Support on Discord
+    url: https://discord.gg/pbwnMwnUD6
+  license:
+    name: MIT
+servers:
+  - url: "https://api.fstats.dev"
+paths:
+  /v2/auth/login:
+    post:
+      tags:
+        - Authorization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+        required: true
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/auth/registration:
+    post:
+      tags:
+        - Authorization
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+        required: true
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/metrics:
+    post:
+      security:
+        - bearerAuth: [ ]
+      summary: Upload new metric data to server
+      tags:
+        - Metric
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Metrics"
+        required: true
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/metrics/{id}/count:
+    get:
+      summary: Get data for Pie Chart
+      tags:
+        - Metric
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectMetric"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/metrics/{id}/timeline:
+    get:
+      summary: Get data for Timeline Chart
+      tags:
+        - Metric
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Timeline"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/projects:
+    get:
+      summary: Get list of all exist projects
+      tags:
+        - Project
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Project"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+    post:
+      summary: Create new project
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Project
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Project"
+        required: true
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/projects/{id}:
+    get:
+      summary: Get specify project by ID
+      tags:
+        - Project
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+    delete:
+      summary: Delete specify project
+      tags:
+        - Project
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        202:
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/projects/{id}/favorite:
+    post:
+      summary: Added project to user favorites
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Favorite
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        202:
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        204:
+          description: "No Content"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+    delete:
+      summary: Remove project to user favorites
+      tags:
+        - Favorite
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        204:
+          description: "No Content"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/users:
+    delete:
+      summary: Delete specify user from database with all project
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - User
+      responses:
+        202:
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        204:
+          description: "NoContent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/users/{id}:
+    get:
+      summary: Get specify user by ID
+      tags:
+        - User
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        204:
+          description: "NoContent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        400:
+          description: "BadRequest"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /v2/users/{id}/favorite:
+    get:
+      summary: Get projects list that user marked as favorite
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - Favorite
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "string"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Project"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v2/users/{id}/projects:
+    get:
+      summary: Get projects list that user own
+      tags:
+        - User
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                type: "array"
+                items:
+                  $ref: "#/components/schemas/Project"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        owner:
+          $ref: "#/components/schemas/User"
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+    Message:
+      type: object
+      properties:
+        code:
+          type: integer
+        message:
+          type: string
+    ProjectMetric:
+      type: object
+      properties:
+        project:
+          $ref: "#/components/schemas/Project"
+        metric_map:
+          type: object
+          additionalProperties:
+            type: object
+            additionalProperties:
+              type: integer
+          example:
+            metric_map:
+              minecraft_version:
+                1.19.4: 0
+              online_mode:
+                false: 0
+                true: 0
+              mod_version:
+                1.0: 0
+              os:
+                w: 271
+                l: 274
+                m: 266
+              location:
+                Finland: 0
+              fabric_api_version:
+                0.78.1: 0
+    Timeline:
+      type: object
+      properties:
+        additionalProperties:
+          type: integer
+      example:
+        2023-05-30 00:30:00+03: 1
+        2023-05-30 01:00:00+03: 2
+        2023-05-30 21:30:00+03: 3
+    Metrics:
+      type: object
+      properties:
+        projectIds:
+          type: object
+          additionalProperties:
+            type: string
+        metric:
+          $ref: '#/components/schemas/Metric'
+    Metric:
+      type: object
+      properties:
+        timestampSeconds:
+          type: integer
+        projectId:
+          type: integer
+        minecraftVersion:
+          type: string
+        isOnlineMode:
+          type: boolean
+        modVersion:
+          type: string
+        os:
+          type: string
+          maxLength: 1
+        location:
+          type: string
+        fabricApiVersion:
+          type: string
