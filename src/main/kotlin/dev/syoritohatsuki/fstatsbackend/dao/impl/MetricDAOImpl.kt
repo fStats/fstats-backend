@@ -8,6 +8,7 @@ import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.Database.dataStore
 import dev.syoritohatsuki.fstatsbackend.mics.Database.query
 import java.sql.Timestamp
+import java.sql.Types
 import java.time.Instant
 
 object MetricDAOImpl : MetricDAO {
@@ -15,13 +16,27 @@ object MetricDAOImpl : MetricDAO {
     override fun add(metrics: Metrics): Int {
         try {
             dataStore().connection.use { connection ->
-                connection.createStatement().execute(
-                    "INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location, fabric_api_version) VALUES ${
-                        metrics.projectIds.map { (projectId, modVersion) ->
-                            "('${Timestamp.from(Instant.now())}', $projectId, ${metrics.metric.isOnlineMode}, '${metrics.metric.minecraftVersion}', '$modVersion', '${metrics.metric.os}', '${metrics.metric.location}', '${metrics.metric.fabricApiVersion}')"
-                        }.joinToString(",")
-                    }"
-                )
+                connection.prepareStatement("INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location, fabric_api_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+                    .use {
+                        metrics.projectIds.forEach { (projectId, modVersion) ->
+                            it.setTimestamp(1, Timestamp.from(Instant.now()))
+                            it.setInt(2, projectId)
+                            it.setBoolean(3, metrics.metric.isOnlineMode)
+                            it.setString(4, metrics.metric.minecraftVersion)
+                            it.setString(5, modVersion)
+                            it.setString(6, metrics.metric.os.toString())
+                            it.setString(7, metrics.metric.location)
+
+                            if (metrics.metric.fabricApiVersion != null) {
+                                it.setString(8, metrics.metric.fabricApiVersion)
+                            } else {
+                                it.setNull(8, Types.VARCHAR)
+                            }
+
+                            it.addBatch()
+                        }
+                        it.executeBatch()
+                    }
                 return SUCCESS
             }
         } catch (e: Exception) {
