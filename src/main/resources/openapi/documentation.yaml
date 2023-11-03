@@ -99,7 +99,7 @@ paths:
                 $ref: "#/components/schemas/Message"
   /v2/metrics/{id}/count:
     get:
-      summary: Get data for Pie Chart
+      summary: Get last 30 minute data for Pie Chart
       tags:
         - Metric
       parameters:
@@ -123,7 +123,7 @@ paths:
                 $ref: "#/components/schemas/Message"
   /v2/metrics/{id}/timeline:
     get:
-      summary: Get data for Timeline Chart
+      summary: Get year old data for Timeline Chart
       tags:
         - Metric
       parameters:
