@@ -74,57 +74,63 @@ object MetricDAOImpl : MetricDAO {
         val metricMap = mutableMapOf<String, MutableMap<String?, Int>>().apply {
             query(
                 """
-                        SELECT 'minecraft_version' AS column_name,
-                               COUNT(*)            AS count,
-                               minecraft_version   AS item
-                        FROM metrics
-                        WHERE project_id IN ($projectId)
-                        GROUP BY minecraft_version
-                        
-                        UNION ALL
-                        
-                        SELECT 'online_mode'             AS column_name,
-                               COUNT(*)                  AS count,
-                               CAST(online_mode AS TEXT) AS item
-                        FROM metrics
-                        WHERE project_id IN ($projectId)
-                        GROUP BY online_mode
-                        
-                        UNION ALL
-                        
-                        SELECT 'mod_version' AS column_name,
-                               COUNT(*)      AS count,
-                               mod_version   AS item
-                        FROM metrics
-                        WHERE project_id IN ($projectId)
-                        GROUP BY mod_version
-                        
-                        UNION ALL
-                        
-                        SELECT 'os'     AS column_name,
-                               COUNT(*) AS count,
-                               os       AS item
-                        FROM metrics
-                        WHERE project_id IN ($projectId)
-                        GROUP BY os
-                        
-                        UNION ALL
-                        
-                        SELECT 'location' AS column_name,
-                               COUNT(*)   AS count,
-                               location   AS item
-                        FROM metrics
-                        WHERE project_id IN ($projectId)
-                        GROUP BY location
-                        
-                        UNION ALL
-                        
-                        SELECT 'fabric_api_version' AS column_name,
-                               COUNT(*)   AS count,
-                               fabric_api_version AS item
-                        FROM metrics
-                        WHERE project_id IN ($projectId)
-                        GROUP BY fabric_api_version;
+                    SELECT 'minecraft_version' AS column_name,
+                           COUNT(*)            AS count,
+                           minecraft_version   AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                      AND time >= NOW() - INTERVAL '30 minutes'
+                    GROUP BY minecraft_version
+                    
+                    UNION ALL
+                    
+                    SELECT 'online_mode'             AS column_name,
+                           COUNT(*)                  AS count,
+                           CAST(online_mode AS TEXT) AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                      AND time >= NOW() - INTERVAL '30 minutes'
+                    GROUP BY online_mode
+                    
+                    UNION ALL
+                    
+                    SELECT 'mod_version' AS column_name,
+                           COUNT(*)      AS count,
+                           mod_version   AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                      AND time >= NOW() - INTERVAL '30 minutes'
+                    GROUP BY mod_version
+                    
+                    UNION ALL
+                    
+                    SELECT 'os'     AS column_name,
+                           COUNT(*) AS count,
+                           os       AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                      AND time >= NOW() - INTERVAL '30 minutes'
+                    GROUP BY os
+                    
+                    UNION ALL
+                    
+                    SELECT 'location' AS column_name,
+                           COUNT(*)   AS count,
+                           location   AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                      AND time >= NOW() - INTERVAL '30 minutes'
+                    GROUP BY location
+                    
+                    UNION ALL
+                    
+                    SELECT 'fabric_api_version' AS column_name,
+                           COUNT(*)   AS count,
+                           fabric_api_version AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                      AND time >= NOW() - INTERVAL '30 minutes'
+                    GROUP BY fabric_api_version;
                         """
             ) { resultSet ->
                 while (resultSet.next()) {
