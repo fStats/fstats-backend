@@ -3,7 +3,8 @@ package dev.syoritohatsuki.fstatsbackend.dto
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-typealias MetricMap = Map<String, Map<String?, Int>>
+typealias MetricPie = Map<String, Map<String?, Int>>
+typealias MetricLine = Map<String, Int>
 
 @Serializable
 data class Metric(
@@ -17,19 +18,18 @@ data class Metric(
     val fabricApiVersion: String?
 )
 
-// TODO Rename all... -_-
-
 @Serializable
-data class ProjectMetrics(
+data class ProjectPieMetric(
     val project: Project,
-    val metrics: Set<Metric>
+    @SerialName("metric_pie")
+    val metricPie: MetricPie
 )
 
 @Serializable
-data class ProjectMetric(
+data class ProjectLineMetric(
     val project: Project,
-    @SerialName("metric_map")
-    val metricMap: MetricMap
+    @SerialName("metric_line")
+    val metricLine: MetricLine
 )
 
 @Serializable

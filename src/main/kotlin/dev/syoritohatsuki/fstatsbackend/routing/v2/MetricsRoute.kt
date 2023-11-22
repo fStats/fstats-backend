@@ -13,16 +13,18 @@ import io.ktor.server.routing.*
 fun Route.metricsRoute() {
     route("metrics") {
         route("{id}") {
-            get("timeline") {
+            get("line") {
                 val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
-                val metrics = MetricDAOImpl.getLastHalfYearById(id)
+                val metrics = MetricDAOImpl.getLastHalfYearById(id) ?: return@get call.respondMessage(
+                    HttpStatusCode.BadRequest, "Metric data not available"
+                )
 
                 call.respond(metrics)
             }
-            get("count") {
+            get("pie") {
                 val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )

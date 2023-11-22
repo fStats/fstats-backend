@@ -3,7 +3,8 @@ package dev.syoritohatsuki.fstatsbackend.dao.impl
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.dto.Project
-import dev.syoritohatsuki.fstatsbackend.dto.ProjectMetric
+import dev.syoritohatsuki.fstatsbackend.dto.ProjectLineMetric
+import dev.syoritohatsuki.fstatsbackend.dto.ProjectPieMetric
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.Database.dataStore
 import dev.syoritohatsuki.fstatsbackend.mics.Database.query
@@ -27,10 +28,9 @@ object MetricDAOImpl : MetricDAO {
                             it.setString(6, metrics.metric.os.toString())
                             it.setString(7, metrics.metric.location)
 
-                            if (metrics.metric.fabricApiVersion != null) {
-                                it.setString(8, metrics.metric.fabricApiVersion)
-                            } else {
-                                it.setNull(8, Types.VARCHAR)
+                            when {
+                                metrics.metric.fabricApiVersion != null -> it.setString(8, metrics.metric.fabricApiVersion)
+                                else -> it.setNull(8, Types.VARCHAR)
                             }
 
                             it.addBatch()
@@ -45,7 +45,9 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLastHalfYearById(projectId: Int): Map<String, Int> {
+    override fun getLastHalfYearById(projectId: Int): ProjectLineMetric? {
+
+        val project: Project = ProjectDAOImpl.getById(projectId) ?: return null
 
         val metrics = mutableMapOf<String, Int>().apply {
             query(
@@ -65,12 +67,13 @@ object MetricDAOImpl : MetricDAO {
             }
         }
 
-        return metrics
+        return ProjectLineMetric(project, metrics)
     }
 
-    override fun getMetricCountById(projectId: Int): ProjectMetric? {
+    override fun getMetricCountById(projectId: Int): ProjectPieMetric? {
 
-        var project: Project? = null
+        val project: Project = ProjectDAOImpl.getById(projectId) ?: return null
+
         val metricMap = mutableMapOf<String, MutableMap<String?, Int>>().apply {
             query(
                 """
@@ -145,16 +148,6 @@ object MetricDAOImpl : MetricDAO {
             }
         }
 
-        query("SELECT projects.id, projects.name, projects.owner_id, users.username FROM projects JOIN users ON projects.owner_id = users.id WHERE projects.id IN($projectId) LIMIT 1") { resultSet ->
-            while (resultSet.next()) {
-                project = Project(
-                    resultSet.getInt("id"), resultSet.getString("name"), Project.ProjectOwner(
-                        resultSet.getInt("owner_id"), resultSet.getString("username")
-                    )
-                )
-            }
-        }
-
-        return ProjectMetric(project ?: return null, metricMap)
+        return ProjectPieMetric(project, metricMap)
     }
 }

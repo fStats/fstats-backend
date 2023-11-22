@@ -97,7 +97,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/metrics/{id}/count:
+  /v2/metrics/{id}/pie:
     get:
       summary: Get last 30 minute data for Pie Chart
       tags:
@@ -114,14 +114,14 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ProjectMetric"
+                $ref: "#/components/schemas/PieMetric"
         400:
           description: "Bad Request"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/metrics/{id}/timeline:
+  /v2/metrics/{id}/line:
     get:
       summary: Get year old data for Timeline Chart
       tags:
@@ -138,7 +138,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Timeline"
+                $ref: "#/components/schemas/LineMetric"
         400:
           description: "Bad Request"
           content:
@@ -454,43 +454,26 @@ components:
           type: integer
         message:
           type: string
-    ProjectMetric:
+    PieMetric:
       type: object
       properties:
         project:
           $ref: "#/components/schemas/Project"
-        metric_map:
+        metric_pie:
           type: object
           additionalProperties:
             type: object
             additionalProperties:
               type: integer
-          example:
-            metric_map:
-              minecraft_version:
-                1.19.4: 0
-              online_mode:
-                false: 0
-                true: 0
-              mod_version:
-                1.0: 0
-              os:
-                w: 271
-                l: 274
-                m: 266
-              location:
-                Finland: 0
-              fabric_api_version:
-                0.78.1: 0
-    Timeline:
+    LineMetric:
       type: object
       properties:
-        additionalProperties:
-          type: integer
-      example:
-        2023-05-30 00:30:00+03: 1
-        2023-05-30 01:00:00+03: 2
-        2023-05-30 21:30:00+03: 3
+        project:
+          $ref: "#/components/schemas/Project"
+        metric_line:
+          type: object
+          additionalProperties:
+            type: integer
     Metrics:
       type: object
       properties:
