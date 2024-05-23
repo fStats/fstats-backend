@@ -296,7 +296,7 @@ paths:
           schema:
             type: "integer"
       responses:
-        200:
+        202:
           description: "Accepted"
           content:
             application/json:
