@@ -45,25 +45,23 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLastHalfYearById(projectId: Int): Map<String, Int> {
-
-        val metrics = mutableMapOf<String, Int>().apply {
-            query(
-                """
-                    SELECT
+    override fun getLastHalfYearById(projectId: Int): Map<String, Int> = mutableMapOf<String, Int>().apply {
+        query(
+            """
+                SELECT
                         time_bucket('30 minutes', time) AS time_bucket,
                         count(*)::int AS count
                     FROM metrics
                     WHERE time >= NOW() - interval '1 year' AND project_id IN(${projectId})
                     GROUP BY time_bucket
                     ORDER BY time_bucket;
-            """
-            ) { resultSet ->
-                while (resultSet.next()) {
-                    this[resultSet.getString("time_bucket")] = resultSet.getInt("count")
-                }
+        """
+        ) { resultSet ->
+            while (resultSet.next()) {
+                this[resultSet.getString("time_bucket")] = resultSet.getInt("count")
             }
         }
+    }
 
     override fun getMetricInDateRange(projectId: Int, from: Long?, to: Long): Map<Long, Int> =
         mutableMapOf<Long, Int>().apply {
