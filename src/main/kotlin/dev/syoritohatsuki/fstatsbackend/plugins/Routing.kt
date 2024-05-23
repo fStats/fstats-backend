@@ -8,6 +8,7 @@ import dev.syoritohatsuki.fstatsbackend.routing.v2.usersRoute
 import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
 import io.ktor.server.routing.*
+import dev.syoritohatsuki.fstatsbackend.routing.v3.metricsRoute as metricRouteV3
 
 fun Application.configureRouting() {
     routing {
@@ -18,6 +19,9 @@ fun Application.configureRouting() {
             metricsRoute()
             projectsRoute()
             usersRoute()
+        }
+        route("v3") {
+            metricRouteV3()
         }
     }
 }

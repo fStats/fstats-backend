@@ -65,8 +65,30 @@ object MetricDAOImpl : MetricDAO {
             }
         }
 
-        return metrics
-    }
+    override fun getMetricInDateRange(projectId: Int, from: Long?, to: Long): Map<Long, Int> =
+        mutableMapOf<Long, Int>().apply {
+            query(
+                """
+                    SELECT
+                        COUNT(*)::int AS count,
+                        timestampz
+                    FROM (
+                             SELECT
+                                 EXTRACT(epoch FROM time_bucket('30 minutes', time)) as timestampz
+                             FROM metrics
+                             WHERE (time >= to_timestamp(${from}) OR $from IS NULL)
+                               AND time <= to_timestamp(${to})
+                               AND project_id IN(${projectId})
+                         ) AS _
+                    GROUP BY timestampz
+                    ORDER BY timestampz;
+        """
+            ) { resultSet ->
+                while (resultSet.next()) {
+                    this[resultSet.getLong("timestampz")] = resultSet.getInt("count")
+                }
+            }
+        }
 
     override fun getMetricCountById(projectId: Int): ProjectMetric? {
 
