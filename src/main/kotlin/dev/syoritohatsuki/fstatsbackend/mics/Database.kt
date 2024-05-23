@@ -2,6 +2,7 @@ package dev.syoritohatsuki.fstatsbackend.mics
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import org.intellij.lang.annotations.Language
 import java.sql.ResultSet
 
 
@@ -22,7 +23,7 @@ object Database {
 
     fun dataStore(): HikariDataSource = dataSource
 
-    fun query(sql: String, resultSet: (ResultSet) -> Unit) {
+    fun query(@Language("PostgreSQL") sql: String, resultSet: (ResultSet) -> Unit) {
         runCatching {
             dataStore().connection.use { connection ->
                 connection.createStatement().use { statement ->
@@ -34,7 +35,7 @@ object Database {
         }.onFailure { println(it.localizedMessage) }
     }
 
-    fun update(sql: String): Int {
+    fun update(@Language("PostgreSQL") sql: String): Int {
         runCatching {
             dataStore().connection.use { connection ->
                 connection.createStatement().use { statement ->
