@@ -1,11 +1,11 @@
 plugins {
-    kotlin("jvm")
-    kotlin("plugin.serialization")
-    id("io.ktor.plugin") version "2.3.4"
+    kotlin("jvm") version "1.9.10"
+    kotlin("plugin.serialization") version "1.9.10"
+    id("io.ktor.plugin") version "2.3.11"
 }
 
 group = "dev.syoritohatsuki"
-version = "2023.11.1"
+version = "2023.5.1"
 
 application {
     mainClass.set("$group.fstatsbackend.ApplicationKt")
@@ -22,7 +22,7 @@ ktor {
 }
 
 tasks {
-    delete(rootProject.buildDir)
+    delete(rootProject.layout.buildDirectory)
     processResources {
         filesMatching("index.html") {
             expand(mutableMapOf("version" to project.version))
@@ -31,34 +31,31 @@ tasks {
 }
 
 dependencies {
-    val bcryptVersion: String by project
-    implementation("de.nycode", "bcrypt", bcryptVersion)
+    implementation("de.nycode:bcrypt:2.3.0")
 
-    val dotenvVersion: String by project
-    implementation("io.github.cdimascio", "dotenv-kotlin", dotenvVersion)
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.0")
 
-    val ktorVersion: String by project
-    implementation("io.ktor", "ktor-server-auth", ktorVersion)
-    implementation("io.ktor", "ktor-server-auth-jwt", ktorVersion)
+    implementation("io.ktor:ktor-server-auth:2.3.11")
+    implementation("io.ktor:ktor-server-auth-jwt:2.3.11")
 
-    implementation("io.ktor", "ktor-server-cors", ktorVersion)
-    implementation("io.ktor", "ktor-server-netty", ktorVersion)
+    implementation("io.ktor:ktor-server-cors:2.3.11")
+    implementation("io.ktor:ktor-server-netty:2.3.11")
 
-    implementation("io.ktor", "ktor-server-content-negotiation", ktorVersion)
-    implementation("io.ktor", "ktor-serialization-kotlinx-json", ktorVersion)
+    implementation("io.ktor:ktor-server-content-negotiation:2.3.11")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.11")
 
-    implementation("io.ktor", "ktor-server-call-logging-jvm", ktorVersion)
+    implementation("io.ktor:ktor-server-call-logging-jvm:2.3.11")
 
-    implementation("io.ktor", "ktor-server-caching-headers", ktorVersion)
-    implementation("io.ktor", "ktor-server-compression-jvm", ktorVersion)
-    implementation("io.ktor", "ktor-server-rate-limit", ktorVersion)
-    implementation("io.ktor", "ktor-server-status-pages", ktorVersion)
+    implementation("io.ktor:ktor-server-caching-headers:2.3.11")
+    implementation("io.ktor:ktor-server-compression-jvm:2.3.11")
+    implementation("io.ktor:ktor-server-rate-limit:2.3.11")
+    implementation("io.ktor:ktor-server-status-pages:2.3.11")
 
-    implementation("io.ktor", "ktor-server-swagger", ktorVersion)
+    implementation("io.ktor:ktor-server-swagger:2.3.11")
 
-    implementation("ch.qos.logback", "logback-classic", "1.4.4")
+    implementation("ch.qos.logback:logback-classic:1.4.12")
 
-    implementation("org.postgresql", "postgresql", "42.2.8")
+    implementation("org.postgresql:postgresql:42.2.8")
 
-    implementation("com.zaxxer", "HikariCP", "5.0.1")
+    implementation("com.zaxxer:HikariCP:5.0.1")
 }

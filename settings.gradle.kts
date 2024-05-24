@@ -3,10 +3,6 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-
-    plugins {
-        val kotlinVersion: String by System.getProperties()
-        kotlin("jvm") version kotlinVersion
-        kotlin("plugin.serialization") version kotlinVersion
-    }
 }
+
+rootProject.name = "fstats-backend"
