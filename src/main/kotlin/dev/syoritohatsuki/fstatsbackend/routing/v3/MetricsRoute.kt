@@ -19,9 +19,7 @@ fun Route.metricsRoute() {
                 val from = call.parameters["from"]?.toLongOrNull()
                 val to = call.parameters["to"]?.toLongOrNull() ?: Instant.now().toEpochMilli()
 
-                val metrics = MetricDAOImpl.getMetricInDateRange(id, from, to)
-
-                call.respond(metrics)
+                call.respond(MetricDAOImpl.getMetricInDateRange(id, from, to))
             }
         }
     }
