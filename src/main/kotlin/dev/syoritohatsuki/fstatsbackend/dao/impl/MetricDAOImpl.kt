@@ -1,9 +1,9 @@
 package dev.syoritohatsuki.fstatsbackend.dao.impl
 
 import dev.syoritohatsuki.fstatsbackend.dao.MetricDAO
+import dev.syoritohatsuki.fstatsbackend.dto.MetricLine
+import dev.syoritohatsuki.fstatsbackend.dto.MetricPie
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
-import dev.syoritohatsuki.fstatsbackend.dto.Project
-import dev.syoritohatsuki.fstatsbackend.dto.ProjectMetric
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.Database.dataStore
 import dev.syoritohatsuki.fstatsbackend.mics.Database.query
@@ -45,25 +45,7 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getLastHalfYearById(projectId: Int): Map<String, Int> = mutableMapOf<String, Int>().apply {
-        query(
-            """
-                SELECT
-                        time_bucket('30 minutes', time) AS time_bucket,
-                        count(*)::int AS count
-                    FROM metrics
-                    WHERE time >= NOW() - interval '1 year' AND project_id IN(${projectId})
-                    GROUP BY time_bucket
-                    ORDER BY time_bucket;
-        """
-        ) { resultSet ->
-            while (resultSet.next()) {
-                this[resultSet.getString("time_bucket")] = resultSet.getInt("count")
-            }
-        }
-    }
-
-    override fun getMetricInDateRange(projectId: Int, from: Long?, to: Long): Pair<List<Long>, List<Int>> {
+    override fun getMetricInDateRange(projectId: Int, from: Long?, to: Long): MetricLine {
 
         val timestampList = mutableListOf<Long>()
         val countList = mutableListOf<Int>()
@@ -99,13 +81,11 @@ object MetricDAOImpl : MetricDAO {
             }
         }
 
-        return Pair(timestampList, countList)
+        return MetricLine(timestampList.toList(), countList.toList())
     }
 
-    override fun getMetricCountById(projectId: Int): ProjectMetric? {
-
-        var project: Project? = null
-        val metricMap = mutableMapOf<String, MutableMap<String?, Int>>().apply {
+    override fun getMetricCountById(projectId: Int): MetricPie =
+        mutableMapOf<String, MutableMap<String?, Int>>().apply {
             query(
                 """
                     SELECT 'minecraft_version' AS column_name,
@@ -178,17 +158,4 @@ object MetricDAOImpl : MetricDAO {
                 }
             }
         }
-
-        query("SELECT projects.id, projects.name, projects.owner_id, users.username FROM projects JOIN users ON projects.owner_id = users.id WHERE projects.id IN($projectId) LIMIT 1") { resultSet ->
-            while (resultSet.next()) {
-                project = Project(
-                    resultSet.getInt("id"), resultSet.getString("name"), Project.ProjectOwner(
-                        resultSet.getInt("owner_id"), resultSet.getString("username")
-                    )
-                )
-            }
-        }
-
-        return ProjectMetric(project ?: return null, metricMap)
-    }
 }
