@@ -18,17 +18,6 @@ val POSTGRES_PORT by environment(5432)
 val DISKS_COUNT by environment(1)
 val CPU_CORES by environment(Runtime.getRuntime().availableProcessors())
 
-inline fun <reified T : Any> environment(defaultValue: T): ReadOnlyProperty<Any?, T> {
-    val dotenv = dotenv {
-        ignoreIfMissing = true
-    }
-
-    return ReadOnlyProperty { _, property ->
-        val value = dotenv[property.name] ?: System.getenv(property.name)
-        when (defaultValue) {
-            is String -> value ?: defaultValue
-            is Int -> value?.toIntOrNull() ?: defaultValue
-            else -> throw IllegalArgumentException("Unsupported property type: ${defaultValue::class.simpleName}")
-        } as T
-    }
+inline fun <reified T : Any> environment(defaultValue: T): ReadOnlyProperty<Any?, T> = ReadOnlyProperty { _, property ->
+    dotenv { ignoreIfMissing = true }[property.name] as? T ?: System.getenv(property.name) as? T ?: defaultValue
 }
