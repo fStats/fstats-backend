@@ -63,30 +63,44 @@ object MetricDAOImpl : MetricDAO {
         }
     }
 
-    override fun getMetricInDateRange(projectId: Int, from: Long?, to: Long): Map<Long, Int> =
-        mutableMapOf<Long, Int>().apply {
-            query(
-                """
-                    SELECT
-                        COUNT(*)::int AS count,
-                        timestampz
-                    FROM (
-                             SELECT
-                                 EXTRACT(epoch FROM time_bucket('30 minutes', time)) as timestampz
-                             FROM metrics
-                             WHERE (time >= to_timestamp(${from}) OR $from IS NULL)
-                               AND time <= to_timestamp(${to})
-                               AND project_id IN(${projectId})
-                         ) AS _
-                    GROUP BY timestampz
-                    ORDER BY timestampz;
-        """
-            ) { resultSet ->
-                while (resultSet.next()) {
-                    this[resultSet.getLong("timestampz")] = resultSet.getInt("count")
-                }
+    override fun getMetricInDateRange(projectId: Int, from: Long?, to: Long): Pair<List<Long>, List<Int>> {
+
+        val timestampList = mutableListOf<Long>()
+        val countList = mutableListOf<Int>()
+
+        query(
+            """
+                SELECT
+                    COUNT(*)::int AS count,
+                    timestampz
+                FROM (
+                         SELECT
+                             EXTRACT(epoch FROM time_bucket('30 minutes', time)) as timestampz
+                         FROM metrics
+                         WHERE (time >= to_timestamp(${from}) OR $from IS NULL)
+                           AND time <= to_timestamp(${to})
+                           AND project_id IN(${projectId})
+                     ) AS _
+                GROUP BY timestampz
+                ORDER BY timestampz;
+            """
+        ) { resultSet ->
+            var prevTimestamp: Long = 0
+            var prevCount = 0
+            while (resultSet.next()) {
+                val timestamp = resultSet.getLong("timestampz")
+                timestampList.add(timestamp - prevTimestamp)
+                prevTimestamp = timestamp
+
+                val count = resultSet.getInt("count")
+                countList.add(count - prevCount)
+                prevCount = count
+//                    this[resultSet.getLong("timestampz")] = resultSet.getInt("count")
             }
         }
+
+        return Pair(timestampList, countList)
+    }
 
     override fun getMetricCountById(projectId: Int): ProjectMetric? {
 
