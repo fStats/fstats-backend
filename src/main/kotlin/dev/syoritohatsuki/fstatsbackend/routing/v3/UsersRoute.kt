@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.routing.v2
+package dev.syoritohatsuki.fstatsbackend.routing.v3
 
 import dev.syoritohatsuki.fstatsbackend.dao.impl.FavoriteDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
@@ -14,38 +14,38 @@ import io.ktor.server.routing.*
 
 fun Route.usersRoute() {
     route("users") {
-        get("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
-                HttpStatusCode.BadRequest, "Project ID must be number"
-            )
+        route("{id}") {
+            get {
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
+                    HttpStatusCode.BadRequest, "Project ID must be number"
+                )
 
-            val user = UserDAOImpl.getById(id) ?: return@get call.respondMessage(
-                HttpStatusCode.NoContent, "User not found"
-            )
+                val user = UserDAOImpl.getById(id) ?: return@get call.respondMessage(
+                    HttpStatusCode.NoContent, "User not found"
+                )
 
-            call.respond(user.getWithoutPassword())
-        }
+                call.respond(user.getWithoutPassword())
+            }
+            get("projects") {
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
+                    HttpStatusCode.BadRequest, "Project ID must be number"
+                )
 
-        get("{id}/projects") {
-            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
-                HttpStatusCode.BadRequest, "Project ID must be number"
-            )
+                val user = UserDAOImpl.getById(id) ?: return@get call.respondMessage(
+                    HttpStatusCode.BadRequest, "User not found"
+                )
 
-            val user = UserDAOImpl.getById(id) ?: return@get call.respondMessage(
-                HttpStatusCode.BadRequest, "User not found"
-            )
-
-            call.respond(ProjectDAOImpl.getByOwner(user.id))
-        }
-
-        authenticate {
-            route("{id}/favorite") {
-                get {
+                call.respond(ProjectDAOImpl.getByOwner(user.id))
+            }
+            authenticate {
+                get("favorite") {
                     val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+
                     call.respond(FavoriteDAOImpl.getUserFavorites(userId))
                 }
             }
-
+        }
+        authenticate {
             delete {
                 val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 
@@ -56,5 +56,4 @@ fun Route.usersRoute() {
             }
         }
     }
-
 }

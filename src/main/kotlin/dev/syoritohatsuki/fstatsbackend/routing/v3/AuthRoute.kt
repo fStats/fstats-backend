@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.routing.v2
+package dev.syoritohatsuki.fstatsbackend.routing.v3
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
@@ -28,8 +28,7 @@ fun Route.authRoute() {
             )
 
             if (!verify(
-                    userFromRequest.password,
-                    userFromDB.passwordHash.toByteArray()
+                    userFromRequest.password, userFromDB.passwordHash.toByteArray()
                 )
             ) return@post call.respondMessage(
                 HttpStatusCode.BadRequest, "Incorrect username or password"
@@ -37,11 +36,8 @@ fun Route.authRoute() {
 
             call.respond(
                 mapOf(
-                    "token" to JWT.create()
-                        .withClaim("id", userFromDB.id)
-                        .withClaim("username", userFromDB.username)
-                        .withIssuer("$HOST:$PORT")
-                        .sign(Algorithm.HMAC256(JWT_SECRET))
+                    "token" to JWT.create().withClaim("id", userFromDB.id).withClaim("username", userFromDB.username)
+                        .withIssuer("$HOST:$PORT").sign(Algorithm.HMAC256(JWT_SECRET))
                 )
             )
         }
@@ -49,10 +45,9 @@ fun Route.authRoute() {
         post("registration") {
             val user = call.receive<User>()
 
-            if (!Regex(USERNAME_REGEX).matches(user.username) || !Regex(PASSWORD_REGEX).matches(user.password))
-                return@post call.respondMessage(
-                    HttpStatusCode.BadRequest, "Username or password not match requirements"
-                )
+            if (!Regex(USERNAME_REGEX).matches(user.username) || !Regex(PASSWORD_REGEX).matches(user.password)) return@post call.respondMessage(
+                HttpStatusCode.BadRequest, "Username or password not match requirements"
+            )
 
             when (UserDAOImpl.create(User(username = user.username, passwordHash = String(hash(user.password))))) {
                 SUCCESS -> call.respondMessage(HttpStatusCode.Created, "User created")
