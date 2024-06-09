@@ -2,8 +2,13 @@ package dev.syoritohatsuki.fstatsbackend.dto
 
 import kotlinx.serialization.Serializable
 
-typealias MetricLine = Pair<List<Long>, List<Int>>
 typealias MetricPie = Map<String, Map<String?, Int>>
+
+@Serializable
+data class MetricLine(
+    val timestamps: List<Long>,
+    val counts: List<Int>,
+)
 
 @Serializable
 data class Metrics(

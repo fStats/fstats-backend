@@ -50,6 +50,9 @@ object MetricDAOImpl : MetricDAO {
         val timestampList = mutableListOf<Long>()
         val countList = mutableListOf<Int>()
 
+        var prevTimestamp: Long = 0
+        var prevCount = 0
+
         query(
             """
                 SELECT
@@ -57,27 +60,26 @@ object MetricDAOImpl : MetricDAO {
                     timestampz
                 FROM (
                          SELECT
-                             EXTRACT(epoch FROM time_bucket('30 minutes', time)) as timestampz
+                            EXTRACT(epoch FROM time_bucket('30 minutes', time)) as timestampz
                          FROM metrics
                          WHERE (time >= to_timestamp(${from}) OR $from IS NULL)
-                           AND time <= to_timestamp(${to})
-                           AND project_id IN(${projectId})
+                            AND time <= to_timestamp(${to})
+                            AND project_id IN(${projectId})
                      ) AS _
                 GROUP BY timestampz
                 ORDER BY timestampz;
             """
         ) { resultSet ->
-            var prevTimestamp: Long = 0
-            var prevCount = 0
             while (resultSet.next()) {
-                val timestamp = resultSet.getLong("timestampz")
-                timestampList.add(timestamp - prevTimestamp)
-                prevTimestamp = timestamp
+                resultSet.getLong("timestampz").apply {
+                    timestampList.add(this - prevTimestamp)
+                    prevTimestamp = this
+                }
 
-                val count = resultSet.getInt("count")
-                countList.add(count - prevCount)
-                prevCount = count
-//                    this[resultSet.getLong("timestampz")] = resultSet.getInt("count")
+                resultSet.getInt("count").apply {
+                    countList.add(this - prevCount)
+                    prevCount = this
+                }
             }
         }
 
@@ -93,7 +95,7 @@ object MetricDAOImpl : MetricDAO {
                            minecraft_version   AS item
                     FROM metrics
                     WHERE project_id IN ($projectId)
-                      AND time >= NOW() - INTERVAL '30 minutes'
+                        AND time >= NOW() - INTERVAL '30 minutes'
                     GROUP BY minecraft_version
                     
                     UNION ALL
@@ -103,7 +105,7 @@ object MetricDAOImpl : MetricDAO {
                            CAST(online_mode AS TEXT) AS item
                     FROM metrics
                     WHERE project_id IN ($projectId)
-                      AND time >= NOW() - INTERVAL '30 minutes'
+                        AND time >= NOW() - INTERVAL '30 minutes'
                     GROUP BY online_mode
                     
                     UNION ALL
@@ -113,7 +115,7 @@ object MetricDAOImpl : MetricDAO {
                            mod_version   AS item
                     FROM metrics
                     WHERE project_id IN ($projectId)
-                      AND time >= NOW() - INTERVAL '30 minutes'
+                        AND time >= NOW() - INTERVAL '30 minutes'
                     GROUP BY mod_version
                     
                     UNION ALL
@@ -123,7 +125,7 @@ object MetricDAOImpl : MetricDAO {
                            os       AS item
                     FROM metrics
                     WHERE project_id IN ($projectId)
-                      AND time >= NOW() - INTERVAL '30 minutes'
+                        AND time >= NOW() - INTERVAL '30 minutes'
                     GROUP BY os
                     
                     UNION ALL
@@ -133,17 +135,17 @@ object MetricDAOImpl : MetricDAO {
                            location   AS item
                     FROM metrics
                     WHERE project_id IN ($projectId)
-                      AND time >= NOW() - INTERVAL '30 minutes'
+                        AND time >= NOW() - INTERVAL '30 minutes'
                     GROUP BY location
                     
                     UNION ALL
                     
                     SELECT 'fabric_api_version' AS column_name,
-                           COUNT(*)   AS count,
-                           fabric_api_version AS item
+                           COUNT(*)             AS count,
+                           fabric_api_version   AS item
                     FROM metrics
                     WHERE project_id IN ($projectId)
-                      AND time >= NOW() - INTERVAL '30 minutes'
+                        AND time >= NOW() - INTERVAL '30 minutes'
                     GROUP BY fabric_api_version;
                         """
             ) { resultSet ->
