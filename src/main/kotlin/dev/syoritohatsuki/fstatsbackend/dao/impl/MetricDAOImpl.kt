@@ -7,6 +7,7 @@ import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.Database.dataStore
 import dev.syoritohatsuki.fstatsbackend.mics.Database.query
+import dev.syoritohatsuki.fstatsbackend.mics.oldName2ISO
 import java.sql.Timestamp
 import java.sql.Types
 import java.time.Instant
@@ -25,7 +26,7 @@ object MetricDAOImpl : MetricDAO {
                             it.setString(4, metrics.metric.minecraftVersion)
                             it.setString(5, modVersion)
                             it.setString(6, metrics.metric.os.toString())
-                            it.setString(7, metrics.metric.location)
+                            it.setString(7, oldName2ISO[metrics.metric.location] ?: "XXX")
 
                             if (metrics.metric.fabricApiVersion != null) {
                                 it.setString(8, metrics.metric.fabricApiVersion)
