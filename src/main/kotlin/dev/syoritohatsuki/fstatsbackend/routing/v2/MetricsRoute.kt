@@ -3,6 +3,7 @@ package dev.syoritohatsuki.fstatsbackend.routing.v2
 import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.oldName2ISO
 import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -19,7 +20,11 @@ fun Route.metricsRoute() {
 
             val metrics = call.receive<Metrics>()
 
-            when (MetricDAOImpl.add(metrics)) {
+            // Required by v3 database format
+            val newLocation = oldName2ISO[metrics.metric.location] ?: "XXX"
+            val newMetrics = metrics.copy(metric = metrics.metric.copy(location = newLocation))
+
+            when (MetricDAOImpl.add(newMetrics)) {
                 SUCCESS -> call.respondMessage(HttpStatusCode.Created, "Metrics data added")
                 else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
             }

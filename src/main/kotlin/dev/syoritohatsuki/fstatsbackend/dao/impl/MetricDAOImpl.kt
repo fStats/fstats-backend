@@ -26,7 +26,7 @@ object MetricDAOImpl : MetricDAO {
                             it.setString(4, metrics.metric.minecraftVersion)
                             it.setString(5, modVersion)
                             it.setString(6, metrics.metric.os.toString())
-                            it.setString(7, oldName2ISO[metrics.metric.location] ?: "XXX")
+                            it.setString(7, metrics.metric.location)
 
                             if (metrics.metric.fabricApiVersion != null) {
                                 it.setString(8, metrics.metric.fabricApiVersion)
@@ -154,8 +154,11 @@ object MetricDAOImpl : MetricDAO {
                     val columnName = resultSet.getString("column_name")
                     val innerMap = this[columnName] ?: mutableMapOf()
 
-                    if (resultSet.getString("item") != null) innerMap[resultSet.getString("item")] =
-                        resultSet.getInt("count")
+                    if (resultSet.getString("item") != null) {
+                        var item = resultSet.getString("item")
+                        if (columnName == "location") item = oldName2ISO[item] ?: "XXX"
+                        innerMap[item] = resultSet.getInt("count")
+                    }
 
                     this[columnName] = innerMap
                 }
