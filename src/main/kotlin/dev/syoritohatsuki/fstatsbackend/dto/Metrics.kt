@@ -20,7 +20,7 @@ data class Metrics(
         val timestampSeconds: Long? = null,
         val projectId: Int? = null,
         val minecraftVersion: String = "unknown",
-        val isOnlineMode: Boolean,
+        val isOnlineMode: Boolean?,
         val modVersion: String = "",
         val os: Char,
         val location: String = "unknown",

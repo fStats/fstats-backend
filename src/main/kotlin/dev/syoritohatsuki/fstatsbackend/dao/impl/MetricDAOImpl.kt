@@ -22,7 +22,10 @@ object MetricDAOImpl : MetricDAO {
                         metrics.projectIds.forEach { (projectId, modVersion) ->
                             it.setTimestamp(1, Timestamp.from(Instant.now()))
                             it.setInt(2, projectId)
-                            it.setBoolean(3, metrics.metric.isOnlineMode)
+                            if (metrics.metric.isOnlineMode != null) it.setBoolean(
+                                3,
+                                metrics.metric.isOnlineMode
+                            ) else it.setNull(3, Types.BOOLEAN)
                             it.setString(4, metrics.metric.minecraftVersion)
                             it.setString(5, modVersion)
                             it.setString(6, metrics.metric.os.toString())
