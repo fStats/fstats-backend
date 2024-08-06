@@ -148,7 +148,17 @@ object MetricDAOImpl : MetricDAO {
                     FROM metrics
                     WHERE project_id IN ($projectId)
                         AND time >= NOW() - INTERVAL '30 minutes'
-                    GROUP BY fabric_api_version;
+                    GROUP BY fabric_api_version; 
+                    
+                    UNION ALL
+                    
+                    SELECT 'server_side' AS column_name,
+                           COUNT(*)      AS count,
+                           server_side   AS item
+                    FROM metrics
+                    WHERE project_id IN ($projectId)
+                        AND time >= NOW() - INTERVAL '30 minutes'
+                    GROUP BY server_side;
                         """
             ) { resultSet ->
                 while (resultSet.next()) {
