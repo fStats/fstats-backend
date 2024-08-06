@@ -24,6 +24,7 @@ data class Metrics(
         val modVersion: String = "",
         val os: Char,
         val location: String = "unknown",
-        val fabricApiVersion: String?
+        val fabricApiVersion: String?,
+        val isServerSide: Boolean
     )
 }

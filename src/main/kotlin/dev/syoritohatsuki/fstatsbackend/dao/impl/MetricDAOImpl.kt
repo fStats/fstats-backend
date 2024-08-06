@@ -17,7 +17,7 @@ object MetricDAOImpl : MetricDAO {
     override fun add(metrics: Metrics): Int {
         try {
             dataStore().connection.use { connection ->
-                connection.prepareStatement("INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location, fabric_api_version) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+                connection.prepareStatement("INSERT INTO metrics(time, project_id, online_mode, minecraft_version, mod_version, os, location, fabric_api_version, server_side) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
                     .use {
                         metrics.projectIds.forEach { (projectId, modVersion) ->
                             it.setTimestamp(1, Timestamp.from(Instant.now()))
@@ -30,13 +30,11 @@ object MetricDAOImpl : MetricDAO {
                             it.setString(5, modVersion)
                             it.setString(6, metrics.metric.os.toString())
                             it.setString(7, metrics.metric.location)
-
-                            if (metrics.metric.fabricApiVersion != null) {
-                                it.setString(8, metrics.metric.fabricApiVersion)
-                            } else {
-                                it.setNull(8, Types.VARCHAR)
-                            }
-
+                            if (metrics.metric.fabricApiVersion != null) it.setString(
+                                8,
+                                metrics.metric.fabricApiVersion
+                            ) else it.setNull(8, Types.VARCHAR)
+                            it.setBoolean(9, metrics.metric.isServerSide)
                             it.addBatch()
                         }
                         it.executeBatch()
