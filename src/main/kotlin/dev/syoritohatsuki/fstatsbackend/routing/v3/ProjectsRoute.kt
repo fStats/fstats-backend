@@ -4,6 +4,7 @@ import dev.syoritohatsuki.fstatsbackend.dao.impl.FavoriteDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Project
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.PROJECT_REGEX
 import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -37,6 +38,10 @@ fun Route.projectsRoute() {
 
                 if (project.name.isBlank()) return@post call.respondMessage(
                     HttpStatusCode.BadRequest, "Project name can't be empty"
+                )
+
+                if (!Regex(PROJECT_REGEX).matches(project.name)) return@post call.respondMessage(
+                    HttpStatusCode.BadRequest, "Project name doesn't match requirements"
                 )
 
                 when (ProjectDAOImpl.create(
