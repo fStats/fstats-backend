@@ -22,19 +22,23 @@ object MetricDAOImpl : MetricDAO {
                         metrics.projectIds.forEach { (projectId, modVersion) ->
                             it.setTimestamp(1, Timestamp.from(Instant.now()))
                             it.setInt(2, projectId)
-                            if (metrics.metric.isOnlineMode != null) it.setBoolean(
-                                3,
-                                metrics.metric.isOnlineMode
-                            ) else it.setNull(3, Types.BOOLEAN)
+                            when {
+                                metrics.metric.isOnlineMode != null -> it.setBoolean(3, metrics.metric.isOnlineMode)
+                                else -> it.setNull(3, Types.BOOLEAN)
+                            }
                             it.setString(4, metrics.metric.minecraftVersion)
                             it.setString(5, modVersion)
                             it.setString(6, metrics.metric.os.toString())
                             it.setString(7, metrics.metric.location)
-                            if (metrics.metric.fabricApiVersion != null) it.setString(
-                                8,
-                                metrics.metric.fabricApiVersion
-                            ) else it.setNull(8, Types.VARCHAR)
-                            it.setBoolean(9, metrics.metric.isServerSide)
+                            when {
+                                metrics.metric.fabricApiVersion != null -> it.setString(
+                                    8,
+                                    metrics.metric.fabricApiVersion
+                                )
+
+                                else -> it.setNull(8, Types.VARCHAR)
+                            }
+                            it.setBoolean(9, metrics.metric.isServerSide ?: true)
                             it.addBatch()
                         }
                         it.executeBatch()

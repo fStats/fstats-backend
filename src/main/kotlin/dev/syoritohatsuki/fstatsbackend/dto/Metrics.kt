@@ -25,6 +25,6 @@ data class Metrics(
         val os: Char,
         val location: String = "unknown",
         val fabricApiVersion: String?,
-        val isServerSide: Boolean
+        val isServerSide: Boolean? = true
     )
 }
