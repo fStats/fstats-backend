@@ -3,12 +3,16 @@ package dev.syoritohatsuki.fstatsbackend.routing.v3
 import dev.syoritohatsuki.fstatsbackend.dao.impl.FavoriteDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
+import dev.syoritohatsuki.fstatsbackend.dto.User
 import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.PASSWORD_REGEX
+import dev.syoritohatsuki.fstatsbackend.mics.USERNAME_REGEX
 import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 
@@ -46,6 +50,32 @@ fun Route.usersRoute() {
             }
         }
         authenticate {
+            patch {
+                val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+                val newUserData = call.receive<User>()
+
+                if (newUserData.username.isBlank() && newUserData.password.isBlank()) return@patch call.respondMessage(
+                    HttpStatusCode.BadRequest, "No data provided for update"
+                )
+
+                if (newUserData.username.isNotBlank()) {
+                    if (!Regex(USERNAME_REGEX).matches(newUserData.username)) return@patch call.respondMessage(
+                        HttpStatusCode.BadRequest, "Username not match requirements"
+                    )
+                }
+
+                if (newUserData.password.isNotBlank()) {
+                    if (!Regex(PASSWORD_REGEX).matches(newUserData.password)) return@patch call.respondMessage(
+                        HttpStatusCode.BadRequest, "Password not match requirements"
+                    )
+                }
+
+                when (UserDAOImpl.updateUserData(userId, newUserData)) {
+                    SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "User data updated")
+                    else -> call.respondMessage(HttpStatusCode.NoContent, "User not found")
+                }
+            }
+
             delete {
                 val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 

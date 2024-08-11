@@ -1,5 +1,6 @@
 package dev.syoritohatsuki.fstatsbackend.dao.impl
 
+import de.nycode.bcrypt.hash
 import dev.syoritohatsuki.fstatsbackend.dao.UserDAO
 import dev.syoritohatsuki.fstatsbackend.dto.User
 import dev.syoritohatsuki.fstatsbackend.mics.Database.query
@@ -41,5 +42,25 @@ object UserDAOImpl : UserDAO {
         }
 
         return user
+    }
+
+    override fun updateUserData(userId: Int, user: User): Int {
+        val updates = mutableListOf<String>()
+
+        if (user.username.isNotBlank()) updates.add("username = '${user.username}'")
+        if (user.password.isNotBlank()) {
+            updates.add("password = '${user.password}'")
+            updates.add("password_hash = '${String(hash(user.password))}'")
+        }
+
+        if (updates.isEmpty()) return 0
+
+        return update(
+            """
+                UPDATE users
+                SET ${updates.joinToString(", ")}
+                WHERE id IN ($userId)
+            """.trimIndent()
+        )
     }
 }

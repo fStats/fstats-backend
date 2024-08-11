@@ -7,4 +7,5 @@ interface UserDAO {
     fun deleteById(id: Int): Int
     fun getById(id: Int): User?
     fun getByName(username: String): User?
+    fun updateUserData(userId: Int, user: User): Int
 }
