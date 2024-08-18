@@ -29,9 +29,7 @@ fun Route.metricsRoute() {
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
-                val projectMetric = PostgresMetricRepository.getMetricCountById(id)
-
-                call.respond(projectMetric)
+                call.respond(PostgresMetricRepository.getMetricCountById(id))
             }
         }
         post {
