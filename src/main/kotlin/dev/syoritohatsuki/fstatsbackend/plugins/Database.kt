@@ -3,10 +3,9 @@ package dev.syoritohatsuki.fstatsbackend.plugins
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import dev.syoritohatsuki.fstatsbackend.mics.*
-import io.ktor.server.application.*
 import org.jetbrains.exposed.sql.Database
 
-fun Application.configureDatabase() {
+fun configureDatabase() {
     Database.connect(HikariDataSource(HikariConfig().apply {
         driverClassName = "org.postgresql.Driver"
         jdbcUrl = "jdbc:postgresql://$POSTGRES_HOST:$POSTGRES_PORT/$POSTGRES_DB"
