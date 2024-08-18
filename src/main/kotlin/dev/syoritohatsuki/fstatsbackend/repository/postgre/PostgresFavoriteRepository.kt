@@ -11,12 +11,19 @@ import dev.syoritohatsuki.fstatsbackend.repository.FavoriteRepository
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 
 object PostgresFavoriteRepository : FavoriteRepository {
     override suspend fun getUserFavorites(userId: Int): List<Project> = dbQuery {
-        (ProjectsTable innerJoin FavoritesTable innerJoin UsersTable).selectAll()
+        (ProjectsTable innerJoin FavoritesTable).innerJoin(UsersTable, { ProjectsTable.ownerId }, { UsersTable.id })
+            .select(
+                ProjectsTable.id,
+                ProjectsTable.name,
+                ProjectsTable.isVisible,
+                ProjectsTable.ownerId,
+                UsersTable.username
+            )
             .where { FavoritesTable.userId eq userId }.map(Project::fromResultRow)
     }
 
