@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.update
 
 object PostgresProjectRepository : ProjectRepository {
     override suspend fun create(name: String, ownerId: Int): Int = dbQuery {
@@ -22,7 +23,7 @@ object PostgresProjectRepository : ProjectRepository {
     }
 
     override suspend fun deleteById(id: Int): Int = dbQuery {
-        val deleteResult = ProjectsTable.deleteWhere { ProjectsTable.id eq id }
+        val deleteResult = ProjectsTable.deleteWhere(1) { ProjectsTable.id eq id }
         if (deleteResult > 0) SUCCESS else FAILED
     }
 
@@ -38,5 +39,16 @@ object PostgresProjectRepository : ProjectRepository {
     override suspend fun getById(id: Int): Project? = dbQuery {
         (ProjectsTable innerJoin UsersTable).selectAll().where { ProjectsTable.id eq id }
             .mapNotNull(Project::fromResultRow).singleOrNull()
+    }
+
+    override suspend fun updateProjectData(projectId: Int, project: Project): Int {
+        if (project.name.isBlank() && project.isVisible == null) return FAILED
+
+        return dbQuery {
+            ProjectsTable.update({ ProjectsTable.id eq projectId }, 1) {
+                if (project.name.isNotBlank()) it[name] = project.name
+                if (project.isVisible != null) it[isVisible] = project.isVisible
+            }
+        }
     }
 }

@@ -72,6 +72,25 @@ fun Route.projectsRoute() {
                         else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
                     }
                 }
+                patch {
+                    val id = call.parameters["id"]?.toIntOrNull() ?: return@patch call.respondMessage(
+                        HttpStatusCode.BadRequest, "Incorrect project ID"
+                    )
+
+                    val newProjectData = call.receive<Project>()
+
+                    if (newProjectData.name.isBlank() && newProjectData.isVisible == null) return@patch call.respondMessage(
+                        HttpStatusCode.BadRequest, "No data provided for update"
+                    )
+                    if (newProjectData.name.isNotBlank() && !Regex(PROJECT_REGEX).matches(newProjectData.name)) return@patch call.respondMessage(
+                        HttpStatusCode.BadRequest, "Username not match requirements"
+                    )
+
+                    when (PostgresProjectRepository.updateProjectData(id, newProjectData)) {
+                        SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project data updated")
+                        else -> call.respondMessage(HttpStatusCode.NoContent, "Project not found")
+                    }
+                }
                 post("favorite") {
                     val projectId = call.parameters["id"]?.toInt() ?: return@post call.respondMessage(
                         HttpStatusCode.NoContent, "Incorrect project ID"

@@ -9,7 +9,7 @@ import org.jetbrains.exposed.sql.ResultRow
 data class Project(
     val id: Int = -1,
     val name: String = "",
-    val isVisible: Boolean = true,
+    val isVisible: Boolean? = true,
     val owner: ProjectOwner = ProjectOwner()
 ) {
     @Serializable

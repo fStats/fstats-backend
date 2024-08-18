@@ -8,4 +8,5 @@ interface ProjectRepository {
     suspend fun getAll(): List<Project>
     suspend fun getByOwner(ownerId: Int): List<Project>
     suspend fun getById(id: Int): Project?
+    suspend fun updateProjectData(projectId: Int, project: Project): Int
 }
