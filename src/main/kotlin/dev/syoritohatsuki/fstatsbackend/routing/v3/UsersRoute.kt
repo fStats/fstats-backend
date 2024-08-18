@@ -1,13 +1,13 @@
 package dev.syoritohatsuki.fstatsbackend.routing.v3
 
-import dev.syoritohatsuki.fstatsbackend.dao.impl.FavoriteDAOImpl
-import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
-import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.User
-import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.PASSWORD_REGEX
+import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.USERNAME_REGEX
 import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
+import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresFavoriteRepository
+import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresProjectRepository
+import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresUserRepository
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -24,7 +24,7 @@ fun Route.usersRoute() {
                     HttpStatusCode.BadRequest, "Project ID must be number"
                 )
 
-                val user = UserDAOImpl.getById(id) ?: return@get call.respondMessage(
+                val user = PostgresUserRepository.getById(id) ?: return@get call.respondMessage(
                     HttpStatusCode.NoContent, "User not found"
                 )
 
@@ -35,17 +35,17 @@ fun Route.usersRoute() {
                     HttpStatusCode.BadRequest, "Project ID must be number"
                 )
 
-                val user = UserDAOImpl.getById(id) ?: return@get call.respondMessage(
+                val user = PostgresUserRepository.getById(id) ?: return@get call.respondMessage(
                     HttpStatusCode.BadRequest, "User not found"
                 )
 
-                call.respond(ProjectDAOImpl.getByOwner(user.id))
+                call.respond(PostgresProjectRepository.getByOwner(user.id))
             }
             authenticate {
                 get("favorite") {
                     val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 
-                    call.respond(FavoriteDAOImpl.getUserFavorites(userId))
+                    call.respond(PostgresFavoriteRepository.getUserFavorites(userId))
                 }
             }
         }
@@ -70,7 +70,7 @@ fun Route.usersRoute() {
                     )
                 }
 
-                when (UserDAOImpl.updateUserData(userId, newUserData)) {
+                when (PostgresUserRepository.updateUserData(userId, newUserData)) {
                     SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "User data updated")
                     else -> call.respondMessage(HttpStatusCode.NoContent, "User not found")
                 }
@@ -79,7 +79,7 @@ fun Route.usersRoute() {
             delete {
                 val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 
-                when (UserDAOImpl.deleteById(userId)) {
+                when (PostgresUserRepository.deleteById(userId)) {
                     SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "User deleted")
                     else -> call.respondMessage(HttpStatusCode.NoContent, "User not found")
                 }

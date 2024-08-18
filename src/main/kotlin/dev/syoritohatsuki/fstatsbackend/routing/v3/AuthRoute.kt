@@ -4,10 +4,9 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import de.nycode.bcrypt.hash
 import de.nycode.bcrypt.verify
-import dev.syoritohatsuki.fstatsbackend.dao.impl.UserDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.User
 import dev.syoritohatsuki.fstatsbackend.mics.*
-import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresUserRepository
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -23,9 +22,10 @@ fun Route.authRoute() {
                 HttpStatusCode.BadRequest, "Incorrect username or password"
             )
 
-            val userFromDB = UserDAOImpl.getByName(userFromRequest.username) ?: return@post call.respondMessage(
-                HttpStatusCode.BadRequest, "Incorrect username or password"
-            )
+            val userFromDB =
+                PostgresUserRepository.getByName(userFromRequest.username) ?: return@post call.respondMessage(
+                    HttpStatusCode.BadRequest, "Incorrect username or password"
+                )
 
             if (!verify(
                     userFromRequest.password, userFromDB.passwordHash.toByteArray()
@@ -49,7 +49,9 @@ fun Route.authRoute() {
                 HttpStatusCode.BadRequest, "Username or password not match requirements"
             )
 
-            when (UserDAOImpl.create(User(username = user.username, passwordHash = String(hash(user.password))))) {
+            when (PostgresUserRepository.create(
+                User(username = user.username, passwordHash = String(hash(user.password)))
+            )) {
                 SUCCESS -> call.respondMessage(HttpStatusCode.Created, "User created")
                 else -> call.respondMessage(HttpStatusCode.BadRequest, "Username already exist")
             }

@@ -1,11 +1,11 @@
 package dev.syoritohatsuki.fstatsbackend.routing.v3
 
-import dev.syoritohatsuki.fstatsbackend.dao.impl.FavoriteDAOImpl
-import dev.syoritohatsuki.fstatsbackend.dao.impl.ProjectDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Project
-import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.PROJECT_REGEX
+import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
+import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresFavoriteRepository
+import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresProjectRepository
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -17,7 +17,7 @@ import io.ktor.server.routing.*
 fun Route.projectsRoute() {
     route("projects") {
         get {
-            call.respond(ProjectDAOImpl.getAll())
+            call.respond(PostgresProjectRepository.getAll())
         }
 
         get("{id}") {
@@ -25,7 +25,7 @@ fun Route.projectsRoute() {
                 HttpStatusCode.BadRequest, "Project ID must be number"
             )
 
-            val project = ProjectDAOImpl.getById(id) ?: return@get call.respondMessage(
+            val project = PostgresProjectRepository.getById(id) ?: return@get call.respondMessage(
                 HttpStatusCode.BadRequest, "Project not found"
             )
 
@@ -44,7 +44,7 @@ fun Route.projectsRoute() {
                     HttpStatusCode.BadRequest, "Project name doesn't match requirements"
                 )
 
-                when (ProjectDAOImpl.create(
+                when (PostgresProjectRepository.create(
                     project.name, call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
                 )) {
                     SUCCESS -> call.respondMessage(HttpStatusCode.Created, "Project created")
@@ -58,7 +58,7 @@ fun Route.projectsRoute() {
                         HttpStatusCode.BadRequest, "Incorrect project ID"
                     )
 
-                    val project = ProjectDAOImpl.getById(id) ?: return@delete call.respondMessage(
+                    val project = PostgresProjectRepository.getById(id) ?: return@delete call.respondMessage(
                         HttpStatusCode.NoContent, "Project not found"
                     )
 
@@ -67,7 +67,7 @@ fun Route.projectsRoute() {
                         )).getClaim("id").asInt()
                     ) return@delete call.respond(HttpStatusCode.Unauthorized)
 
-                    when (ProjectDAOImpl.deleteById(project.id)) {
+                    when (PostgresProjectRepository.deleteById(project.id)) {
                         SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project deleted")
                         else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
                     }
@@ -79,7 +79,7 @@ fun Route.projectsRoute() {
 
                     val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 
-                    when (FavoriteDAOImpl.addProjectToFavorites(userId, projectId)) {
+                    when (PostgresFavoriteRepository.addProjectToFavorites(userId, projectId)) {
                         SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project added to favorites")
                         else -> call.respondMessage(HttpStatusCode.NoContent, "Cant add project to favorites")
                     }
@@ -92,7 +92,7 @@ fun Route.projectsRoute() {
 
                     val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 
-                    when (FavoriteDAOImpl.removeProjectFromFavorites(userId, projectId)) {
+                    when (PostgresFavoriteRepository.removeProjectFromFavorites(userId, projectId)) {
                         SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project removed from favorites")
                         else -> call.respondMessage(HttpStatusCode.NoContent, "Cant remove project from favorites")
                     }

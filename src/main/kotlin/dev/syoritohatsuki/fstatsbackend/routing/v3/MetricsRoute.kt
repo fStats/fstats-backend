@@ -1,9 +1,9 @@
 package dev.syoritohatsuki.fstatsbackend.routing.v3
 
-import dev.syoritohatsuki.fstatsbackend.dao.impl.MetricDAOImpl
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
-import dev.syoritohatsuki.fstatsbackend.mics.Database.SUCCESS
+import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
+import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresMetricRepository
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
@@ -22,14 +22,14 @@ fun Route.metricsRoute() {
                 val from = call.parameters["from"]?.toLongOrNull()
                 val to = call.parameters["to"]?.toLongOrNull() ?: Instant.now().toEpochMilli()
 
-                call.respond(MetricDAOImpl.getMetricInDateRange(id, from, to))
+                call.respond(PostgresMetricRepository.getMetricInDateRange(id, from, to))
             }
             get("pie") {
                 val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
-                val projectMetric = MetricDAOImpl.getMetricCountById(id)
+                val projectMetric = PostgresMetricRepository.getMetricCountById(id)
 
                 call.respond(projectMetric)
             }
@@ -41,7 +41,7 @@ fun Route.metricsRoute() {
 
             val metrics = call.receive<Metrics>()
 
-            when (MetricDAOImpl.add(metrics)) {
+            when (PostgresMetricRepository.add(metrics)) {
                 SUCCESS -> call.respondMessage(HttpStatusCode.Created, "Metrics data added")
                 else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
             }

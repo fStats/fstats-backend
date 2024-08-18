@@ -55,7 +55,12 @@ dependencies {
 
     implementation("ch.qos.logback:logback-classic:1.4.12")
 
-    implementation("org.postgresql:postgresql:42.2.8")
+    implementation("org.postgresql:postgresql:42.7.2")
 
     implementation("com.zaxxer:HikariCP:5.0.1")
+
+    implementation("org.jetbrains.exposed:exposed-core:0.53.0")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.53.0")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.53.0")
+
 }
