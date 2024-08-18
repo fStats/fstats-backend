@@ -53,7 +53,7 @@ dependencies {
 
     implementation("io.ktor:ktor-server-swagger:2.3.11")
 
-    implementation("ch.qos.logback:logback-classic:1.4.12")
+    implementation("ch.qos.logback:logback-classic:1.5.7")
 
     implementation("org.postgresql:postgresql:42.7.2")
 
