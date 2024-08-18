@@ -27,32 +27,16 @@ object PostgresProjectRepository : ProjectRepository {
     }
 
     override suspend fun getAll(): List<Project> = dbQuery {
-        (ProjectsTable innerJoin UsersTable).selectAll().map {
-            Project(
-                id = it[ProjectsTable.id].value, name = it[ProjectsTable.name], owner = Project.ProjectOwner(
-                    id = it[ProjectsTable.ownerId], username = it[UsersTable.username]
-                )
-            )
-        }
+        (ProjectsTable innerJoin UsersTable).selectAll().map(Project::fromResultRow)
     }
 
     override suspend fun getByOwner(ownerId: Int): List<Project> = dbQuery {
-        (ProjectsTable innerJoin UsersTable).selectAll().where { ProjectsTable.ownerId eq ownerId }.map {
-            Project(
-                id = it[ProjectsTable.id].value, name = it[ProjectsTable.name], owner = Project.ProjectOwner(
-                    id = it[ProjectsTable.ownerId], username = it[UsersTable.username]
-                )
-            )
-        }
+        (ProjectsTable innerJoin UsersTable).selectAll().where { ProjectsTable.ownerId eq ownerId }
+            .map(Project::fromResultRow)
     }
 
     override suspend fun getById(id: Int): Project? = dbQuery {
-        (ProjectsTable innerJoin UsersTable).selectAll().where { ProjectsTable.id eq id }.mapNotNull {
-            Project(
-                id = it[ProjectsTable.id].value, name = it[ProjectsTable.name], owner = Project.ProjectOwner(
-                    id = it[ProjectsTable.ownerId], username = it[UsersTable.username]
-                )
-            )
-        }.singleOrNull()
+        (ProjectsTable innerJoin UsersTable).selectAll().where { ProjectsTable.id eq id }
+            .mapNotNull(Project::fromResultRow).singleOrNull()
     }
 }
