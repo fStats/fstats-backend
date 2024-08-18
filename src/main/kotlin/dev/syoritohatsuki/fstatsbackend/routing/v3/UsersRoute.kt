@@ -58,17 +58,13 @@ fun Route.usersRoute() {
                     HttpStatusCode.BadRequest, "No data provided for update"
                 )
 
-                if (newUserData.username.isNotBlank()) {
-                    if (!Regex(USERNAME_REGEX).matches(newUserData.username)) return@patch call.respondMessage(
-                        HttpStatusCode.BadRequest, "Username not match requirements"
-                    )
-                }
+                if (newUserData.username.isNotBlank() && !Regex(USERNAME_REGEX).matches(newUserData.username)) return@patch call.respondMessage(
+                    HttpStatusCode.BadRequest, "Username not match requirements"
+                )
 
-                if (newUserData.password.isNotBlank()) {
-                    if (!Regex(PASSWORD_REGEX).matches(newUserData.password)) return@patch call.respondMessage(
-                        HttpStatusCode.BadRequest, "Password not match requirements"
-                    )
-                }
+                if (newUserData.password.isNotBlank() && !Regex(PASSWORD_REGEX).matches(newUserData.password)) return@patch call.respondMessage(
+                    HttpStatusCode.BadRequest, "Password not match requirements"
+                )
 
                 when (PostgresUserRepository.updateUserData(userId, newUserData)) {
                     SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "User data updated")
