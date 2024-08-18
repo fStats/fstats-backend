@@ -30,7 +30,7 @@ object PostgresMetricRepository : MetricRepository {
         SUCCESS
     }
 
-    override suspend fun getMetricInDateRange(projectId: Int, from: Long?, to: Long): MetricLine {
+    override suspend fun getMetricInDateRange(projectId: Int, from: Long?, to: Long, serverSide: Boolean): MetricLine {
         val timestampList = mutableListOf<Long>()
         val countList = mutableListOf<Int>()
 
@@ -48,17 +48,19 @@ object PostgresMetricRepository : MetricRepository {
                      WHERE (time >= COALESCE(to_timestamp(?), time))
                         AND time <= to_timestamp(?)
                         AND project_id = ?
+                        AND server_side = ?
                  ) AS _
             GROUP BY timestampz
             ORDER BY timestampz;
-        """
+        """.trimIndent()
 
         newSuspendedTransaction(Dispatchers.IO) {
             val resultSet = connection.prepareStatement(sql, true).apply {
-                from?.let { this[1] = it } ?: this.setNull(1, MetricsTable.time.columnType)
+                from?.let { set(1, it) } ?: this.setNull(1, MetricsTable.time.columnType)
 
-                this[2] = to
-                this[3] = projectId
+                set(2, to)
+                set(3, projectId)
+                set(4, serverSide)
             }.executeQuery()
 
             while (resultSet.next()) {
@@ -77,88 +79,76 @@ object PostgresMetricRepository : MetricRepository {
         return MetricLine(timestampList, countList)
     }
 
-    override suspend fun getMetricCountById(projectId: Int): MetricPie {
+    override suspend fun getMetricCountById(projectId: Int, serverSide: Boolean): MetricPie {
         val metricPie = mutableMapOf<String, MutableMap<String?, Int>>()
 
         newSuspendedTransaction(Dispatchers.IO) {
-            val sqlQuery = """
-            SELECT 'minecraft_version' AS column_name,
-                   COUNT(*)            AS count,
-                   minecraft_version   AS item
-            FROM metrics
-            WHERE project_id = ?
-                AND time >= NOW() - INTERVAL '30 minutes'
-            GROUP BY minecraft_version
-            
-            UNION ALL
-            
-            SELECT 'online_mode'             AS column_name,
-                   COUNT(*)                  AS count,
-                   CAST(online_mode AS TEXT) AS item
-            FROM metrics
-            WHERE project_id = ?
-                AND time >= NOW() - INTERVAL '30 minutes'
-            GROUP BY online_mode
-            
-            UNION ALL
-            
-            SELECT 'mod_version' AS column_name,
-                   COUNT(*)      AS count,
-                   mod_version   AS item
-            FROM metrics
-            WHERE project_id = ?
-                AND time >= NOW() - INTERVAL '30 minutes'
-            GROUP BY mod_version
-            
-            UNION ALL
-            
-            SELECT 'os'     AS column_name,
-                   COUNT(*) AS count,
-                   os       AS item
-            FROM metrics
-            WHERE project_id = ?
-                AND time >= NOW() - INTERVAL '30 minutes'
-            GROUP BY os
-            
-            UNION ALL
-            
-            SELECT 'location' AS column_name,
-                   COUNT(*)   AS count,
-                   location   AS item
-            FROM metrics
-            WHERE project_id = ?
-                AND time >= NOW() - INTERVAL '30 minutes'
-            GROUP BY location
-            
-            UNION ALL
-            
-            SELECT 'fabric_api_version' AS column_name,
-                   COUNT(*)             AS count,
-                   fabric_api_version   AS item
-            FROM metrics
-            WHERE project_id = ?
-                AND time >= NOW() - INTERVAL '30 minutes'
-            GROUP BY fabric_api_version 
-            
-            UNION ALL
-            
-            SELECT 'server_side' AS column_name,
-                   COUNT(*)      AS count,
-                   CAST(server_side AS TEXT)   AS item
-            FROM metrics
-            WHERE project_id = ?
-                AND time >= NOW() - INTERVAL '30 minutes'
-            GROUP BY server_side;
-        """.trimIndent()
+            @Language("PostgreSQL") val sqlQuery = """
+                WITH metrics_data AS (
+                    SELECT * FROM metrics 
+                        WHERE project_id = ? 
+                        AND time >= NOW() - INTERVAL '30 minutes'
+                        AND server_side = ?
+                )
+                
+                SELECT 'minecraft_version' AS metric_type,
+                       minecraft_version AS item,
+                       COUNT(*) AS count
+                FROM metrics_data
+                GROUP BY minecraft_version
+                
+                UNION ALL
+                
+                SELECT 'online_mode' AS metric_type,
+                       CAST(online_mode AS TEXT) AS item, 
+                       COUNT(*) AS count
+                FROM metrics_data
+                GROUP BY online_mode
+                
+                UNION ALL
+                
+                SELECT 'mod_version' AS metric_type,
+                       mod_version AS item,
+                       COUNT(*) AS count
+                FROM metrics_data
+                GROUP BY mod_version
+                
+                UNION ALL
+                
+                SELECT 'os' AS metric_type,
+                       os AS item,
+                       COUNT(*) AS count
+                FROM metrics_data
+                GROUP BY os
+                
+                UNION ALL
+                
+                SELECT 'location' AS metric_type,
+                       location AS item,
+                       COUNT(*) AS count
+                FROM metrics_data
+                GROUP BY location
+                
+                UNION ALL
+                
+                SELECT 'fabric_api_version' AS metric_type,
+                       fabric_api_version AS item,
+                       COUNT(*) AS count
+                FROM metrics_data
+                GROUP BY fabric_api_version
+                
+                UNION ALL 
+                
+                SELECT 'server_side' AS metric_type,
+                       CAST(server_side AS TEXT) AS item, 
+                       COUNT(*) AS count
+                FROM metrics_data
+                GROUP BY server_side;
+            """.trimIndent()
 
             val resultSet = connection.prepareStatement(sqlQuery, true).apply {
                 set(1, projectId)
-                set(2, projectId)
-                set(3, projectId)
-                set(4, projectId)
-                set(5, projectId)
-                set(6, projectId)
-                set(7, projectId)
+                set(1, serverSide)
             }.executeQuery()
 
             while (resultSet.next()) {

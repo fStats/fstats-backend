@@ -9,7 +9,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import java.time.Instant
+import kotlinx.datetime.Clock
 
 fun Route.metricsRoute() {
     route("metrics") {
@@ -20,16 +20,20 @@ fun Route.metricsRoute() {
                 )
 
                 val from = call.parameters["from"]?.toLongOrNull()
-                val to = call.parameters["to"]?.toLongOrNull() ?: Instant.now().toEpochMilli()
+                val to = call.parameters["to"]?.toLongOrNull() ?: Clock.System.now().toEpochMilliseconds()
 
-                call.respond(PostgresMetricRepository.getMetricInDateRange(id, from, to))
+                val serverSide = call.parameters["id"]?.toBooleanStrictOrNull() ?: true
+
+                call.respond(PostgresMetricRepository.getMetricInDateRange(id, from, to, serverSide))
             }
             get("pie") {
                 val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
-                call.respond(PostgresMetricRepository.getMetricCountById(id))
+                val serverSide = call.parameters["id"]?.toBooleanStrictOrNull() ?: true
+
+                call.respond(PostgresMetricRepository.getMetricCountById(id, serverSide))
             }
         }
         post {
