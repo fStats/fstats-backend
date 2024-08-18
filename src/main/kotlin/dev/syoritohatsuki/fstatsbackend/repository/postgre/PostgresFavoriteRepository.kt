@@ -17,13 +17,7 @@ import org.jetbrains.exposed.sql.selectAll
 object PostgresFavoriteRepository : FavoriteRepository {
     override suspend fun getUserFavorites(userId: Int): List<Project> = dbQuery {
         (ProjectsTable innerJoin FavoritesTable innerJoin UsersTable).selectAll()
-            .where { FavoritesTable.userId eq userId }.map {
-                Project(
-                    id = it[ProjectsTable.id].value, name = it[ProjectsTable.name], owner = Project.ProjectOwner(
-                        id = it[ProjectsTable.ownerId], username = it[UsersTable.username]
-                    )
-                )
-            }
+            .where { FavoritesTable.userId eq userId }.map(Project::fromResultRow)
     }
 
     override suspend fun addProjectToFavorites(userId: Int, projectId: Int): Int = dbQuery {
