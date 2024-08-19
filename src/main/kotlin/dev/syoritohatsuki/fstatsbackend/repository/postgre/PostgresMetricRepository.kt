@@ -148,11 +148,11 @@ object PostgresMetricRepository : MetricRepository {
 
             val resultSet = connection.prepareStatement(sqlQuery, true).apply {
                 set(1, projectId)
-                set(1, serverSide)
+                set(2, serverSide)
             }.executeQuery()
 
             while (resultSet.next()) {
-                val columnName = resultSet.getString("column_name")
+                val columnName = resultSet.getString("metric_type")
                 val innerMap = metricPie[columnName] ?: mutableMapOf()
 
                 if (resultSet.getString("item") != null) {
