@@ -22,7 +22,7 @@ fun Route.metricsRoute() {
                 val from = call.parameters["from"]?.toLongOrNull()
                 val to = call.parameters["to"]?.toLongOrNull() ?: Clock.System.now().toEpochMilliseconds()
 
-                val serverSide = call.parameters["id"]?.toBooleanStrictOrNull() ?: true
+                val serverSide = call.request.queryParameters["server_side"]?.toBooleanStrictOrNull() ?: true
 
                 call.respond(PostgresMetricRepository.getMetricInDateRange(id, from, to, serverSide))
             }
@@ -31,7 +31,7 @@ fun Route.metricsRoute() {
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
-                val serverSide = call.parameters["id"]?.toBooleanStrictOrNull() ?: true
+                val serverSide = call.request.queryParameters["server_side"]?.toBooleanStrictOrNull() ?: true
 
                 call.respond(PostgresMetricRepository.getMetricCountById(id, serverSide))
             }
