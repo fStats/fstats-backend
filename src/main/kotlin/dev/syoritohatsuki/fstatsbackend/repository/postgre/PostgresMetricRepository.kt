@@ -21,7 +21,7 @@ object PostgresMetricRepository : MetricRepository {
             this[MetricsTable.projectId] = projectId
             this[MetricsTable.onlineMode] = metrics.metric.isOnlineMode
             this[MetricsTable.minecraftVersion] = metrics.metric.minecraftVersion
-            this[MetricsTable.modVersion] = metrics.metric.modVersion
+            this[MetricsTable.modVersion] = metrics.projectIds[projectId] ?: "unknown"
             this[MetricsTable.os] = metrics.metric.os
             this[MetricsTable.location] = metrics.metric.location
             this[MetricsTable.fabricApiVersion] = metrics.metric.fabricApiVersion
