@@ -79,9 +79,19 @@ fun Route.projectsRoute() {
 
                     val newProjectData = call.receive<Project>()
 
+                    val project = PostgresProjectRepository.getById(id) ?: return@patch call.respondMessage(
+                        HttpStatusCode.NoContent, "Project not found"
+                    )
+
+                    if (project.owner.id != (call.principal<JWTPrincipal>()?.payload ?: return@patch call.respond(
+                            HttpStatusCode.Unauthorized
+                        )).getClaim("id").asInt()
+                    ) return@patch call.respond(HttpStatusCode.Unauthorized)
+
                     if (newProjectData.name.isBlank() && newProjectData.isVisible == null) return@patch call.respondMessage(
                         HttpStatusCode.BadRequest, "No data provided for update"
                     )
+
                     if (newProjectData.name.isNotBlank() && !Regex(PROJECT_REGEX).matches(newProjectData.name)) return@patch call.respondMessage(
                         HttpStatusCode.BadRequest, "Username not match requirements"
                     )
