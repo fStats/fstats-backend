@@ -157,7 +157,7 @@ object PostgresMetricRepository : MetricRepository {
 
                 if (resultSet.getString("item") != null) {
                     var item = resultSet.getString("item")
-                    if (columnName == "location") item = oldName2ISO[item] ?: "XXX"
+                    if (columnName == "location") item = oldName2ISO[item] ?: item
                     innerMap[item] = resultSet.getInt("count")
                 }
 
