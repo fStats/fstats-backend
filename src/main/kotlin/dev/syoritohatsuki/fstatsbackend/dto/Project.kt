@@ -2,6 +2,7 @@ package dev.syoritohatsuki.fstatsbackend.dto
 
 import dev.syoritohatsuki.fstatsbackend.db.ProjectsTable
 import dev.syoritohatsuki.fstatsbackend.db.UsersTable
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.ResultRow
 
@@ -9,6 +10,7 @@ import org.jetbrains.exposed.sql.ResultRow
 data class Project(
     val id: Int = -1,
     val name: String = "",
+    @SerialName("is_visible")
     val isVisible: Boolean? = true,
     val owner: ProjectOwner = ProjectOwner()
 ) {
