@@ -23,7 +23,7 @@ object PostgresUserRepository : UserRepository {
     }
 
     override suspend fun deleteById(id: Int): Int = dbQuery {
-        val deleteResult = UsersTable.deleteWhere(1) { UsersTable.id eq id }
+        val deleteResult = UsersTable.deleteWhere { UsersTable.id eq id }
         if (deleteResult > 0) SUCCESS else FAILED
     }
 
@@ -39,7 +39,7 @@ object PostgresUserRepository : UserRepository {
         if (user.username.isBlank() && user.password.isBlank()) return FAILED
 
         return dbQuery {
-            UsersTable.update({ UsersTable.id eq userId }, 1) {
+            UsersTable.update({ UsersTable.id eq userId }) {
                 if (user.username.isNotBlank()) it[username] = user.username
                 if (user.password.isNotBlank()) it[passwordHash] = String(hash(user.password))
             }

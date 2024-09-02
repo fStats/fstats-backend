@@ -23,7 +23,7 @@ object PostgresProjectRepository : ProjectRepository {
     }
 
     override suspend fun deleteById(id: Int): Int = dbQuery {
-        val deleteResult = ProjectsTable.deleteWhere(1) { ProjectsTable.id eq id }
+        val deleteResult = ProjectsTable.deleteWhere { ProjectsTable.id eq id }
         if (deleteResult > 0) SUCCESS else FAILED
     }
 
