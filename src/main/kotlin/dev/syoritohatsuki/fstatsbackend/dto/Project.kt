@@ -11,7 +11,7 @@ data class Project(
     val id: Int = -1,
     val name: String = "",
     @SerialName("is_visible")
-    val isVisible: Boolean? = true,
+    val isVisible: Boolean?,
     val owner: ProjectOwner = ProjectOwner()
 ) {
     @Serializable
