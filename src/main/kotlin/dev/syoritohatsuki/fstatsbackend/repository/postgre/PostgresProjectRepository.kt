@@ -45,7 +45,7 @@ object PostgresProjectRepository : ProjectRepository {
         if (project.name.isBlank() && project.isVisible == null) return FAILED
 
         return dbQuery {
-            ProjectsTable.update({ ProjectsTable.id eq projectId }, 1) {
+            ProjectsTable.update({ ProjectsTable.id eq projectId }) {
                 if (project.name.isNotBlank()) it[name] = project.name
                 if (project.isVisible != null) it[isVisible] = project.isVisible
             }
