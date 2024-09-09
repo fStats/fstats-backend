@@ -97,7 +97,10 @@ fun Route.projectsRoute() {
                     )
 
                     when (PostgresProjectRepository.updateProjectData(id, newProjectData)) {
-                        SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project data updated")
+                        SUCCESS -> {
+                            PostgresProjectRepository.updateProjectData(id, Project(isVisible = true))
+                            call.respondMessage(HttpStatusCode.Accepted, "Project data updated")
+                        }
                         else -> call.respondMessage(HttpStatusCode.NoContent, "Project not found")
                     }
                 }
