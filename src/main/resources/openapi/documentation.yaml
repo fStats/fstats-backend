@@ -11,7 +11,7 @@ info:
 servers:
   - url: "https://api.fstats.dev"
 paths:
-  /v2/auth/login:
+  /v3/auth/login:
     post:
       tags:
         - Authorization
@@ -42,7 +42,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/auth/registration:
+  /v3/auth/registration:
     post:
       tags:
         - Authorization
@@ -67,8 +67,37 @@ paths:
                 $ref: "#/components/schemas/Message"
   /v2/metrics:
     post:
-      security:
-        - bearerAuth: [ ]
+      deprecated: true
+      summary: Upload new metric data to server
+      tags:
+        - Metric
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MetricsDepracated"
+        required: true
+      responses:
+        201:
+          description: "Created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v3/metrics:
+    post:
       summary: Upload new metric data to server
       tags:
         - Metric
@@ -97,7 +126,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/metrics/{id}/pie:
+  /v3/metrics/{id}/pie:
     get:
       summary: Get last 30 minute data for Pie Chart
       tags:
@@ -121,7 +150,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/metrics/{id}/line:
+  /v3/metrics/{id}/line:
     get:
       summary: Get year old data for Timeline Chart
       tags:
@@ -145,7 +174,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/projects:
+  /v3/projects:
     get:
       summary: Get list of all exist projects
       tags:
@@ -196,7 +225,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/projects/{id}:
+  /v3/projects/{id}:
     get:
       summary: Get specify project by ID
       tags:
@@ -239,6 +268,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+        204:
+          description: "NoContent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
         400:
           description: "Bad Request"
           content:
@@ -251,7 +286,44 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/projects/{id}/favorite:
+    patch:
+      summary: Update project info
+      tags:
+        - Project
+      security:
+        - bearerAuth: [ ]
+      parameters:
+        - name: "id"
+          in: "path"
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        202:
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        204:
+          description: "NoContent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v3/projects/{id}/favorite:
     post:
       summary: Added project to user favorites
       security:
@@ -314,7 +386,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/users:
+  /v3/users:
     delete:
       summary: Delete specify user from database with all project
       security:
@@ -340,7 +412,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/users/{id}:
+    patch:
+      summary: Update user data
+      security:
+        - bearerAuth: [ ]
+      tags:
+        - User
+      responses:
+        202:
+          description: "Accepted"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        204:
+          description: "NoContent"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+        401:
+          description: "Unauthorized"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
+  /v3/users/{id}:
     get:
       summary: Get specify user by ID
       tags:
@@ -370,7 +467,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/User"
-  /v2/users/{id}/favorite:
+  /v3/users/{id}/favorite:
     get:
       summary: Get projects list that user marked as favorite
       security:
@@ -398,7 +495,7 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-  /v2/users/{id}/projects:
+  /v3/users/{id}/projects:
     get:
       summary: Get projects list that user own
       tags:
@@ -438,6 +535,9 @@ components:
           type: integer
         name:
           type: string
+        isVisible:
+          type: boolean
+          default: true
         owner:
           $ref: "#/components/schemas/User"
     User:
@@ -468,12 +568,24 @@ components:
     LineMetric:
       type: object
       properties:
-        project:
-          $ref: "#/components/schemas/Project"
-        metric_line:
+        timestamps:
+          type: array
+          items:
+            type: integer
+        counts:
+          type: array
+          items:
+            type: integer
+    MetricsDepracated:
+      type: object
+      deprecated: true
+      properties:
+        projectIds:
           type: object
           additionalProperties:
-            type: integer
+            type: string
+        metric:
+          $ref: '#/components/schemas/MetricDeprecated'
     Metrics:
       type: object
       properties:
@@ -483,8 +595,9 @@ components:
             type: string
         metric:
           $ref: '#/components/schemas/Metric'
-    Metric:
+    MetricDeprecated:
       type: object
+      deprecated: true
       properties:
         timestampSeconds:
           type: integer
@@ -503,3 +616,28 @@ components:
           type: string
         fabricApiVersion:
           type: string
+    Metric:
+      type: object
+      properties:
+        timestampSeconds:
+          type: integer
+        projectId:
+          type: integer
+        minecraftVersion:
+          type: string
+        isOnlineMode:
+          type: boolean
+          nullable: true
+        modVersion:
+          type: string
+        os:
+          type: string
+          maxLength: 1
+        location:
+          type: string
+        fabricApiVersion:
+          type: string
+          nullable: true
+        serverSide:
+          type: boolean
+          nullable: true
