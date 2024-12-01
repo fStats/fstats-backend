@@ -1,7 +1,9 @@
+import io.ktor.plugin.features.*
+
 plugins {
     kotlin("jvm") version "1.9.10"
     kotlin("plugin.serialization") version "1.9.10"
-    id("io.ktor.plugin") version "2.3.11"
+    id("io.ktor.plugin") version "2.3.12"
 }
 
 group = "dev.syoritohatsuki"
@@ -16,6 +18,20 @@ repositories {
 }
 
 ktor {
+    docker {
+        jreVersion.set(JavaVersion.VERSION_17)
+        localImageName.set("fstats-backend")
+        imageTag.set(version.toString())
+        portMappings.set(
+            listOf(
+                DockerPortMapping(
+                    1540,
+                    1540,
+                    DockerPortMappingProtocol.TCP
+                )
+            )
+        )
+    }
     fatJar {
         archiveFileName.set("fstats-backend.jar")
     }
