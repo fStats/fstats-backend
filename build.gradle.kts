@@ -1,9 +1,9 @@
 import io.ktor.plugin.features.*
 
 plugins {
-    kotlin("jvm") version "1.9.10"
-    kotlin("plugin.serialization") version "1.9.10"
-    id("io.ktor.plugin") version "2.3.12"
+    kotlin("jvm") version "2.1.10"
+    kotlin("plugin.serialization") version "2.1.10"
+    id("io.ktor.plugin") version "3.0.3"
 }
 
 group = "dev.syoritohatsuki"
@@ -77,10 +77,10 @@ tasks {
 
 dependencies {
     implementation("de.nycode:bcrypt:2.3.0")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.4.0")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.5.0")
 
     // Ktor dependencies
-    val ktorVersion = "2.3.11"
+    val ktorVersion = "3.0.3"
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
     implementation("io.ktor:ktor-server-cors:$ktorVersion")
@@ -95,12 +95,15 @@ dependencies {
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
 
     // Logging
-    implementation("ch.qos.logback:logback-classic:1.5.7")
+    implementation("ch.qos.logback:logback-classic:1.5.16")
 
     // Database
-    implementation("org.postgresql:postgresql:42.7.2")
-    implementation("com.zaxxer:HikariCP:5.0.1")
-    implementation("org.jetbrains.exposed:exposed-core:0.53.0")
-    implementation("org.jetbrains.exposed:exposed-jdbc:0.53.0")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:0.53.0")
+    implementation("org.postgresql:postgresql:42.7.5")
+    implementation("com.zaxxer:HikariCP:6.2.1")
+
+    // Exposed dependencies
+    val exposedVersion = "0.58.0"
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
 }
