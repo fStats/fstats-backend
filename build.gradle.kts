@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.syoritohatsuki"
-version = "2025.2.1"
+version = "2025.2.2"
 
 application {
     mainClass.set("$group.fstatsbackend.ApplicationKt")
@@ -20,7 +20,7 @@ repositories {
 ktor {
     val projectName = project.name
     docker {
-        jreVersion.set(JavaVersion.VERSION_17)
+        jreVersion.set(JavaVersion.VERSION_21)
         localImageName.set(projectName)
         imageTag.set(version.toString())
         portMappings.set(
