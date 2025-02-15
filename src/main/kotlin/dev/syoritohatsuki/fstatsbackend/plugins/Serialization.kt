@@ -5,11 +5,13 @@ import io.ktor.server.application.*
 import io.ktor.server.plugins.contentnegotiation.*
 import kotlinx.serialization.json.Json
 
+val json = Json {
+    ignoreUnknownKeys = true
+    explicitNulls = false
+}
+
 fun Application.configureSerialization() {
     install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-            explicitNulls = false
-        })
+        json(json)
     }
 }
