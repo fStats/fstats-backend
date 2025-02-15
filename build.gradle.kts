@@ -78,6 +78,7 @@ tasks {
 dependencies {
     implementation("de.nycode:bcrypt:2.3.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.0")
+    implementation("io.nats:jnats:2.20.5")
 
     // Ktor dependencies
     val ktorVersion = "3.0.3"

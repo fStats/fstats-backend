@@ -1,6 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.dto
 
 import kotlinx.serialization.Serializable
+import java.util.*
 
 typealias MetricPie = Map<String, Map<String?, Int>>
 
@@ -17,6 +18,7 @@ data class Metrics(
 ) {
     @Serializable
     data class Metric(
+        val uuid: String = UUID.randomUUID().toString(),
         val timestampSeconds: Long? = null,
         val projectId: Int? = null,
         val minecraftVersion: String = "unknown",
@@ -26,5 +28,14 @@ data class Metrics(
         val location: String = "unknown",
         val fabricApiVersion: String?,
         val isServerSide: Boolean? = true
-    )
+    ) {
+        fun getSubject() = StringBuilder().apply {
+            append("fstats.")
+            append("metrics.")
+            append("${projectId}.")
+            append("${timestampSeconds}.")
+            append("${location}.")
+            append(uuid)
+        }.toString()
+    }
 }

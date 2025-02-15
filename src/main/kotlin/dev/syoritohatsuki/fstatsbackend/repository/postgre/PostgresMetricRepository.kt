@@ -1,33 +1,36 @@
 package dev.syoritohatsuki.fstatsbackend.repository.postgre
 
+import dev.syoritohatsuki.fstatsbackend.broker.Nats
 import dev.syoritohatsuki.fstatsbackend.db.MetricsTable
 import dev.syoritohatsuki.fstatsbackend.dto.MetricLine
 import dev.syoritohatsuki.fstatsbackend.dto.MetricPie
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
-import dev.syoritohatsuki.fstatsbackend.mics.dbQuery
 import dev.syoritohatsuki.fstatsbackend.mics.oldName2ISO
 import dev.syoritohatsuki.fstatsbackend.repository.MetricRepository
 import kotlinx.coroutines.Dispatchers
 import org.intellij.lang.annotations.Language
-import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import java.time.OffsetDateTime
 
 object PostgresMetricRepository : MetricRepository {
-    override suspend fun add(metrics: Metrics): Int = dbQuery {
-        MetricsTable.batchInsert(metrics.projectIds.keys) { projectId ->
-            this[MetricsTable.time] = OffsetDateTime.now()
-            this[MetricsTable.projectId] = projectId
-            this[MetricsTable.onlineMode] = metrics.metric.isOnlineMode
-            this[MetricsTable.minecraftVersion] = metrics.metric.minecraftVersion
-            this[MetricsTable.modVersion] = metrics.projectIds[projectId] ?: "unknown"
-            this[MetricsTable.os] = metrics.metric.os
-            this[MetricsTable.location] = metrics.metric.location
-            this[MetricsTable.fabricApiVersion] = metrics.metric.fabricApiVersion
-            this[MetricsTable.serverSide] = metrics.metric.isServerSide
+    override suspend fun add(metrics: Metrics): Int {
+        metrics.projectIds.keys.forEach { projectId ->
+            Nats.publish(
+                Metrics.Metric(
+                    timestampSeconds = OffsetDateTime.now().toEpochSecond(),
+                    projectId = projectId,
+                    minecraftVersion = metrics.metric.minecraftVersion,
+                    isOnlineMode = metrics.metric.isOnlineMode,
+                    modVersion = metrics.projectIds[projectId] ?: "unknown",
+                    os = metrics.metric.os,
+                    location = metrics.metric.location,
+                    fabricApiVersion = metrics.metric.fabricApiVersion,
+                    isServerSide = metrics.metric.isServerSide
+                )
+            )
         }
-        SUCCESS
+        return SUCCESS
     }
 
     override suspend fun getMetricInDateRange(projectId: Int, from: Long?, to: Long, serverSide: Boolean): MetricLine {
