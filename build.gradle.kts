@@ -78,7 +78,6 @@ tasks {
 dependencies {
     implementation("de.nycode:bcrypt:2.3.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.0")
-    implementation("io.nats:jnats:2.20.5")
 
     // Ktor dependencies
     val ktorVersion = "3.0.3"
@@ -107,4 +106,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
+
+    // Broker
+    implementation("org.apache.kafka:kafka-clients:3.9.0")
 }

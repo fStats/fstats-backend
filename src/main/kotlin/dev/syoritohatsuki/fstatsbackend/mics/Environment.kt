@@ -15,6 +15,9 @@ val POSTGRES_DB by environment("fstats")
 val POSTGRES_HOST by environment("localhost")
 val POSTGRES_PORT by environment(5432)
 
+val KAFKA_BOOTSTRAP by environment("localhost")
+val KAFKA_PORT by environment(9092)
+
 val DISKS_COUNT by environment(1)
 val CPU_CORES by environment(Runtime.getRuntime().availableProcessors())
 

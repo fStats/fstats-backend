@@ -1,7 +1,6 @@
 package dev.syoritohatsuki.fstatsbackend.repository.postgre
 
-import dev.syoritohatsuki.fstatsbackend.broker.Nats
-import dev.syoritohatsuki.fstatsbackend.db.MetricsTable
+import dev.syoritohatsuki.fstatsbackend.broker.Kafka
 import dev.syoritohatsuki.fstatsbackend.dto.MetricLine
 import dev.syoritohatsuki.fstatsbackend.dto.MetricPie
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
@@ -15,21 +14,7 @@ import java.time.OffsetDateTime
 
 object PostgresMetricRepository : MetricRepository {
     override suspend fun add(metrics: Metrics): Int {
-        metrics.projectIds.keys.forEach { projectId ->
-            Nats.publish(
-                Metrics.Metric(
-                    timestampSeconds = OffsetDateTime.now().toEpochSecond(),
-                    projectId = projectId,
-                    minecraftVersion = metrics.metric.minecraftVersion,
-                    isOnlineMode = metrics.metric.isOnlineMode,
-                    modVersion = metrics.projectIds[projectId] ?: "unknown",
-                    os = metrics.metric.os,
-                    location = metrics.metric.location,
-                    fabricApiVersion = metrics.metric.fabricApiVersion,
-                    isServerSide = metrics.metric.isServerSide
-                )
-            )
-        }
+        Kafka.publish(metrics)
         return SUCCESS
     }
 
