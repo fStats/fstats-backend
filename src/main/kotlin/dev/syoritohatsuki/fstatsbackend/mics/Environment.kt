@@ -15,6 +15,12 @@ val POSTGRES_DB by environment("fstats")
 val POSTGRES_HOST by environment("localhost")
 val POSTGRES_PORT by environment(5432)
 
+val CLICKHOUSE_USER by environment("fstats")
+val CLICKHOUSE_PASS by environment("")
+val CLICKHOUSE_DB by environment("fstats")
+val CLICKHOUSE_HOST by environment("localhost")
+val CLICKHOUSE_PORT by environment(8123)
+
 val KAFKA_BOOTSTRAP by environment("localhost")
 val KAFKA_PORT by environment(9092)
 

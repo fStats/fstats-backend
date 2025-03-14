@@ -6,11 +6,12 @@ import dev.syoritohatsuki.fstatsbackend.dto.MetricPie
 import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.oldName2ISO
+import dev.syoritohatsuki.fstatsbackend.plugins.clickHouseDataSource
 import dev.syoritohatsuki.fstatsbackend.repository.MetricRepository
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import org.intellij.lang.annotations.Language
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import java.time.OffsetDateTime
+import java.sql.Types
 
 object PostgresMetricRepository : MetricRepository {
     override suspend fun add(metrics: Metrics): Int {
@@ -25,41 +26,51 @@ object PostgresMetricRepository : MetricRepository {
         var prevTimestamp: Long = 0
         var prevCount = 0
 
-        @Language("PostgreSQL") val sql = """
+        @Language("ClickHouse") val sql = """
             SELECT
-                COUNT(*)::int AS count,
-                timestampz
+                COUNT(*) AS count,
+                toUnixTimestamp(timestampz) AS timestampz
             FROM (
-                     SELECT
-                        EXTRACT(epoch FROM time_bucket('30 minutes', time)) as timestampz
-                     FROM metrics
-                     WHERE (time >= COALESCE(to_timestamp(?), time))
-                        AND time <= to_timestamp(?)
-                        AND project_id = ?
-                        AND server_side = ?
-                 ) AS _
+                SELECT
+                    toStartOfInterval(ts, INTERVAL 30 minute) AS timestampz
+                FROM metrics
+                WHERE (ts >= coalesce(fromUnixTimestamp(?), ts))
+                    AND ts <= fromUnixTimestamp(?)
+                    AND project_id = ?
+                    AND server_side = ?
+            ) AS _
             GROUP BY timestampz
             ORDER BY timestampz;
         """.trimIndent()
 
-        newSuspendedTransaction(Dispatchers.IO) {
-            val resultSet = connection.prepareStatement(sql, true).apply {
-                from?.let { set(1, it) } ?: this.setNull(1, MetricsTable.time.columnType)
+        withContext(Dispatchers.IO) {
+            clickHouseDataSource.connection.use { connection ->
+                connection.prepareStatement(sql).use { preparedStatement ->
+                    // Set parameters
+                    if (from != null) {
+                        preparedStatement.setLong(1, from)
+                    } else {
+                        preparedStatement.setNull(1, Types.TIME_WITH_TIMEZONE)
+                    }
+                    preparedStatement.setLong(2, to)
+                    preparedStatement.setInt(3, projectId)
+                    preparedStatement.setBoolean(4, serverSide)
 
-                set(2, to)
-                set(3, projectId)
-                set(4, serverSide)
-            }.executeQuery()
+                    // Execute query
+                    preparedStatement.executeQuery().use { resultSet ->
+                        while (resultSet.next()) {
+                            val timestamp = resultSet.getLong("timestampz")
+                            val count = resultSet.getInt("count")
 
-            while (resultSet.next()) {
-                resultSet.getLong("timestampz").apply {
-                    timestampList.add(this - prevTimestamp)
-                    prevTimestamp = this
-                }
+                            // Calculate differences
+                            timestampList.add(timestamp - prevTimestamp)
+                            countList.add(count - prevCount)
 
-                resultSet.getInt("count").apply {
-                    countList.add(this - prevCount)
-                    prevCount = this
+                            // Update previous values
+                            prevTimestamp = timestamp
+                            prevCount = count
+                        }
+                    }
                 }
             }
         }
@@ -70,12 +81,12 @@ object PostgresMetricRepository : MetricRepository {
     override suspend fun getMetricCountById(projectId: Int, serverSide: Boolean): MetricPie {
         val metricPie = mutableMapOf<String, MutableMap<String?, Int>>()
 
-        newSuspendedTransaction(Dispatchers.IO) {
-            @Language("PostgreSQL") val sqlQuery = """
+        withContext(Dispatchers.IO) {
+            @Language("ClickHouse") val sqlQuery = """
                 WITH metrics_data AS (
-                    SELECT * FROM metrics 
-                        WHERE project_id = ? 
-                        AND time >= NOW() - INTERVAL '30 minutes'
+                    SELECT * FROM metrics
+                    WHERE project_id = ?
+                        AND ts >= now() - INTERVAL 30 MINUTE
                         AND server_side = ?
                 )
                 
@@ -134,25 +145,29 @@ object PostgresMetricRepository : MetricRepository {
                 GROUP BY server_side;
             """.trimIndent()
 
-            val resultSet = connection.prepareStatement(sqlQuery, true).apply {
-                set(1, projectId)
-                set(2, serverSide)
-            }.executeQuery()
+            clickHouseDataSource.connection.use { connection ->
+                connection.prepareStatement(sqlQuery).use { preparedStatement ->
+                    preparedStatement.setInt(1, projectId)
+                    preparedStatement.setBoolean(2, serverSide)
 
-            while (resultSet.next()) {
-                val columnName = resultSet.getString("metric_type")
-                val innerMap = metricPie[columnName] ?: mutableMapOf()
+                    preparedStatement.executeQuery().use { resultSet ->
+                        while (resultSet.next()) {
+                            val columnName = resultSet.getString("metric_type")
+                            val innerMap = metricPie[columnName] ?: mutableMapOf()
 
-                if (resultSet.getString("item") != null) {
-                    var item = resultSet.getString("item")
-                    if (columnName == "location") item = oldName2ISO[item] ?: item
-                    innerMap[item] = resultSet.getInt("count")
+                            if (resultSet.getString("item") != null) {
+                                var item = resultSet.getString("item")
+                                if (columnName == "location") item = oldName2ISO[item] ?: item
+                                innerMap[item] = resultSet.getInt("count")
+                            }
+
+                            metricPie[columnName] = innerMap
+                        }
+                    }
                 }
 
-                metricPie[columnName] = innerMap
             }
         }
-
         return metricPie
     }
 }

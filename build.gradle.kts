@@ -94,10 +94,11 @@ dependencies {
     implementation("io.ktor:ktor-server-status-pages:$ktorVersion")
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
 
-    // Logging
+    // Logging dependencies
     implementation("ch.qos.logback:logback-classic:1.5.16")
 
-    // Database
+    // Database dependencies
+    implementation("com.clickhouse:clickhouse-jdbc:0.8.2")
     implementation("org.postgresql:postgresql:42.7.5")
     implementation("com.zaxxer:HikariCP:6.2.1")
 
