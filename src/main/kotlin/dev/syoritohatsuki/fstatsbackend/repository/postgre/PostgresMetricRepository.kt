@@ -7,15 +7,33 @@ import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.oldName2ISO
 import dev.syoritohatsuki.fstatsbackend.plugins.clickHouseDataSource
+import dev.syoritohatsuki.fstatsbackend.plugins.json
 import dev.syoritohatsuki.fstatsbackend.repository.MetricRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import org.intellij.lang.annotations.Language
 import java.sql.Types
+import java.time.OffsetDateTime
 
 object PostgresMetricRepository : MetricRepository {
     override suspend fun add(metrics: Metrics): Int {
-        Kafka.publish(metrics)
+        metrics.projectIds.keys.map { projectId ->
+            Kafka.publish(
+                "fstats-metrics-topic", projectId.toString(), json.encodeToString(
+                    Metrics.Metric(
+                        timestampSeconds = OffsetDateTime.now().toEpochSecond(),
+                        projectId = projectId,
+                        minecraftVersion = metrics.metric.minecraftVersion,
+                        isOnlineMode = metrics.metric.isOnlineMode,
+                        modVersion = metrics.projectIds[projectId] ?: "unknown",
+                        os = metrics.metric.os,
+                        location = metrics.metric.location,
+                        fabricApiVersion = metrics.metric.fabricApiVersion,
+                        isServerSide = metrics.metric.isServerSide
+                    )
+                )
+            )
+        }
         return SUCCESS
     }
 
