@@ -15,10 +15,10 @@ import java.util.*
 object Kafka {
     private val metricsProducer: Producer<String, String> by lazy {
         KafkaProducer(Properties().apply {
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "$KAFKA_BOOTSTRAP:$KAFKA_PORT"
-            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java.name
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java.name
-            ProducerConfig.ACKS_CONFIG to "all"
+            put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, "$KAFKA_BOOTSTRAP:$KAFKA_PORT")
+            put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
+            put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer::class.java.name)
+            put(ProducerConfig.ACKS_CONFIG, "all")
         })
     }
 

@@ -19,7 +19,7 @@ object ClickHouseMetricRepository : MetricRepository {
     override suspend fun add(metrics: Metrics): Int {
         metrics.projectIds.keys.map { projectId ->
             Kafka.publish(
-                "fstats-metrics-topic", projectId.toString(), json.encodeToString(
+                "fstats-metrics-topic", "$projectId", json.encodeToString(
                     Metrics.Metric(
                         timestampSeconds = OffsetDateTime.now().toEpochSecond(),
                         projectId = projectId,
