@@ -9,7 +9,6 @@ import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.Producer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
-import org.apache.kafka.common.serialization.IntegerSerializer
 import org.apache.kafka.common.serialization.StringSerializer
 import java.util.*
 
@@ -17,7 +16,7 @@ object Kafka {
     private val metricsProducer: Producer<String, String> by lazy {
         KafkaProducer(Properties().apply {
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG to "$KAFKA_BOOTSTRAP:$KAFKA_PORT"
-            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to IntegerSerializer::class.java.name
+            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java.name
             ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG to StringSerializer::class.java.name
             ProducerConfig.ACKS_CONFIG to "all"
         })
