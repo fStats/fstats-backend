@@ -1,4 +1,4 @@
-package dev.syoritohatsuki.fstatsbackend.repository.postgre
+package dev.syoritohatsuki.fstatsbackend.repository.clickhouse
 
 import dev.syoritohatsuki.fstatsbackend.broker.Kafka
 import dev.syoritohatsuki.fstatsbackend.dto.MetricLine
@@ -15,7 +15,7 @@ import org.intellij.lang.annotations.Language
 import java.sql.Types
 import java.time.OffsetDateTime
 
-object PostgresMetricRepository : MetricRepository {
+object ClickHouseMetricRepository : MetricRepository {
     override suspend fun add(metrics: Metrics): Int {
         metrics.projectIds.keys.map { projectId ->
             Kafka.publish(
@@ -44,7 +44,7 @@ object PostgresMetricRepository : MetricRepository {
         var prevTimestamp: Long = 0
         var prevCount = 0
 
-        @Language("ClickHouse") val sql = """
+        @Language("ClickHouse") val sqlQuery = """
             SELECT
                 COUNT(*) AS count,
                 toUnixTimestamp(timestampz) AS timestampz
@@ -63,8 +63,7 @@ object PostgresMetricRepository : MetricRepository {
 
         withContext(Dispatchers.IO) {
             clickHouseDataSource.connection.use { connection ->
-                connection.prepareStatement(sql).use { preparedStatement ->
-                    // Set parameters
+                connection.prepareStatement(sqlQuery).use { preparedStatement ->
                     if (from != null) {
                         preparedStatement.setLong(1, from)
                     } else {
@@ -74,17 +73,14 @@ object PostgresMetricRepository : MetricRepository {
                     preparedStatement.setInt(3, projectId)
                     preparedStatement.setBoolean(4, serverSide)
 
-                    // Execute query
                     preparedStatement.executeQuery().use { resultSet ->
                         while (resultSet.next()) {
                             val timestamp = resultSet.getLong("timestampz")
                             val count = resultSet.getInt("count")
 
-                            // Calculate differences
                             timestampList.add(timestamp - prevTimestamp)
                             countList.add(count - prevCount)
 
-                            // Update previous values
                             prevTimestamp = timestamp
                             prevCount = count
                         }

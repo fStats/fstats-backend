@@ -28,14 +28,5 @@ data class Metrics(
         val location: String = "unknown",
         val fabricApiVersion: String?,
         val isServerSide: Boolean? = true
-    ) {
-        fun getSubject() = StringBuilder().apply {
-            append("fstats.")
-            append("metrics.")
-            append("${projectId}.")
-            append("${timestampSeconds}.")
-            append("${location}.")
-            append(uuid)
-        }.toString()
-    }
+    )
 }

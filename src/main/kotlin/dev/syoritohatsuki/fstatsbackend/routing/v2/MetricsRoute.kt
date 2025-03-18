@@ -4,9 +4,8 @@ import dev.syoritohatsuki.fstatsbackend.dto.Metrics
 import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.oldName2ISO
 import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
-import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresMetricRepository
+import dev.syoritohatsuki.fstatsbackend.repository.clickhouse.ClickHouseMetricRepository
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 
@@ -24,7 +23,7 @@ fun Route.metricsRoute() {
             val newLocation = oldName2ISO[metrics.metric.location] ?: "XXX"
             val newMetrics = metrics.copy(metric = metrics.metric.copy(location = newLocation))
 
-            when (PostgresMetricRepository.add(newMetrics)) {
+            when (ClickHouseMetricRepository.add(newMetrics)) {
                 SUCCESS -> call.respondMessage(HttpStatusCode.Created, "Metrics data added")
                 else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
             }
