@@ -3,11 +3,11 @@ import io.ktor.plugin.features.*
 plugins {
     kotlin("jvm") version "2.1.10"
     kotlin("plugin.serialization") version "2.1.10"
-    id("io.ktor.plugin") version "3.0.3"
+    id("io.ktor.plugin") version "3.1.1"
 }
 
 group = "dev.syoritohatsuki"
-version = "2025.2.2"
+version = "2025.3.1"
 
 application {
     mainClass.set("$group.fstatsbackend.ApplicationKt")
@@ -77,10 +77,10 @@ tasks {
 
 dependencies {
     implementation("de.nycode:bcrypt:2.3.0")
-    implementation("io.github.cdimascio:dotenv-kotlin:6.5.0")
+    implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
     // Ktor dependencies
-    val ktorVersion = "3.0.3"
+    val ktorVersion = "3.1.1"
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
     implementation("io.ktor:ktor-server-cors:$ktorVersion")
@@ -95,7 +95,7 @@ dependencies {
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
 
     // Logging dependencies
-    implementation("ch.qos.logback:logback-classic:1.5.16")
+    implementation("ch.qos.logback:logback-classic:1.5.17")
 
     // Database dependencies
     implementation("com.clickhouse:clickhouse-jdbc:0.8.2")
@@ -103,7 +103,7 @@ dependencies {
     implementation("com.zaxxer:HikariCP:6.2.1")
 
     // Exposed dependencies
-    val exposedVersion = "0.58.0"
+    val exposedVersion = "0.60.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
