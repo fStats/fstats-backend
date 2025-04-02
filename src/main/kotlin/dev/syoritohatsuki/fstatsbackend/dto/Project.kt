@@ -10,8 +10,10 @@ import org.jetbrains.exposed.sql.ResultRow
 data class Project(
     val id: Int = -1,
     val name: String = "",
-    @SerialName("is_visible")
-    val isVisible: Boolean?,
+    @SerialName("is_hidden")
+    val isHidden: Boolean?,
+    @SerialName("hiding_reason")
+    val hidingReason: String? = null,
     val owner: ProjectOwner = ProjectOwner()
 ) {
     @Serializable
@@ -24,9 +26,11 @@ data class Project(
         fun fromResultRow(resultRow: ResultRow): Project = Project(
             id = resultRow[ProjectsTable.id].value,
             name = resultRow[ProjectsTable.name],
-            isVisible = resultRow[ProjectsTable.isVisible],
+            isHidden = resultRow[ProjectsTable.isHidden],
+            hidingReason = resultRow[ProjectsTable.hidingReason],
             owner = ProjectOwner(
-                id = resultRow[ProjectsTable.ownerId], username = resultRow[UsersTable.username]
+                id = resultRow[ProjectsTable.ownerId],
+                username = resultRow[UsersTable.username]
             )
         )
     }

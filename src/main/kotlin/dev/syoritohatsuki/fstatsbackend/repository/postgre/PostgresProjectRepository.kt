@@ -42,12 +42,12 @@ object PostgresProjectRepository : ProjectRepository {
     }
 
     override suspend fun updateProjectData(projectId: Int, project: Project): Int {
-        if (project.name.isBlank() && project.isVisible == null) return FAILED
+        if (project.name.isBlank() && project.isHidden == null) return FAILED
 
         return dbQuery {
             ProjectsTable.update({ ProjectsTable.id eq projectId }) {
                 if (project.name.isNotBlank()) it[name] = project.name
-                if (project.isVisible != null) it[isVisible] = project.isVisible
+                if (project.isHidden != null) it[isHidden] = project.isHidden
             }
         }
     }

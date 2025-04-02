@@ -20,7 +20,7 @@ object PostgresFavoriteRepository : FavoriteRepository {
             .select(
                 ProjectsTable.id,
                 ProjectsTable.name,
-                ProjectsTable.isVisible,
+                ProjectsTable.isHidden,
                 ProjectsTable.ownerId,
                 UsersTable.username
             )

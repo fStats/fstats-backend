@@ -7,7 +7,6 @@ import dev.syoritohatsuki.fstatsbackend.mics.respondMessage
 import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresFavoriteRepository
 import dev.syoritohatsuki.fstatsbackend.repository.postgre.PostgresProjectRepository
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
@@ -88,7 +87,7 @@ fun Route.projectsRoute() {
                         )).getClaim("id").asInt()
                     ) return@patch call.respond(HttpStatusCode.Unauthorized)
 
-                    if (newProjectData.name.isBlank() && newProjectData.isVisible == null) return@patch call.respondMessage(
+                    if (newProjectData.name.isBlank() && newProjectData.isHidden == null) return@patch call.respondMessage(
                         HttpStatusCode.BadRequest, "No data provided for update"
                     )
 
@@ -98,7 +97,7 @@ fun Route.projectsRoute() {
 
                     when (PostgresProjectRepository.updateProjectData(id, newProjectData)) {
                         SUCCESS -> {
-                            PostgresProjectRepository.updateProjectData(id, Project(isVisible = true))
+                            PostgresProjectRepository.updateProjectData(id, Project(isHidden = true))
                             call.respondMessage(HttpStatusCode.Accepted, "Project data updated")
                         }
                         else -> call.respondMessage(HttpStatusCode.NoContent, "Project not found")
