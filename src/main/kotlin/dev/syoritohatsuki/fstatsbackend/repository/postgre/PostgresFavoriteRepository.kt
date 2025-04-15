@@ -21,6 +21,7 @@ object PostgresFavoriteRepository : FavoriteRepository {
                 ProjectsTable.id,
                 ProjectsTable.name,
                 ProjectsTable.isHidden,
+                ProjectsTable.hidingReason,
                 ProjectsTable.ownerId,
                 UsersTable.username
             )
