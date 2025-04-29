@@ -100,8 +100,8 @@ object ClickHouseMetricRepository : MetricRepository {
                 WITH metrics_data AS (
                     SELECT * FROM metrics
                     WHERE project_id = ?
-                        AND ts >= now() - INTERVAL 30 MINUTE
-                        AND server_side = ?
+                      AND ts >= now() - INTERVAL 30 MINUTE
+                      AND server_side = ?
                 )
                 
                 SELECT 'minecraft_version' AS metric_type,
@@ -113,9 +113,10 @@ object ClickHouseMetricRepository : MetricRepository {
                 UNION ALL
                 
                 SELECT 'online_mode' AS metric_type,
-                       CAST(online_mode AS TEXT) AS item, 
+                       multiIf(online_mode IS NULL, 'null', online_mode = 1, 'true', 'false') AS item,
                        COUNT(*) AS count
                 FROM metrics_data
+                WHERE server_side = 1
                 GROUP BY online_mode
                 
                 UNION ALL
@@ -145,15 +146,15 @@ object ClickHouseMetricRepository : MetricRepository {
                 UNION ALL
                 
                 SELECT 'fabric_api_version' AS metric_type,
-                       fabric_api_version AS item,
+                       ifNull(fabric_api_version, 'null') AS item,
                        COUNT(*) AS count
                 FROM metrics_data
                 GROUP BY fabric_api_version
                 
-                UNION ALL 
+                UNION ALL
                 
                 SELECT 'server_side' AS metric_type,
-                       CAST(server_side AS TEXT) AS item, 
+                       if(server_side = 1, 'true', 'false') AS item,
                        COUNT(*) AS count
                 FROM metrics_data
                 GROUP BY server_side;
