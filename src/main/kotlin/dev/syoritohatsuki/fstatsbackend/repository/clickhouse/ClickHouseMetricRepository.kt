@@ -113,10 +113,10 @@ object ClickHouseMetricRepository : MetricRepository {
                 UNION ALL
                 
                 SELECT 'online_mode' AS metric_type,
-                       multiIf(online_mode IS NULL, 'null', online_mode = 1, 'true', 'false') AS item,
+                       if(online_mode = 1, 'true', 'false') AS item,
                        COUNT(*) AS count
                 FROM metrics_data
-                WHERE server_side = 1
+                WHERE online_mode IS NOT NULL
                 GROUP BY online_mode
                 
                 UNION ALL
@@ -146,9 +146,10 @@ object ClickHouseMetricRepository : MetricRepository {
                 UNION ALL
                 
                 SELECT 'fabric_api_version' AS metric_type,
-                       ifNull(fabric_api_version, 'null') AS item,
+                       fabric_api_version AS item,
                        COUNT(*) AS count
                 FROM metrics_data
+                WHERE fabric_api_version IS NOT NULL
                 GROUP BY fabric_api_version
                 
                 UNION ALL
