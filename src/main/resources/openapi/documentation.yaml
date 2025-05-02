@@ -1,8 +1,8 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: fStats OpenAPI
   description: Official fStats API OpenAPI documentation
-  version: 2.0.0
+  version: v3
   contact:
     name: API Support on Discord
     url: https://discord.gg/pbwnMwnUD6
@@ -68,14 +68,14 @@ paths:
   /v2/metrics:
     post:
       deprecated: true
-      summary: Upload new metric data to server
+      summary: "Upload new metric data to server"
       tags:
         - Metric
       requestBody:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MetricsDepracated"
+              $ref: "#/components/schemas/MetricsDeprecated"
         required: true
       responses:
         201:
@@ -90,15 +90,9 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-        401:
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Message"
   /v3/metrics:
     post:
-      summary: Upload new metric data to server
+      summary: "Upload new metric data to server"
       tags:
         - Metric
       requestBody:
@@ -120,47 +114,36 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-        401:
-          description: "Unauthorized"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Message"
-  /v3/metrics/{id}/pie:
-    get:
-      summary: Get last 30 minute data for Pie Chart
-      tags:
-        - Metric
-      parameters:
-        - name: "id"
-          in: "path"
-          required: true
-          schema:
-            type: "integer"
-      responses:
-        200:
-          description: "OK"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PieMetric"
-        400:
-          description: "Bad Request"
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Message"
   /v3/metrics/{id}/line:
     get:
-      summary: Get year old data for Timeline Chart
+      summary: "Get data in time-range for Timeline Chart"
+      description: "Data is compressed using [delta compression](https://en.wikipedia.org/wiki/Delta_encoding)"
       tags:
         - Metric
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "integer"
+            type: integer
+            minimum: 1
+        - name: "from"
+          in: query
+          schema:
+            type: integer
+            format: int64
+            minimum: 0
+        - name: "to"
+          in: query
+          schema:
+            type: integer
+            format: int64
+            minimum: 1
+        - name: "server_side"
+          in: query
+          schema:
+            type: boolean
+            default: true
       responses:
         200:
           description: "OK"
@@ -174,9 +157,39 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
+  /v3/metrics/{id}/pie:
+    get:
+      summary: "Get last 30 minute data for Pie Chart"
+      tags:
+        - Metric
+      parameters:
+        - name: "id"
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+        - name: "server_side"
+          in: query
+          schema:
+            type: boolean
+            default: true
+      responses:
+        200:
+          description: "OK"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PieMetric"
+        400:
+          description: "Bad Request"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Message"
   /v3/projects:
     get:
-      summary: Get list of all exist projects
+      summary: "Get list of all exist projects"
       tags:
         - Project
       responses:
@@ -185,7 +198,7 @@ paths:
           content:
             application/json:
               schema:
-                type: "array"
+                type: array
                 items:
                   $ref: "#/components/schemas/Project"
         400:
@@ -195,7 +208,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/Message"
     post:
-      summary: Create new project
+      summary: "Create new project"
       security:
         - bearerAuth: [ ]
       tags:
@@ -227,15 +240,16 @@ paths:
                 $ref: "#/components/schemas/Message"
   /v3/projects/{id}:
     get:
-      summary: Get specify project by ID
+      summary: "Get specify project by ID"
       tags:
         - Project
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "integer"
+            type: integer
+            minimum: 1
       responses:
         200:
           description: "OK"
@@ -249,18 +263,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-    delete:
-      summary: Delete specify project
+    patch:
+      summary: "Update project info"
       tags:
         - Project
       security:
         - bearerAuth: [ ]
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "integer"
+            type: integer
+            minimum: 1
       responses:
         202:
           description: "Accepted"
@@ -286,18 +301,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-    patch:
-      summary: Update project info
+    delete:
+      summary: "Delete specify project"
       tags:
         - Project
       security:
         - bearerAuth: [ ]
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "integer"
+            type: integer
+            minimum: 1
       responses:
         202:
           description: "Accepted"
@@ -325,17 +341,18 @@ paths:
                 $ref: "#/components/schemas/Message"
   /v3/projects/{id}/favorite:
     post:
-      summary: Added project to user favorites
+      summary: "Added project to user favorites"
       security:
         - bearerAuth: [ ]
       tags:
         - Favorite
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "integer"
+            type: integer
+            minimum: 1
       responses:
         202:
           description: "Accepted"
@@ -356,17 +373,18 @@ paths:
               schema:
                 $ref: "#/components/schemas/Message"
     delete:
-      summary: Remove project to user favorites
+      summary: "Remove project to user favorites"
       tags:
         - Favorite
       security:
         - bearerAuth: [ ]
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "integer"
+            type: integer
+            minimum: 1
       responses:
         202:
           description: "Accepted"
@@ -387,8 +405,8 @@ paths:
               schema:
                 $ref: "#/components/schemas/Message"
   /v3/users:
-    delete:
-      summary: Delete specify user from database with all project
+    patch:
+      summary: "Update user data"
       security:
         - bearerAuth: [ ]
       tags:
@@ -412,8 +430,8 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Message"
-    patch:
-      summary: Update user data
+    delete:
+      summary: "Delete specify user from database with all project"
       security:
         - bearerAuth: [ ]
       tags:
@@ -439,15 +457,16 @@ paths:
                 $ref: "#/components/schemas/Message"
   /v3/users/{id}:
     get:
-      summary: Get specify user by ID
+      summary: "Get specify user by ID"
       tags:
         - User
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "integer"
+            type: integer
+            minimum: 1
       responses:
         200:
           description: "OK"
@@ -469,24 +488,25 @@ paths:
                 $ref: "#/components/schemas/User"
   /v3/users/{id}/favorite:
     get:
-      summary: Get projects list that user marked as favorite
+      summary: "Get projects list that user marked as favorite"
       security:
         - bearerAuth: [ ]
       tags:
         - Favorite
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "string"
+            type: integer
+            minimum: 1
       responses:
         200:
           description: "OK"
           content:
             application/json:
               schema:
-                type: "array"
+                type: array
                 items:
                   $ref: "#/components/schemas/Project"
         401:
@@ -497,22 +517,23 @@ paths:
                 $ref: "#/components/schemas/Message"
   /v3/users/{id}/projects:
     get:
-      summary: Get projects list that user own
+      summary: "Get projects list that user own"
       tags:
         - User
       parameters:
         - name: "id"
-          in: "path"
+          in: path
           required: true
           schema:
-            type: "integer"
+            type: integer
+            minimum: 1
       responses:
         200:
           description: "OK"
           content:
             application/json:
               schema:
-                type: "array"
+                type: array
                 items:
                   $ref: "#/components/schemas/Project"
         400:
@@ -535,9 +556,11 @@ components:
           type: integer
         name:
           type: string
-        isVisible:
+        isHidden:
           type: boolean
-          default: true
+          default: false
+        hidingReason:
+          type: [ string, "null" ]
         owner:
           $ref: "#/components/schemas/User"
     User:
@@ -557,8 +580,6 @@ components:
     PieMetric:
       type: object
       properties:
-        project:
-          $ref: "#/components/schemas/Project"
         metric_pie:
           type: object
           additionalProperties:
@@ -576,7 +597,7 @@ components:
           type: array
           items:
             type: integer
-    MetricsDepracated:
+    MetricsDeprecated:
       type: object
       deprecated: true
       properties:
@@ -586,15 +607,6 @@ components:
             type: string
         metric:
           $ref: '#/components/schemas/MetricDeprecated'
-    Metrics:
-      type: object
-      properties:
-        projectIds:
-          type: object
-          additionalProperties:
-            type: string
-        metric:
-          $ref: '#/components/schemas/Metric'
     MetricDeprecated:
       type: object
       deprecated: true
@@ -616,6 +628,15 @@ components:
           type: string
         fabricApiVersion:
           type: string
+    Metrics:
+      type: object
+      properties:
+        projectIds:
+          type: object
+          additionalProperties:
+            type: string
+        metric:
+          $ref: '#/components/schemas/Metric'
     Metric:
       type: object
       properties:
@@ -627,7 +648,6 @@ components:
           type: string
         isOnlineMode:
           type: boolean
-          nullable: true
         modVersion:
           type: string
         os:
@@ -636,8 +656,6 @@ components:
         location:
           type: string
         fabricApiVersion:
-          type: string
-          nullable: true
+          type: [ string, "null" ]
         serverSide:
           type: boolean
-          nullable: true
