@@ -18,8 +18,8 @@ fun Route.metricsRoute() {
                     HttpStatusCode.BadRequest, "Incorrect project ID"
                 )
 
-                val from = call.parameters["from"]?.toLongOrNull()
-                val to = call.parameters["to"]?.toLongOrNull() ?: Clock.System.now().toEpochMilliseconds()
+                val from = call.queryParameters["from"]?.toLongOrNull()
+                val to = call.queryParameters["to"]?.toLongOrNull() ?: Clock.System.now().toEpochMilliseconds()
 
                 val serverSide = call.request.queryParameters["server_side"]?.toBooleanStrictOrNull() ?: true
 
