@@ -18,19 +18,6 @@ fun Route.projectsRoute() {
         get {
             call.respond(PostgresProjectRepository.getAll())
         }
-
-        get("{id}") {
-            val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
-                HttpStatusCode.BadRequest, "Project ID must be number"
-            )
-
-            val project = PostgresProjectRepository.getById(id) ?: return@get call.respondMessage(
-                HttpStatusCode.BadRequest, "Project not found"
-            )
-
-            call.respond(project)
-        }
-
         authenticate {
             post {
                 val project = call.receive<Project>()
@@ -50,27 +37,21 @@ fun Route.projectsRoute() {
                     else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
                 }
             }
+        }
 
-            route("{id}") {
-                delete {
-                    val id = call.parameters["id"]?.toIntOrNull() ?: return@delete call.respondMessage(
-                        HttpStatusCode.BadRequest, "Incorrect project ID"
-                    )
+        route("{id}") {
+            get {
+                val id = call.parameters["id"]?.toIntOrNull() ?: return@get call.respondMessage(
+                    HttpStatusCode.BadRequest, "Project ID must be number"
+                )
 
-                    val project = PostgresProjectRepository.getById(id) ?: return@delete call.respondMessage(
-                        HttpStatusCode.NoContent, "Project not found"
-                    )
+                val project = PostgresProjectRepository.getById(id) ?: return@get call.respondMessage(
+                    HttpStatusCode.BadRequest, "Project not found"
+                )
 
-                    if (project.owner.id != (call.principal<JWTPrincipal>()?.payload ?: return@delete call.respond(
-                            HttpStatusCode.Unauthorized
-                        )).getClaim("id").asInt()
-                    ) return@delete call.respond(HttpStatusCode.Unauthorized)
-
-                    when (PostgresProjectRepository.deleteById(project.id)) {
-                        SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project deleted")
-                        else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
-                    }
-                }
+                call.respond(project)
+            }
+            authenticate {
                 patch {
                     val id = call.parameters["id"]?.toIntOrNull() ?: return@patch call.respondMessage(
                         HttpStatusCode.BadRequest, "Incorrect project ID"
@@ -100,32 +81,54 @@ fun Route.projectsRoute() {
                             PostgresProjectRepository.updateProjectData(id, Project(isHidden = true))
                             call.respondMessage(HttpStatusCode.Accepted, "Project data updated")
                         }
+
                         else -> call.respondMessage(HttpStatusCode.NoContent, "Project not found")
                     }
                 }
-                post("favorite") {
-                    val projectId = call.parameters["id"]?.toInt() ?: return@post call.respondMessage(
-                        HttpStatusCode.NoContent, "Incorrect project ID"
+                delete {
+                    val id = call.parameters["id"]?.toIntOrNull() ?: return@delete call.respondMessage(
+                        HttpStatusCode.BadRequest, "Incorrect project ID"
                     )
 
-                    val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+                    val project = PostgresProjectRepository.getById(id) ?: return@delete call.respondMessage(
+                        HttpStatusCode.NoContent, "Project not found"
+                    )
 
-                    when (PostgresFavoriteRepository.addProjectToFavorites(userId, projectId)) {
-                        SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project added to favorites")
-                        else -> call.respondMessage(HttpStatusCode.NoContent, "Cant add project to favorites")
+                    if (project.owner.id != (call.principal<JWTPrincipal>()?.payload ?: return@delete call.respond(
+                            HttpStatusCode.Unauthorized
+                        )).getClaim("id").asInt()
+                    ) return@delete call.respond(HttpStatusCode.Unauthorized)
+
+                    when (PostgresProjectRepository.deleteById(project.id)) {
+                        SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project deleted")
+                        else -> call.respondMessage(HttpStatusCode.BadRequest, "Something went wrong")
                     }
                 }
-                delete("favorite") {
+                route("favorite") {
+                    post {
+                        val projectId = call.parameters["id"]?.toInt() ?: return@post call.respondMessage(
+                            HttpStatusCode.NoContent, "Incorrect project ID"
+                        )
 
-                    val projectId = call.parameters["id"]?.toInt() ?: return@delete call.respondMessage(
-                        HttpStatusCode.NoContent, "Incorrect project ID"
-                    )
+                        val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
 
-                    val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+                        when (PostgresFavoriteRepository.addProjectToFavorites(userId, projectId)) {
+                            SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project added to favorites")
+                            else -> call.respondMessage(HttpStatusCode.NoContent, "Cant add project to favorites")
+                        }
+                    }
+                    delete {
 
-                    when (PostgresFavoriteRepository.removeProjectFromFavorites(userId, projectId)) {
-                        SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project removed from favorites")
-                        else -> call.respondMessage(HttpStatusCode.NoContent, "Cant remove project from favorites")
+                        val projectId = call.parameters["id"]?.toInt() ?: return@delete call.respondMessage(
+                            HttpStatusCode.NoContent, "Incorrect project ID"
+                        )
+
+                        val userId = call.principal<JWTPrincipal>()!!.payload.getClaim("id").asInt()
+
+                        when (PostgresFavoriteRepository.removeProjectFromFavorites(userId, projectId)) {
+                            SUCCESS -> call.respondMessage(HttpStatusCode.Accepted, "Project removed from favorites")
+                            else -> call.respondMessage(HttpStatusCode.NoContent, "Cant remove project from favorites")
+                        }
                     }
                 }
             }
