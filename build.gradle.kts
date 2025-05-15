@@ -73,6 +73,10 @@ tasks {
             expand("version" to project.version)
         }
     }
+
+    test {
+        useJUnitPlatform()
+    }
 }
 
 dependencies {
@@ -110,4 +114,17 @@ dependencies {
 
     // Broker
     implementation("org.apache.kafka:kafka-clients:3.9.0")
+
+    // Tests
+    testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.10")
+
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
+    testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+
+    testImplementation("org.junit.platform:junit-platform-suite:1.13.0-M3")
+
+    testImplementation("org.testcontainers:testcontainers:1.21.0")
+    testImplementation("org.testcontainers:kafka:1.21.0")
+    testImplementation("org.testcontainers:postgresql:1.21.0")
+    testImplementation("org.testcontainers:clickhouse:1.21.0")
 }

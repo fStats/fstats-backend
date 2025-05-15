@@ -11,7 +11,7 @@ data class Project(
     val id: Int = -1,
     val name: String = "",
     @SerialName("is_hidden")
-    val isHidden: Boolean?,
+    val isHidden: Boolean? = false,
     @SerialName("hiding_reason")
     val hidingReason: String? = null,
     val owner: ProjectOwner = ProjectOwner()

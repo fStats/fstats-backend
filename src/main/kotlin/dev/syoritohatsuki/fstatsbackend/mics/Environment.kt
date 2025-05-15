@@ -28,7 +28,8 @@ val DISKS_COUNT by environment(1)
 val CPU_CORES by environment(Runtime.getRuntime().availableProcessors())
 
 inline fun <reified T> environment(defaultValue: T): ReadOnlyProperty<T?, T> = ReadOnlyProperty { _, property ->
-    val envValue = dotenv { ignoreIfMissing = true }[property.name] ?: System.getenv(property.name)
+    val envValue = System.getProperty(property.name) ?: dotenv { ignoreIfMissing = true }[property.name]
+    ?: System.getenv(property.name)
 
     when (T::class) {
         String::class -> envValue ?: defaultValue
