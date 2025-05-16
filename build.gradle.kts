@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "dev.syoritohatsuki"
-version = "2025.5.1"
+version = "2025.5.2"
 
 application {
     mainClass.set("$group.fstatsbackend.ApplicationKt")
