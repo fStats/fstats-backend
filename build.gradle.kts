@@ -75,7 +75,10 @@ tasks {
     }
 
     test {
-        useJUnitPlatform()
+        useJUnitPlatform {
+            excludeEngines("junit-jupiter")
+            includeEngines("junit-platform-suite")
+        }
     }
 }
 
