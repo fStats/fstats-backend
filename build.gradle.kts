@@ -83,6 +83,9 @@ tasks {
 }
 
 dependencies {
+    // Kotlin
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+
     implementation("de.nycode:bcrypt:2.3.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
