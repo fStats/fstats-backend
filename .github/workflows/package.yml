@@ -50,8 +50,9 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           TESTCONTAINERS_STARTUP_TIMEOUT: "120000"
           JWT_SECRET: "DummyJWT"
-        run: ./gradlew publishImage \
-          -DDOCKER_USERNAME=$DOCKER_USERNAME \
-          -DDOCKER_PASSWORD=$DOCKER_PASSWORD \
-          -DDOCKER_HOSTNAME=$DOCKER_HOSTNAME \
-          --info
+        run: |
+          ./gradlew publishImage \
+            -DDOCKER_USERNAME=$DOCKER_USERNAME \
+            -DDOCKER_PASSWORD=$DOCKER_PASSWORD \
+            -DDOCKER_HOSTNAME=$DOCKER_HOSTNAME \
+            --info
