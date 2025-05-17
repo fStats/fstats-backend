@@ -4,23 +4,17 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Verify Docker is available
-        run: |
-          echo "Docker info:"
-          docker info
-
-      - name: Set up JDK 21
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: '21'
+          distribution: 'temurin'
+          java-version: 21
 
       - name: Cache Gradle dependencies
         uses: actions/cache@v3
@@ -30,28 +24,32 @@ jobs:
             ~/.gradle/wrapper
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
 
-      - name: Create JWT_SECRET
-        run: echo "JWT_SECRET=DummyJWT" >> $GITHUB_ENV
+      - name: Extract version from Gradle
+        id: get_version
+        run: |
+          VERSION=$(grep -oP 'version\s*=\s*"\K[^"]+' build.gradle.kts)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Run tests (with Testcontainers)
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Build fatJar
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
           TESTCONTAINERS_RYUK_DISABLED: "true"
           TESTCONTAINERS_STARTUP_TIMEOUT: "120000"
-        run: |
-          ./gradlew clean build --info
+          JWT_SECRET: "DummyJWT"
+        run: ./gradlew clean build
 
-      - name: Extract version
-        id: get_version
-        run: |
-          echo "version=$(grep -oP 'version\\s*=\\s*\"\\K[^\"]+' build.gradle.kts)" >> $GITHUB_OUTPUT
-
-      - name: Publish JAR as Release
-        if: success() && github.event_name == 'push'
+      - name: Upload to GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.get_version.outputs.version }}
           name: Release ${{ steps.get_version.outputs.version }}
-          files: build/libs/*.jar
+          tag_name: ${{ steps.get_version.outputs.version }}
+          body: |
+            Automatic release for version `${{ steps.get_version.outputs.version }}`
+          files: |
+            build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
