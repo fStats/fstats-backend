@@ -19,6 +19,14 @@ jobs:
           distribution: 'temurin'
           java-version: 21
 
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
+
       - name: Extract version from Gradle
         id: get_version
         run: |
@@ -30,6 +38,11 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build fatJar
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+          TESTCONTAINERS_STARTUP_TIMEOUT: "120000"
+          JWT_SECRET: "DummyJWT"
         run: ./gradlew clean build
 
       - name: Upload to GitHub Release
@@ -40,6 +53,6 @@ jobs:
           body: |
             Automatic release for version `${{ steps.get_version.outputs.version }}`
           files: |
-            build/libs/*.jar
+            build/libs/*${{ steps.get_version.outputs.version }}*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
