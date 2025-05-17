@@ -2,21 +2,17 @@ name: Manual Release JAR
 
 on:
   workflow_dispatch:
-    inputs:
-      testEnv:
-        description: "Run with test .env?"
-        required: false
-        default: "false"
-      skipTests:
-        description: "Skip tests?"
-        required: false
-        default: "false"
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check Docker availability
+        run: |
+          docker version
+          docker run hello-world
+
       - uses: actions/checkout@v4
 
       - name: Set up JDK
