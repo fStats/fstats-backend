@@ -37,7 +37,7 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Build fatJar
+      - name: Build Release
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
           TESTCONTAINERS_RYUK_DISABLED: "true"
