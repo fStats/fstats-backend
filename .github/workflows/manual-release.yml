@@ -31,7 +31,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
 
       - name: Create JWT_SECRET
-        run: echo "JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c32)" >> $GITHUB_ENV
+        run: echo "JWT_SECRET=DummyJWT" >> $GITHUB_ENV
 
       - name: Run tests (with Testcontainers)
         env:
