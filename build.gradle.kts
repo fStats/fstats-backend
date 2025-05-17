@@ -40,11 +40,25 @@ ktor {
         )
     }
     fatJar {
-        archiveFileName.set("$projectName.jar")
+        archiveFileName.set("${project.name}-${project.version}.jar")
     }
 }
 
 tasks {
+    jar {
+        enabled = false
+    }
+
+    named("startScripts") {
+        dependsOn("shadowJar")
+    }
+    named("distZip") {
+        dependsOn("shadowJar")
+    }
+    named("distTar") {
+        dependsOn("shadowJar")
+    }
+
     val cleanBuildDir by registering {
         doLast {
             delete(rootProject.layout.buildDirectory)
