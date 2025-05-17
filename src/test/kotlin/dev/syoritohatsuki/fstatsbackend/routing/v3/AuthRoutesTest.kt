@@ -27,6 +27,8 @@ class AuthRoutesTest {
             setBody(User(username = "User", password = "Pass1234"))
         }
 
+        println(response.body<Message<String>>().message)
+
         assertEquals(HttpStatusCode.Created, response.status)
         assertEquals("User created", response.body<Message<String>>().message)
     }
@@ -40,6 +42,8 @@ class AuthRoutesTest {
         val response = jsonClient().post("/v3/auth/login") {
             setBody(User(username = "User", password = "Pass1234"))
         }
+
+        println(response.body<Message<String>>().message)
 
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("token", response.body<Map<String, String>>().firstNotNullOf { it }.key)
