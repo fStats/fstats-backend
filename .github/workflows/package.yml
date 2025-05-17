@@ -1,0 +1,57 @@
+name: Manual Package Release
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  package-release:
+    runs-on: ubuntu-latest
+
+    env:
+      DOCKER_HOSTNAME: ghcr.io
+      DOCKER_USERNAME: ${{ github.actor }}
+      DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Cache Gradle dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*','**/gradle-wrapper.properties') }}
+
+      - name: Extract version from Gradle
+        id: get_version
+        run: |
+          VERSION=$(grep -oP 'version\s*=\s*"\K[^"]+' build.gradle.kts)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Publish Docker image to GHCR
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+          TESTCONTAINERS_STARTUP_TIMEOUT: "120000"
+          JWT_SECRET: "DummyJWT"
+        run: ./gradlew publishImage \
+          -DDOCKER_USERNAME=$DOCKER_USERNAME \
+          -DDOCKER_PASSWORD=$DOCKER_PASSWORD \
+          -DDOCKER_HOSTNAME=$DOCKER_HOSTNAME \
+          --info
