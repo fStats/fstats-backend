@@ -6,6 +6,7 @@ import dev.syoritohatsuki.fstatsbackend.fStatsModule
 import dev.syoritohatsuki.fstatsbackend.utils.jsonClient
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
@@ -27,7 +28,7 @@ class AuthRoutesTest {
             setBody(User(username = "User", password = "Pass1234"))
         }
 
-        println(response.body<Message<String>>().message)
+        println(response.bodyAsText())
 
         assertEquals(HttpStatusCode.Created, response.status)
         assertEquals("User created", response.body<Message<String>>().message)
@@ -43,7 +44,7 @@ class AuthRoutesTest {
             setBody(User(username = "User", password = "Pass1234"))
         }
 
-        println(response.body<Message<String>>().message)
+        println(response.bodyAsText())
 
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("token", response.body<Map<String, String>>().firstNotNullOf { it }.key)
