@@ -56,3 +56,17 @@ jobs:
             build/libs/*${{ steps.get_version.outputs.version }}*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Notify Discord
+        run: |
+          CHANGELOG=$(cat CHANGELOG.md)
+          MESSAGE="# fStats Backend - ${{ steps.get_version.outputs.version }}"$'\n'"\
+          $CHANGELOG"
+          
+          jq -n --arg content "$MESSAGE" '{content: $content}' > payload.json
+          
+          curl -H "Authorization: Bot ${{ secrets.DISCORD_BOT_TOKEN }}" \
+               -H "Content-Type: application/json" \
+               -X POST \
+               -d @payload.json \
+               "https://discord.com/api/v10/channels/${{ secrets.DISCORD_CHANNEL_ID }}/messages"
