@@ -9,9 +9,9 @@ import org.testcontainers.clickhouse.ClickHouseContainer
 
 object ClickHouse {
 
-    val container: ClickHouseContainer = ClickHouseContainer("clickhouse/clickhouse-server:25.3.2.39")
-        .withNetwork(Kafka.network)
-        .dependsOn(Kafka.container)
+    val container: ClickHouseContainer =
+        ClickHouseContainer("clickhouse/clickhouse-server:25.3.2.39").withNetwork(Kafka.network)
+            .dependsOn(Kafka.container)
 
     init {
         container.start()
@@ -80,17 +80,9 @@ object ClickHouse {
             """.trimIndent()
 
             @Language("ClickHouse") val createMaterializeMetricsQuery = """
-                CREATE MATERIALIZED VIEW metrics_mv TO metrics (
-                    `ts` DateTime,
-                    `project_id` UInt64,
-                    `minecraft_version` String,
-                    `online_mode` Nullable(Bool),
-                    `mod_version` String,
-                    `os` String,
-                    `location` String,
-                    `fabric_api_version` Nullable(String),
-                    `server_side` Nullable(UInt8)
-                ) AS SELECT toDateTime(timestampSeconds)        AS ts,
+                CREATE MATERIALIZED VIEW metrics_mv TO metrics AS
+                SELECT 
+                    toDateTime(timestampSeconds)                AS ts,
                     projectId                                   AS project_id,
                     minecraftVersion                            AS minecraft_version,
                     isOnlineMode                                AS online_mode,

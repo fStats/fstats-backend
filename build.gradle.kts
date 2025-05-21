@@ -133,8 +133,11 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
 
     // Broker
-    implementation("org.apache.kafka:kafka-clients:3.9.0")
     implementation("org.apache.kafka:kafka-clients:4.0.0")
+
+    // Metrics
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.15.0")
 
     // Tests
     testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.21")
