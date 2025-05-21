@@ -1,8 +1,10 @@
-name: Manual Package Release
+name: Package Container
 
 on:
+  workflow_dispatch:
+
   workflow_run:
-    workflows: [ "Release" ]
+    workflows: [ "Release JAR" ]
     types:
       - completed
 
