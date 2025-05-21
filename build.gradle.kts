@@ -1,9 +1,9 @@
 import io.ktor.plugin.features.*
 
 plugins {
-    kotlin("jvm") version "2.1.10"
-    kotlin("plugin.serialization") version "2.1.10"
-    id("io.ktor.plugin") version "3.1.1"
+    kotlin("jvm") version "2.1.21"
+    kotlin("plugin.serialization") version "2.1.21"
+    id("io.ktor.plugin") version "3.1.3"
 }
 
 group = "dev.syoritohatsuki"
@@ -104,7 +104,7 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
     // Ktor dependencies
-    val ktorVersion = "3.1.1"
+    val ktorVersion = "3.1.3"
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
     implementation("io.ktor:ktor-server-cors:$ktorVersion")
@@ -119,24 +119,25 @@ dependencies {
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
 
     // Logging dependencies
-    implementation("ch.qos.logback:logback-classic:1.5.17")
+    implementation("ch.qos.logback:logback-classic:1.5.18")
 
     // Database dependencies
-    implementation("com.clickhouse:clickhouse-jdbc:0.8.2")
+    implementation("com.clickhouse:clickhouse-jdbc:0.8.6")
     implementation("org.postgresql:postgresql:42.7.5")
-    implementation("com.zaxxer:HikariCP:6.2.1")
+    implementation("com.zaxxer:HikariCP:6.3.0")
 
     // Exposed dependencies
-    val exposedVersion = "0.60.0"
+    val exposedVersion = "0.61.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
 
     // Broker
     implementation("org.apache.kafka:kafka-clients:3.9.0")
+    implementation("org.apache.kafka:kafka-clients:4.0.0")
 
     // Tests
-    testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.10")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.21")
 
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
