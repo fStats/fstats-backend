@@ -7,12 +7,16 @@ import dev.syoritohatsuki.fstatsbackend.routing.v3.projectsRoute
 import dev.syoritohatsuki.fstatsbackend.routing.v3.usersRoute
 import io.ktor.server.application.*
 import io.ktor.server.plugins.swagger.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import dev.syoritohatsuki.fstatsbackend.routing.v2.metricsRoute as deprecatedMetricsRoute
 
 fun Application.configureRouting() {
     routing {
         indexRoute()
+        get("/metrics") {
+            call.respondText(appMicrometerRegistry.scrape())
+        }
         swaggerUI(path = "swagger", swaggerFile = "openapi/documentation.yaml")
         route("v2") {
             deprecatedMetricsRoute()

@@ -22,6 +22,7 @@ fun Application.fStatsModule() {
     configureCors()
     configureDatabase()
     configureLogging()
+    configureMetrics()
     configureRateLimit()
     configureRouting()
     configureSerialization()
