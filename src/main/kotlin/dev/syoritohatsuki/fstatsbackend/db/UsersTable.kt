@@ -1,6 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.db
 
-import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+
 
 object UsersTable : IntIdTable("users") {
     val username = text("username")

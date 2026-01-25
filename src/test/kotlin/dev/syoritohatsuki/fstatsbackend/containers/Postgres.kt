@@ -3,10 +3,10 @@ package dev.syoritohatsuki.fstatsbackend.containers
 import dev.syoritohatsuki.fstatsbackend.db.FavoritesTable
 import dev.syoritohatsuki.fstatsbackend.db.ProjectsTable
 import dev.syoritohatsuki.fstatsbackend.db.UsersTable
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SchemaUtils
-import org.jetbrains.exposed.sql.transactions.transaction
-import org.testcontainers.containers.PostgreSQLContainer
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 object Postgres {
 
@@ -26,7 +26,7 @@ object Postgres {
         System.setProperty("POSTGRES_PORT", postgresPort)
 
         transaction(
-            Database.Companion.connect(
+            Database.connect(
                 container.jdbcUrl, user = container.username, password = container.password
             )
         ) {

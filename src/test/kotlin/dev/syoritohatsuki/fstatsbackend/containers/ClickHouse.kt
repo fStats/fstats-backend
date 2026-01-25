@@ -20,11 +20,16 @@ object ClickHouse {
             container.jdbcUrl
         )?.destructured ?: throw Exception("Can't destruct ClickHouse URI")
 
+
         System.setProperty("CLICKHOUSE_USER", container.username)
         System.setProperty("CLICKHOUSE_PASS", container.password)
         System.setProperty("CLICKHOUSE_DB", clickHouseDatabase)
         System.setProperty("CLICKHOUSE_HOST", clickHouseHost)
         System.setProperty("CLICKHOUSE_PORT", clickHousePort)
+
+        println(container.jdbcUrl)
+        println(container.username)
+        println(container.password)
 
         HikariDataSource(HikariConfig().apply {
             driverClassName = "com.clickhouse.jdbc.Driver"
@@ -32,8 +37,6 @@ object ClickHouse {
             username = container.username
             password = container.password
             maximumPoolSize = CPU_CORES + DISKS_COUNT
-            transactionIsolation = "TRANSACTION_REPEATABLE_READ"
-            addDataSourceProperty("jdbc_ignore_unsupported_values", true)
             validate()
         }).connection.use { conn ->
             @Language("ClickHouse") val createMetricsQuery = """

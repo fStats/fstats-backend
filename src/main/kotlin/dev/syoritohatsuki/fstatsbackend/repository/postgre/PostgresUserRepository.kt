@@ -7,11 +7,11 @@ import dev.syoritohatsuki.fstatsbackend.mics.FAILED
 import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.dbQuery
 import dev.syoritohatsuki.fstatsbackend.repository.UserRepository
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.update
 
 object PostgresUserRepository : UserRepository {
     override suspend fun create(user: User): Int = dbQuery {

@@ -8,11 +8,12 @@ import dev.syoritohatsuki.fstatsbackend.mics.FAILED
 import dev.syoritohatsuki.fstatsbackend.mics.SUCCESS
 import dev.syoritohatsuki.fstatsbackend.mics.dbQuery
 import dev.syoritohatsuki.fstatsbackend.repository.FavoriteRepository
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.select
 
 object PostgresFavoriteRepository : FavoriteRepository {
     override suspend fun getUserFavorites(userId: Int): List<Project> = dbQuery {

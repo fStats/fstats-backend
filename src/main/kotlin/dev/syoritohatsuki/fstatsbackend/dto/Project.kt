@@ -4,7 +4,7 @@ import dev.syoritohatsuki.fstatsbackend.db.ProjectsTable
 import dev.syoritohatsuki.fstatsbackend.db.UsersTable
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.v1.core.ResultRow
 
 @Serializable
 data class Project(

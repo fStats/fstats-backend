@@ -1,13 +1,13 @@
 import io.ktor.plugin.features.*
 
 plugins {
-    kotlin("jvm") version "2.1.21"
-    kotlin("plugin.serialization") version "2.1.21"
-    id("io.ktor.plugin") version "3.1.3"
+    kotlin("jvm") version "2.3.0"
+    kotlin("plugin.serialization") version "2.3.0"
+    id("io.ktor.plugin") version "3.4.0"
 }
 
 group = "dev.syoritohatsuki"
-version = "2025.5.3"
+version = "2026.1.1"
 
 application {
     mainClass.set("$group.fstatsbackend.ApplicationKt")
@@ -98,13 +98,13 @@ tasks {
 
 dependencies {
     // Kotlin
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.10.0")
 
     implementation("de.nycode:bcrypt:2.3.0")
     implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
 
     // Ktor dependencies
-    val ktorVersion = "3.1.3"
+    val ktorVersion = "3.4.0"
     implementation("io.ktor:ktor-server-auth:$ktorVersion")
     implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
     implementation("io.ktor:ktor-server-cors:$ktorVersion")
@@ -119,36 +119,37 @@ dependencies {
     implementation("io.ktor:ktor-server-swagger:$ktorVersion")
 
     // Logging dependencies
-    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-classic:1.5.25")
 
     // Database dependencies
-    implementation("com.clickhouse:clickhouse-jdbc:0.8.6")
-    implementation("org.postgresql:postgresql:42.7.5")
-    implementation("com.zaxxer:HikariCP:6.3.0")
+    implementation("at.yawk.lz4:lz4-java:1.10.3")
+    implementation("com.clickhouse:clickhouse-jdbc:0.9.6")
+    implementation("org.postgresql:postgresql:42.7.9")
+    implementation("com.zaxxer:HikariCP:7.0.2")
 
     // Exposed dependencies
-    val exposedVersion = "0.61.0"
+    val exposedVersion = "1.0.0"
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
 
     // Broker
-    implementation("org.apache.kafka:kafka-clients:4.0.0")
+    implementation("org.apache.kafka:kafka-clients:4.1.1")
 
     // Metrics
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
-    implementation("io.micrometer:micrometer-registry-prometheus:1.15.0")
+    implementation("io.micrometer:micrometer-registry-prometheus:1.17.0-M1")
 
     // Tests
-    testImplementation("org.jetbrains.kotlin:kotlin-test:2.1.21")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:2.3.0")
 
     testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 
-    testImplementation("org.junit.platform:junit-platform-suite:1.13.0-M3")
+    testImplementation("org.junit.platform:junit-platform-suite:6.1.0-M1")
 
-    testImplementation("org.testcontainers:testcontainers:1.21.0")
-    testImplementation("org.testcontainers:kafka:1.21.0")
-    testImplementation("org.testcontainers:postgresql:1.21.0")
-    testImplementation("org.testcontainers:clickhouse:1.21.0")
+    testImplementation("org.testcontainers:testcontainers:2.0.3")
+    testImplementation("org.testcontainers:testcontainers-kafka:2.0.1")
+    testImplementation("org.testcontainers:testcontainers-postgresql:2.0.1")
+    testImplementation("org.testcontainers:testcontainers-clickhouse:2.0.1")
 }

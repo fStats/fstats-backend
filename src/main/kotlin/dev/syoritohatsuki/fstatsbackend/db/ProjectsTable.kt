@@ -1,7 +1,7 @@
 package dev.syoritohatsuki.fstatsbackend.db
 
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.ReferenceOption
+import org.jetbrains.exposed.v1.core.ReferenceOption
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 
 object ProjectsTable : IntIdTable("projects") {
     val name = text("name")
