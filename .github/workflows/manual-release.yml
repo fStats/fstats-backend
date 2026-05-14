@@ -26,6 +26,10 @@ jobs:
     runs-on: ${{ inputs.runner }}
 
     steps:
+      - name: Runner info
+        run: |
+          echo "Runner: ${{ runner.os }}"
+
       - uses: actions/checkout@v4
 
       - name: Set up JDK
