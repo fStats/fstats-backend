@@ -80,6 +80,9 @@ jobs:
           TESTCONTAINERS_RYUK_DISABLED: "true"
           TESTCONTAINERS_STARTUP_TIMEOUT: "120000"
           JWT_SECRET: "DummyJWT"
+          DOCKER_HOSTNAME: ghcr.io
+          DOCKER_USERNAME: ${{ github.actor }}
+          DOCKER_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
         run: |
           ./gradlew publishImage \
             -DDOCKER_USERNAME=$DOCKER_USERNAME \
