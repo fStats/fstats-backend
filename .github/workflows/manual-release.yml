@@ -10,6 +10,16 @@ on:
           - ubuntu-24.04-arm
         default: ubuntu-latest
         description: 'Runner to use'
+      github-release:
+        description: "Create GitHub release"
+        required: false
+        default: true
+        type: boolean
+      github-package-registry:
+        description: "Publish to GitHub Package Registry"
+        required: false
+        default: true
+        type: boolean
 
 jobs:
   release:
@@ -43,6 +53,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build Release
+        if: inputs.github-release == true
         env:
           DOCKER_HOST: unix:///var/run/docker.sock
           TESTCONTAINERS_RYUK_DISABLED: "true"
@@ -61,3 +72,17 @@ jobs:
             build/libs/*${{ steps.get_version.outputs.version }}*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish Docker image to GHCR
+        if: inputs.github-package-registry == true
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+          TESTCONTAINERS_STARTUP_TIMEOUT: "120000"
+          JWT_SECRET: "DummyJWT"
+        run: |
+          ./gradlew publishImage \
+            -DDOCKER_USERNAME=$DOCKER_USERNAME \
+            -DDOCKER_PASSWORD=$DOCKER_PASSWORD \
+            -DDOCKER_HOSTNAME=$DOCKER_HOSTNAME \
+            --info
